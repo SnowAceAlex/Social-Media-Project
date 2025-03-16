@@ -1,7 +1,10 @@
+import LogInPage from "./pages/LogInPage";
+
+
 function App() {
   return (
     <>
-      <h1 class="text-5xl font-bold">Hello world!</h1>
+      <LogInPage/>
     </>
   );
 }
