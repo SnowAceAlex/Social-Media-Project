@@ -78,7 +78,7 @@ import { registerUser } from '../../services/authService';
         <motion.div
             animate={{
                 top: showRegister ? "35%" : "91%",
-                height: showRegister ? "30rem" : "5rem",
+                height: showRegister ? (error ? "32rem" : "30rem") : "5rem",
                 width: showRegister ? "25rem" : "20rem",
             }}
             transition={{ type: "tween", duration: 0.5, ease: "easeInOut" }}
@@ -89,7 +89,7 @@ import { registerUser } from '../../services/authService';
             >
             {/* Toggle Form */}
             <div
-                onClick={() => (setShowRegister(!showRegister), setFrameRegister(1))}
+                onClick={() => (setShowRegister(!showRegister), setFrameRegister(1), setError(""))}
                 className="flex flex-col justify-center items-center cursor-pointer"
             >
                 {showRegister ? <FaAngleDown /> : <FaAngleUp />}
@@ -258,7 +258,7 @@ import { registerUser } from '../../services/authService';
                         </>
                         )}
                         {/*ERROR */}
-                        {error && <p className="text-red-500">{error}</p>}
+                        {error && <p className="text-red-500 w-full p-2 rounded-lg text-center bg-black/70">{error}</p>}
                     </div>
                 </motion.div>
                 </div>
