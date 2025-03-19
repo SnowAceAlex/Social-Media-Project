@@ -258,7 +258,7 @@ import { registerUser } from '../../services/authService';
                         </>
                         )}
                         {/*ERROR */}
-                        {error && <p className="text-red-500 w-full p-2 rounded-lg text-center bg-black/70">{error}</p>}
+                        {error && <p className="text-red-500 w-full p-2 rounded-lg text-center bg-black/60">{error}</p>}
                     </div>
                 </motion.div>
                 </div>
