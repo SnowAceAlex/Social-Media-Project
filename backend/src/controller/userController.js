@@ -1,13 +1,26 @@
 import { pool } from "../config/pool.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 // Register user
 export const registerUser = async (req, res) => {
   const { username, email, password, full_name, bio, profile_pic_url } =
     req.body;
+
+  console.log("Received data:", req.body);
+
+  if (!username || !email || !password) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
   try {
+    // hash password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     const result = await pool.query(
       "INSERT INTO users (username, email, password, full_name, bio, profile_pic_url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, username, email, full_name, bio, profile_pic_url, created_at",
-      [username, email, password, full_name, bio, profile_pic_url]
+      [username, email, hashedPassword, full_name, bio, profile_pic_url]
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -19,14 +32,52 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await pool.query(
-      "SELECT * FROM users WHERE email = $1 AND password = $2",
-      [email, password]
+    const userResult = await pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
     );
-    if (user.rows.length === 0)
+
+    if (userResult.rows.length === 0)
       return res.status(400).json({ error: "Invalid credentials" });
-    res.json(user.rows[0]);
+
+
+    const user = userResult.rows[0];
+
+    // compare input password with hashed password in db
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
+
+    // create JWT token
+    const payload = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
+    console.log("Generated JWT Token:", token);
+
+    // hide password in response
+    const safeUser = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      full_name: user.full_name,
+      bio: user.bio,
+      profile_pic_url: user.profile_pic_url,
+      created_at: user.created_at,
+    };
+
+    // returnn token and user
+    res.status(200).json({
+      token,
+      user: safeUser,
+    });
+
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({ error: error.message });
   }
 };

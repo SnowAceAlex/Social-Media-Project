@@ -28,4 +28,11 @@ app.use("/users", userRoute);
 
 app.listen(PORT, async () => {
   console.log("Server is running on port " + PORT);
+
+  try {
+    const { rows } = await pool.query("SELECT NOW()");
+    console.log("DB connected, current time:", rows[0].now);
+  } catch (err) {
+    console.error("DB connection error on startup:", err.message);
+  }
 });
