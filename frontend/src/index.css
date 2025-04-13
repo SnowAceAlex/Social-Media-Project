@@ -5,3 +5,16 @@
 .font-norican-regular {
     font-family: "Norican", cursive;
 }
+
+:root{
+    --bg-color-light: #f9f9f9;
+    --hover-bg-color-light: #EAEAEA;
+}
+
+.bg-color-light {
+    background-color: var(--bg-color-light);
+}
+
+.hover-bg-color-light:hover {
+    background-color: var(--hover-bg-color-light);
+}
