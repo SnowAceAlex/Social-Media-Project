@@ -14,7 +14,8 @@ function Layout() {
                 {/* Sidebar */}
                 <Sidebar/>
                 {/* Main */}
-                <div className="flex-1 md:ml-[16.67%] mt-16 mb-14 md:mt-0 md:mb-0 min-h-screen">
+                <div className="flex-1 md:ml-[16.67%] mt-16 mb-14 md:mt-0 md:mb-0 min-h-screen
+                                flex flex-col justify-center">
                     {/* <div className="h-28 "></div>
                     <div className="h-[42rem]"></div>
                     <div className="h-[42rem] "></div>
