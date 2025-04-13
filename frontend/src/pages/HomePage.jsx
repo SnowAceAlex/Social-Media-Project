@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
+import PostCard from "../components/PostCard";
 
 function HomePage() {
     return (
     <>
-        <div className="h-28"></div>
-        <div className="h-[42rem]"></div>
-        <div className="h-[42rem]"></div>
-        <div className="h-[42rem]"></div>
+        <div className="h-28 border"></div>
+        <PostCard/>
+        <PostCard/> 
+        <PostCard/>
     </>
     );
 }
