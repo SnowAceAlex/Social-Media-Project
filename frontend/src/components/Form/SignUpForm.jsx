@@ -36,30 +36,28 @@ import { registerUser } from '../../services/authService';
         const handleSubmit = async () => {
             setLoading(true);
             setError("");
-          
-            // So sánh mật khẩu
+    
             if (formData.password !== formData.confirmPassword) {
-              setError("Passwords do not match");
-              setLoading(false);
-              return;
+                setError("Passwords do not match");
+                setLoading(false);
+                return;
             }
-          
+        
             try {
-              // Tạo bản sao không có confirmPassword
-              const { confirmPassword, ...dataToSend } = formData;
-          
-              console.log("📤 Gửi dữ liệu đăng ký:", dataToSend);
-              const response = await registerUser(dataToSend);
-              console.log("✅ Phản hồi từ server:", response);
-          
-              alert("Đăng ký thành công!");
+                const { confirmPassword, ...dataToSend } = formData;
+                
+                console.log("📤 Gửi dữ liệu đăng ký:", dataToSend);
+                const response = await registerUser(dataToSend);
+                console.log("✅ Phản hồi từ server:", response);
+
+                alert("Đăng ký thành công!");
             } catch (err) {
-              setError(err.message);
-              console.error("❌ Lỗi đăng ký:", err);
+                setError(err.message);
+                console.error("❌ Lỗi đăng ký:", err);
             } finally {
-              setLoading(false);
+                setLoading(false);
             }
-          };
+        };
 
         const handleImageUpload = (e) => {
             const file = e.target.files[0];
