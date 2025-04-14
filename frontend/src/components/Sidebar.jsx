@@ -6,11 +6,14 @@ import { useNavigate } from 'react-router-dom';
 import { RiMenuFill } from "react-icons/ri";
 import { TbSettings2 } from "react-icons/tb";
 import { MdOutlineDarkMode } from "react-icons/md";
+import { useTheme } from '../contexts/ThemeContext';
 
 function Sidebar() {
     const navigate = useNavigate();
     const [showMore, setShowMore] =useState(false);
     const moreRef = useRef(null);
+    const { toggleTheme } = useTheme();
+
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -25,8 +28,11 @@ function Sidebar() {
     }, []);
 
     return (
-    <div className="md:fixed md:top-0 md:left-0 md:h-screen md:w-1/6 md:bg-[#f9f9f9] 
-                            border-r-2 border-gray-200 py-8 px-2
+    <div className="md:fixed md:top-0 md:left-0 md:h-screen md:w-1/6 md:bg-light
+                            dark:bg-dark dark:text-white
+                            border-r-2 border-gray-200 
+                            dark:border-r-2 dark:border-dark-border 
+                            py-8 px-2
                             hidden md:flex flex-col
                             min-w-48 z-[99]">
         <span className="font-norican-regular text-3xl mb-18 ml-4">Instagram</span>
@@ -34,8 +40,9 @@ function Sidebar() {
             <SidebarItem icon={MdHomeFilled} label="Home" onClick={() => navigate("/home")} />
             <SidebarItem icon={IoIosSearch} label="Search" />
             <div className='flex items-center justify-start w-full h-fit py-2 px-4 gap-4
-                            rounded-xl hover:bg-[#EAEAEA] cursor-pointer
-                            transition-all duration-200 ease-in-out'
+                            rounded-xl hover:bg-light-hover cursor-pointer
+                            transition-all duration-200 ease-in-out
+                            dark:hover:bg-dark-hover'
                 onClick={() => navigate("/profile")}>
                 <div className='w-8 h-8 bg-gray-300 rounded-full'></div>
                 <p className='font-medium text-lg'>Profile</p>
@@ -43,17 +50,19 @@ function Sidebar() {
         </div>
         <div className="relative" ref={moreRef}>
                 <div className="flex items-center justify-start w-full h-fit py-2 px-4 gap-4
-                                rounded-xl hover:bg-[#EAEAEA] cursor-pointer
-                                transition-all duration-200 ease-in-out"
+                                rounded-xl hover:bg-light-hover cursor-pointer
+                                transition-all duration-200 ease-in-out\
+                                dark:hover:bg-dark-hover"
                     onClick={() => setShowMore(!showMore)}>
                     <RiMenuFill size={30} />
                     <p className="font-medium text-lg">More</p>
                 </div>
                 {showMore && (
                     <div className="absolute left-4 bottom-full mb-2 h-fit w-60 bg-white border border-gray-200 rounded-lg
-                                    py-8 px-2 flex flex-col gap-2 shadow-lg">
+                                    py-8 px-2 flex flex-col gap-2 shadow-lg
+                                    dark:bg-dark-card dark:text-white dark:border-dark-border">
                         <SidebarItem icon={TbSettings2} label="Settings" />
-                        <SidebarItem icon={MdOutlineDarkMode} label="Dark mode" />
+                        <SidebarItem icon={MdOutlineDarkMode} label="Dark mode" onClick={toggleTheme} />
                     </div>
                 )}
         </div>

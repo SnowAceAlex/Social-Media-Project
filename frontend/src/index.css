@@ -1,20 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Amaranth:ital,wght@0,400;0,700;1,400;1,700&family=Amatic+SC:wght@400;700&family=Castoro:ital@0;1&family=Coiny&family=Concert+One&family=DM+Serif+Text:ital@0;1&family=Edu+AU+VIC+WA+NT+Pre:wght@400..700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Mogra&family=Norican&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Rowdies:wght@300;400;700&display=swap');
 
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 .font-norican-regular {
     font-family: "Norican", cursive;
 }
 
-:root{
-    --bg-color-light: #f9f9f9;
-    --hover-bg-color-light: #EAEAEA;
-}
-
-.bg-color-light {
-    background-color: var(--bg-color-light);
-}
-
-.hover-bg-color-light:hover {
-    background-color: var(--hover-bg-color-light);
+@theme{
+    --color-light: #f9f9f9;
+    --color-light-hover: #EAEAEA;
+    --color-dark: #121212;
+    --color-dark-hover: #2A2A2A;
+    --color-dark-border: #3A3A3A;
+    --color-dark-card: #1E1E1E;
+    --color-dark-text: #E0E0E0;
+    --color-dark-text-subtle: #B0B0B0;
 }
