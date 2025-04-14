@@ -1,24 +1,37 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import LogInPage from "./pages/LogInPage";
 import HomePage from "./pages/HomePage";
 import Layout from "./pages/Layout";
 import ProfilePage from "./pages/ProfilePage";
-import { ThemeProvider } from "./contexts/ThemeContext";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
-    <ThemeProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/login" element={<LogInPage />} />
-          <Route element={<Layout />}>
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-          </Route>
-        </Routes>
-      </Router>
-    </ThemeProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<LogInPage />} />
+
+        {/* Protected Routes /home and /profile if user hasn't logined yet*/}
+        <Route element={<Layout />}>
+          <Route path="/home" element={
+            <PrivateRoute>
+              <HomePage />
+            </PrivateRoute>
+          } />
+          <Route path="/profile" element={
+            <PrivateRoute>
+              <ProfilePage />
+            </PrivateRoute>
+          } />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 
