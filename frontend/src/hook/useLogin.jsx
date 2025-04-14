@@ -16,7 +16,7 @@ export const useLogin = () => {
 
         try {
             const userData = await loginUser(email, password);
-            console.log("✅ Đăng nhập thành công:", userData);
+            console.log("Login successfully:", userData);
 
             localStorage.setItem("token", userData.token);
 
