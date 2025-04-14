@@ -14,6 +14,13 @@ export const registerUser = async (req, res) => {
   }
 
   try {
+    // check if email already exists
+    const emailCheck = await pool.query(
+      "SELECT id FROM users WHERE email = $1", [email]);
+    if (emailCheck.rows.length > 0) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
+
     // hash password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);

@@ -12,15 +12,16 @@ const PORT = process.env.PORT;
 // Configure CORS to allow requests from your frontend
 const corsOptions = {
   origin: "http://localhost:5173",
-  optionsSuccessStatus: 200,
-  onSuccess: () => {
-    if (corsOptions.optionsSuccessStatus === 200) {
-      console.log("CORS configuration successful with status 200");
-    }
-  },
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions)); // Use cors middleware with options
+
+app.use((req, res, next) => {
+  console.log(`CORS passed for origin: ${req.headers.origin}`);
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
