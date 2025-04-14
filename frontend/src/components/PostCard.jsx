@@ -12,18 +12,18 @@ function PostCard() {
         <div className="h-[42rem] sm:mx-16 md:mx-0 md:ml-16 lg:mx-20 xl:mx-40 
                         pt-4
                         flex flex-col
-                        border-t border-gray-200">
+                        border-t border-gray-200 dark:border-dark-border">
             <div className="w-full h-[10%] flex items-center px-4 gap-4">
-                <div className="w-14 aspect-square rounded-full bg-gray-200 animate-pulse" />
-                <div className="w-52 md:w-60 h-14 rounded-full bg-gray-200 animate-pulse" />
+                <div className="w-14 aspect-square rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+                <div className="w-52 md:w-60 h-14 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
             </div>
             <div className="px-4 py-2 space-y-2">
-                <div className="w-3/4 h-4 bg-gray-200 rounded animate-pulse" />
-                <div className="w-2/3 h-4 bg-gray-200 rounded animate-pulse" />
-                <div className="w-1/2 h-4 bg-gray-200 rounded animate-pulse" />
+                <div className="w-3/4 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="w-2/3 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="w-1/2 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
             </div>
-            <div className="flex-grow bg-gray-200 m-4 rounded-xl animate-pulse" />
-            <div className="h-12 mx-4 mb-4 bg-gray-200 rounded-full animate-pulse" />
+            <div className="flex-grow bg-gray-200 dark:bg-gray-700 m-4 rounded-xl animate-pulse" />
+            <div className="h-12 mx-4 mb-4 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
             <div className="h-12 mx-4 mb-4
                             flex justify-between items-center">
                 <div
@@ -32,14 +32,15 @@ function PostCard() {
                     onMouseLeave={() => setIsHovering(false)}
                 >
                     {/* Nút cảm xúc */}
-                    <span className="flex items-center hover:cursor-pointer hover:bg-gray-200 px-2 py-1 rounded-full">
+                    <span className="flex items-center hover:cursor-pointer hover:bg-gray-200 px-2 py-1 rounded-full
+                                    dark:hover:bg-dark-hover">
                         <span className="">❤️</span>
                         <span>😂</span>
                         <span>😮</span>
                         <span>😢</span>
                         <span>😡</span>
                     </span>
-                    <span>209</span>
+                    <span className="dark:text-dark-text">209</span>
 
                     {/* Popup cảm xúc */}
                     <AnimatePresence>
@@ -48,7 +49,8 @@ function PostCard() {
                                 className="absolute bottom-full left-0 mb-2 px-2 py-1 
                                         bg-white rounded-full shadow-xl border border-gray-300
                                         cursor-pointer
-                                        flex items-center text-2xl"
+                                        flex items-center text-2xl
+                                        dark:bg-dark-hover dark:text-white dark:border-dark-border"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 10 }}
@@ -75,15 +77,18 @@ function PostCard() {
                     </AnimatePresence>
                 </div>
                 <div className="flex items-center gap-4 text-gray-500">
-                    <div className="flex items-center gap-1 cursor-pointer hover:text-black">
+                    <div className="flex items-center gap-1 cursor-pointer hover:text-black
+                                    dark:text-dark-text-subtle dark:hover:text-dark-text">
                         <TfiComment size={18} className="mt-1" title="Comments"/>
-                        <span className="text-gray-500">18</span>
+                        <span>18</span>
                     </div>
-                    <div className="flex items-center gap-1 cursor-pointer hover:text-black">
+                    <div className="flex items-center gap-1 cursor-pointer hover:text-black
+                                    dark:text-dark-text-subtle dark:hover:text-dark-text">
                         <CiShare1 size={19} className="mt-1" title="Share"/>
-                        <span className="text-gray-500">18</span>
+                        <span>18</span>
                     </div>
-                    <div className="flex items-center gap-1 cursor-pointer hover:text-black"
+                    <div className="flex items-center gap-1 cursor-pointer hover:text-black
+                                    dark:text-dark-text-subtle dark:hover:text-dark-text"
                         onClick={() => setBookmarked(!bookmarked)}>
                         {bookmarked ? (
                             <IoBookmark size={20} className="mt-0.5 text-[#E1306C]" title="Book Mark"/>
