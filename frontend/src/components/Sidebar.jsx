@@ -35,7 +35,7 @@ function Sidebar() {
                             dark:border-r-2 dark:border-dark-border 
                             py-8 px-2
                             hidden md:flex flex-col
-                            min-w-48 z-[99]">
+                            min-w-48 z-50">
         <span className="font-norican-regular text-3xl mb-18 ml-4">Instagram</span>
         <div className='flex flex-col gap-2 flex-grow'>
             <SidebarItem icon={MdHomeFilled} label="Home" onClick={() => navigate("/home")} />

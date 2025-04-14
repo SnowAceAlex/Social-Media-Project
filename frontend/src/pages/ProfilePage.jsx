@@ -2,9 +2,11 @@ import React from "react";
 import useProfile from "../hook/useProfile";
 import PostCard from "../components/PostCard";
 import { LiaEdit } from "react-icons/lia";
+import { useOutletContext } from "react-router-dom";
 
 function ProfilePage() {
   const { profile, loading, error } = useProfile();
+  const { setShowEditModal } = useOutletContext();
 
   if (error) {
     return <div className="p-4 text-red-500">{error}</div>;
@@ -12,7 +14,7 @@ function ProfilePage() {
 
   return (
     <div className="md:ml-9 lg:ml-0">
-      <div className="w-full h-72 mb-12 border">
+      <div className="w-full h-72 mb-12">
         <div className="w-full h-4/5 bg-gradient-to-tr from-[#fd9739] via-[#e75982] to-[#c91dc4] relative">
           <div className="absolute -bottom-20 left-8 flex items-end gap-4">
             {/* Avatar */}
@@ -58,6 +60,7 @@ function ProfilePage() {
             size={40}
             className="absolute -bottom-15 right-8 p-2 rounded-xl bg-light-button flex justify-center items-center text-black cursor-pointer hover:bg-light-button-hover transition dark:bg-dark-button dark:hover:bg-dark-button-hover dark:text-dark-text"
             title="Edit Profile"
+            onClick={() => setShowEditModal(true)}
           />
         </div>
       </div>
