@@ -23,6 +23,11 @@ import { registerUser } from '../../services/authService';
         const [loading, setLoading] = useState(false);
         const [error, setError] = useState("");
 
+        const isValidEmail = (email) => {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        };
+
         const handleChange = (e) => {
             const { name, value, type, files } = e.target;
 
@@ -37,6 +42,12 @@ import { registerUser } from '../../services/authService';
             setLoading(true);
             setError("");
     
+            if (!isValidEmail(formData.email)) {
+                setError("Invalid email format");
+                setLoading(false);
+                return;
+            }
+
             if (formData.password !== formData.confirmPassword) {
                 setError("Passwords do not match");
                 setLoading(false);
