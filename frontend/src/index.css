@@ -62,3 +62,9 @@
   .dark ::-webkit-scrollbar-thumb:hover {
     background: #777777;
   }
+
+  @media (max-height: 200px) {
+    .min-h-fallback {
+      overflow: hidden;
+    }
+  }
