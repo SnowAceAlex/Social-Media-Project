@@ -1,22 +1,27 @@
 const API_URL = "http://localhost:5000/users";
 
+import axios from 'axios';
+
 export const loginUser = async (email, password) => {
     try {
         console.log("📤 JSON gửi đi:", { email, password });
 
-        const response = await fetch(`${API_URL}/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
+        const response = await axios.post(`${API_URL}/login`, {
+            email,
+            password,
         });
 
-        const data = await response.json();
+        const data = response.data;
         console.log("📥 Response từ server:", data);
-        if (!response.ok) throw new Error(data.message || "Đăng nhập thất bại");
+
+        if (!response.status === 200) throw new Error(data.message || "Fail to login");
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
 
         return data;
     } catch (error) {
-        throw error;
+        throw error; 
     }
 };
 
@@ -29,26 +34,24 @@ export const registerUser = async (formData) => {
                 if (formData[key]) fd.append(key, formData[key]);
             });
 
-            response = await fetch(`${API_URL}/register`, {
-                method: "POST",
-                body: fd,
+            response = await axios.post(`${API_URL}/register`, fd, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
             });
         } else {
             const { imgFile, ...jsonData } = formData;
 
-            response = await fetch(`${API_URL}/register`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(jsonData),
+            response = await axios.post(`${API_URL}/register`, jsonData, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
             });
         }
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || "Đăng ký thất bại");
-
-        return data;
+        return response.data;
     } catch (error) {
-        throw error;
+        throw new Error(error.response?.data?.message || "Fail to register");
     }
 };
 
@@ -56,19 +59,16 @@ export const getProfile = async () => {
     try {
         const token = localStorage.getItem("token");
 
-        const response = await fetch(`${API_URL}/profile`, {
-            method: "GET",
+        const response = await axios.get(`${API_URL}/profile`, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
             },
+            withCredentials: true, 
         });
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || "Cannot get profile");
-
-        return data;
+        return response.data;
     } catch (error) {
-        throw error;
+        throw new Error(error.response?.data?.message || "Fail to fetch profile");
     }
 };
