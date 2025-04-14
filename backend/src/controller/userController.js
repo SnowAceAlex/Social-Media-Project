@@ -10,10 +10,17 @@ export const registerUser = async (req, res) => {
   console.log("Received data:", req.body);
 
   if (!username || !email || !password) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res.status(400).json({ message: "Missing required fields" });
   }
 
   try {
+    // check if email already exists
+    const emailCheck = await pool.query(
+      "SELECT id FROM users WHERE email = $1", [email]);
+    if (emailCheck.rows.length > 0) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
     // hash password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
