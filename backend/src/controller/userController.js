@@ -45,7 +45,7 @@ export const loginUser = async (req, res) => {
     );
 
     if (userResult.rows.length === 0)
-      return res.status(400).json({ error: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid credentials" });
 
 
     const user = userResult.rows[0];
@@ -53,7 +53,7 @@ export const loginUser = async (req, res) => {
     // compare input password with hashed password in db
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return res.status(400).json({ error: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     // create JWT token
