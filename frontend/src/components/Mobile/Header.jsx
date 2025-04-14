@@ -4,7 +4,7 @@ import { GoSearch } from "react-icons/go";
 
 function HeaderMB() {
     return (
-        <div className="w-full h-16 fixed top-0 left-0 bg-color-light z-50 md:hidden
+        <div className="w-full h-16 fixed top-0 left-0 bg-light z-50 md:hidden
                     flex items-center justify-between px-4">
             <span className="font-norican-regular text-3xl mr-6">Instagram</span>
             <div className='flex items-center gap-4 flex-1'>
