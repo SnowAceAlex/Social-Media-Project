@@ -41,7 +41,8 @@ const EditProfileModal = ({ onClose }) => {
                         flex items-center justify-center dark:text-dark-text">
             <div className="bg-white dark:bg-dark p-6 
                             w-[30rem]
-                            max-h-[90vh] rounded-xl overflow-auto">
+                            max-h-[90vh] rounded-xl overflow-auto
+                            ">
                 <div className="flex w-full justify-between items-center mb-4">
                     <h2 className="text-xl font-bold">Edit your profile</h2>
                     <IoCloseOutline 
@@ -97,7 +98,11 @@ const EditProfileModal = ({ onClose }) => {
                                 name="email"
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="border rounded p-2 border-light-input-border dark:bg-dark-input dark:border-dark-border"
+                                readOnly={true}
+                                className="border rounded p-2 border-light-input-border 
+                                        bg-light-input-disabled text-light-input-disabled-text
+                                        dark:bg-dark-input-disabled dark:text-dark-input-disabled-text dark:border-dark-border 
+                                        focus:outline-none"
                                 placeholder="Enter your email"
                             />
                         </div>
