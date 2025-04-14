@@ -9,10 +9,12 @@ import HomePage from "./pages/HomePage";
 import Layout from "./pages/Layout";
 import ProfilePage from "./pages/ProfilePage";
 import PrivateRoute from "./components/PrivateRoute";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 function App() {
   return (
-    <Router>
+    <ThemeProvider>
+      <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<LogInPage />} />
@@ -32,6 +34,7 @@ function App() {
         </Route>
       </Routes>
     </Router>
+    </ThemeProvider>
   );
 }
 
