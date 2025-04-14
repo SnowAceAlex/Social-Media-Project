@@ -9,7 +9,7 @@ function PostCard() {
     const [bookmarked, setBookmarked] = useState(false);
     const [isHovering, setIsHovering] = useState(false);
     return (
-        <div className="h-[42rem] sm:mx-16 md:mx-0 md:ml-16 lg:mx-20 xl:mx-40 
+        <div className="h-[42rem] sm:mx-16 md:mx-0 lg:mx-20 xl:mx-40 
                         pt-4
                         flex flex-col
                         border-t border-gray-200 dark:border-dark-border">

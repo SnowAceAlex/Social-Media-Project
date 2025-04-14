@@ -3,12 +3,12 @@ import PostCard from "../components/PostCard";
 
 function HomePage() {
     return (
-    <>
-        <div className="h-28 border"></div>
+    <div className="md:ml-16">
+        <div className=" h-28 border"></div>
         <PostCard/>
         <PostCard/> 
         <PostCard/>
-    </>
+    </div>
     );
 }
 
