@@ -13,6 +13,7 @@ import { registerUser } from '../../services/authService';
             email: "",
             password: "",
             full_name: "",
+            confirmPassword: "",
             dateOfBirth: "",
             bio: "",
             imgFile: null, 
@@ -35,19 +36,30 @@ import { registerUser } from '../../services/authService';
         const handleSubmit = async () => {
             setLoading(true);
             setError("");
-            try {
-                console.log("📤 Gửi dữ liệu đăng ký:", formData);
-                const response = await registerUser(formData);
-                console.log("✅ Phản hồi từ server:", response);
-    
-                alert("Đăng ký thành công!");
-            } catch (err) {
-                setError(err.message);
-                console.error("❌ Lỗi đăng ký:", err);
-            } finally {
-                setLoading(false);
+          
+            // So sánh mật khẩu
+            if (formData.password !== formData.confirmPassword) {
+              setError("Passwords do not match");
+              setLoading(false);
+              return;
             }
-        };
+          
+            try {
+              // Tạo bản sao không có confirmPassword
+              const { confirmPassword, ...dataToSend } = formData;
+          
+              console.log("📤 Gửi dữ liệu đăng ký:", dataToSend);
+              const response = await registerUser(dataToSend);
+              console.log("✅ Phản hồi từ server:", response);
+          
+              alert("Đăng ký thành công!");
+            } catch (err) {
+              setError(err.message);
+              console.error("❌ Lỗi đăng ký:", err);
+            } finally {
+              setLoading(false);
+            }
+          };
 
         const handleImageUpload = (e) => {
             const file = e.target.files[0];
@@ -115,6 +127,7 @@ import { registerUser } from '../../services/authService';
                                 <input
                                 type="text"
                                 name="username"
+                                value={formData.username}
                                 placeholder="Username"
                                 className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent text-white
                                             outline-none placeholder-gray-200/50"
@@ -124,6 +137,7 @@ import { registerUser } from '../../services/authService';
                                 <input
                                 type="text"
                                 name="email"
+                                value={formData.email}
                                 placeholder="Email"
                                 className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent text-white
                                             outline-none placeholder-gray-200/50"
@@ -132,6 +146,7 @@ import { registerUser } from '../../services/authService';
                                 <input
                                 type="password"
                                 name="password"
+                                value={formData.password}
                                 placeholder="Password"
                                 className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent text-white
                                                                         outline-none placeholder-gray-200/50"
@@ -139,9 +154,12 @@ import { registerUser } from '../../services/authService';
                                 />
                                 <input
                                 type="password"
+                                name="confirmPassword"
                                 placeholder="Confirm password"
+                                value={formData.confirmPassword}
                                 className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent text-white
                                                                         outline-none placeholder-gray-200/50"
+                                                                        onChange={handleChange}
                                 />
                                 <button
                                 type="button"
@@ -160,6 +178,7 @@ import { registerUser } from '../../services/authService';
                             <input
                             type="text"
                             name="full_name"
+                            value={formData.full_name}
                             placeholder="Full Name"
                             className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent text-white
                                                                     outline-none placeholder-gray-200/50"
@@ -168,6 +187,7 @@ import { registerUser } from '../../services/authService';
                             <input
                             type="date"
                             name="dateOfBirth" 
+                            value={formData.dateOfBirth}
                             className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent text-white
                                                                     outline-none placeholder-gray-200/50"
                                                                     onChange={handleChange} 
@@ -175,6 +195,7 @@ import { registerUser } from '../../services/authService';
                             <textarea
                             name="bio"
                             placeholder="Bio"
+                            value={formData.bio}
                             className="w-full px-4 py-3 border border-gray-200 rounded-md bg-transparent text-white
                                                                     outline-none placeholder-gray-200/50 resize-none h-24"
                                                                     onChange={handleChange} 

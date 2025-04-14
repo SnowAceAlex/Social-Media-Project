@@ -31,7 +31,8 @@ function ProfilePage() {
             </div>
 
             {/* User Info */}
-            <span className="text-black text-2xl font-bold drop-shadow dark:text-dark-text flex flex-col gap-2 absolute left-[10rem] top-20 w-fit w-max-[20rem]">
+            <span className="text-black text-2xl font-bold drop-shadow dark:text-dark-text flex flex-col gap-2 absolute left-[10rem] top-20 
+                            w-[10rem] sm:w-[14rem] md:w-[12rem] lg:w-[20rem] xl:w-[25rem] ">
               {loading ? (
                 <>
                   <div className="w-48 h-6 bg-gray-300 rounded animate-pulse"></div>
