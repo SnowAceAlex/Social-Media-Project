@@ -15,6 +15,8 @@
     --color-light-card: #f2f2f2;
     --color-light-border: #e0e0e0;
     --color-light-input-border: #d1d5d8;
+    --color-light-input-disabled: #f0f0f0; 
+    --color-light-input-disabled-text: #a1a1a1;
 
     --color-dark: #121212;
     --color-dark-hover: #2A2A2A;
@@ -26,4 +28,37 @@
     --color-dark-button-hover: #4f5152;
     --color-dark-input: #1e1e1e;
     --color-dark-input-border: #2c2c2c;
+    --color-dark-input-disabled: #2b2b2b; 
+    --color-dark-input-disabled-text: #5e5e5e;    
 }
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: var(--color-light-card);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #b0b0b0;
+    border-radius: 8px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background:  #999999;
+  }
+  
+  /* Dark mode support */
+  .dark ::-webkit-scrollbar-track {
+    background: var(--color-dark-card);
+  }
+  
+  .dark ::-webkit-scrollbar-thumb {
+    background: #5a5a5a;
+  }
+  
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: #777777;
+  }
