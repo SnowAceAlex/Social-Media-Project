@@ -10,10 +10,15 @@
 @theme{
     --color-light: #f9f9f9;
     --color-light-hover: #EAEAEA;
+    --color-light-button: #e2e5e9;
+    --color-light-button-hover: #d6d9dd;
+
     --color-dark: #121212;
     --color-dark-hover: #2A2A2A;
     --color-dark-border: #3A3A3A;
     --color-dark-card: #1E1E1E;
     --color-dark-text: #E0E0E0;
     --color-dark-text-subtle: #B0B0B0;
+    --color-dark-button: #3b3d3e;
+    --color-dark-button-hover: #4f5152;
 }
