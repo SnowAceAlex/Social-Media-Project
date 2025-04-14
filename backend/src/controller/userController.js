@@ -10,7 +10,7 @@ export const registerUser = async (req, res) => {
   console.log("Received data:", req.body);
 
   if (!username || !email || !password) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res.status(400).json({ message: "Missing required fields" });
   }
 
   try {
@@ -18,7 +18,7 @@ export const registerUser = async (req, res) => {
     const emailCheck = await pool.query(
       "SELECT id FROM users WHERE email = $1", [email]);
     if (emailCheck.rows.length > 0) {
-      return res.status(400).json({ error: "Email already exists" });
+      return res.status(400).json({ message: "Email already exists" });
     }
 
     // hash password
