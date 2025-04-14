@@ -9,6 +9,7 @@ const useProfile = () => {
         const fetchData = async () => {
             try {
                 const data = await getProfile();
+                console.log(data);
                 setProfile(data);
             } catch (err) {
                 setError(err.message);

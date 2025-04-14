@@ -15,7 +15,8 @@ function Layout() {
                 <Sidebar/>
                 {/* Main */}
                 <div className="flex-1 md:ml-[16.67%] mt-16 mb-14 md:mt-0 md:mb-0 min-h-screen
-                                flex flex-col dark:bg-dark">
+                                flex flex-col dark:bg-dark
+                                ">
                     {/* <div className="h-28 "></div>
                     <div className="h-[42rem]"></div>
                     <div className="h-[42rem] "></div>
@@ -24,7 +25,7 @@ function Layout() {
                 </div>
 
                 {/* Sidebar phải */}
-                <div className="md:w-1/6 bg-green-400 hidden md:block"></div>
+                <div className="md:w-1/5 bg-green-400 hidden md:block"></div>
             </div>
 
             {/* Header bottom (for mobile) */}
