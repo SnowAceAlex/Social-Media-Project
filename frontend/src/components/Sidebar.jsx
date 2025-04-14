@@ -7,13 +7,14 @@ import { RiMenuFill } from "react-icons/ri";
 import { TbSettings2 } from "react-icons/tb";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { useTheme } from '../contexts/ThemeContext';
+import useProfile from '../hook/useProfile';
 
 function Sidebar() {
     const navigate = useNavigate();
     const [showMore, setShowMore] =useState(false);
     const moreRef = useRef(null);
     const { toggleTheme } = useTheme();
-
+    const { profile, loading, error } = useProfile();
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -34,7 +35,7 @@ function Sidebar() {
                             dark:border-r-2 dark:border-dark-border 
                             py-8 px-2
                             hidden md:flex flex-col
-                            min-w-48 z-[99]">
+                            min-w-48 z-50">
         <span className="font-norican-regular text-3xl mb-18 ml-4">Instagram</span>
         <div className='flex flex-col gap-2 flex-grow'>
             <SidebarItem icon={MdHomeFilled} label="Home" onClick={() => navigate("/home")} />
@@ -44,7 +45,17 @@ function Sidebar() {
                             transition-all duration-200 ease-in-out
                             dark:hover:bg-dark-hover'
                 onClick={() => navigate("/profile")}>
-                <div className='w-8 h-8 bg-gray-300 rounded-full'></div>
+                <div className='w-8 h-8 rounded-full overflow-hidden bg-gray-300'>
+                    {loading ? (
+                    <div className='w-full h-full bg-gray-300 animate-pulse rounded-full' />
+                    ) : (
+                    <img
+                        src={profile?.profile_pic_url}
+                        alt="avatar"
+                        className='w-full h-full object-cover'
+                    />
+                    )}
+                </div>                
                 <p className='font-medium text-lg'>Profile</p>
             </div>
         </div>
