@@ -4,8 +4,15 @@ import jwt from "jsonwebtoken";
 
 // Register user
 export const registerUser = async (req, res) => {
-  const { username, email, password, full_name, bio, profile_pic_url } =
-    req.body;
+  const {
+    username,
+    email,
+    password,
+    full_name,
+    dateOfBirth,
+    bio,
+    profile_pic_url,
+  } = req.body;
 
   console.log("Received data:", req.body);
 
@@ -16,7 +23,9 @@ export const registerUser = async (req, res) => {
   try {
     // check if email already exists
     const emailCheck = await pool.query(
-      "SELECT id FROM users WHERE email = $1", [email]);
+      "SELECT id FROM users WHERE email = $1",
+      [email]
+    );
     if (emailCheck.rows.length > 0) {
       return res.status(400).json({ message: "Email already exists" });
     }
@@ -26,10 +35,20 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const result = await pool.query(
-      "INSERT INTO users (username, email, password, full_name, bio, profile_pic_url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, username, email, full_name, bio, profile_pic_url, created_at",
-      [username, email, hashedPassword, full_name, bio, profile_pic_url]
+      "INSERT INTO users (username, email, password, full_name, date_of_birth, bio, profile_pic_url) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, username, email, full_name, date_of_birth, bio, profile_pic_url, created_at",
+      [
+        username,
+        email,
+        hashedPassword,
+        full_name,
+        dateOfBirth,
+        bio,
+        profile_pic_url,
+      ]
     );
+
     res.status(201).json(result.rows[0]);
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -47,7 +66,6 @@ export const loginUser = async (req, res) => {
     if (userResult.rows.length === 0)
       return res.status(400).json({ message: "Invalid credentials" });
 
-
     const user = userResult.rows[0];
 
     // compare input password with hashed password in db
@@ -63,7 +81,9 @@ export const loginUser = async (req, res) => {
       email: user.email,
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
     console.log("Generated JWT Token:", token);
 
     // hide password in response
@@ -107,7 +127,7 @@ export const getAllUsersProfile = async (req, res) => {
 export const getUserProfile = async (req, res) => {
   try {
     const user = await pool.query(
-      "SELECT id, username, email, full_name, bio, profile_pic_url, created_at FROM users WHERE id = $1",
+      "SELECT id, username, email, full_name, bio, profile_pic_url, date_of_birth, created_at FROM users WHERE id = $1",
       [req.params.id]
     );
     if (user.rows.length === 0)
@@ -123,7 +143,7 @@ export const getCurrentUserProfile = async (req, res) => {
   try {
     const userId = req.user.id; // lấy từ token
     const result = await pool.query(
-      "SELECT id, username, email, full_name, bio, profile_pic_url, created_at FROM users WHERE id = $1",
+      "SELECT id, username, email, full_name, bio, profile_pic_url, date_of_birth, created_at FROM users WHERE id = $1",
       [userId]
     );
 
@@ -139,16 +159,24 @@ export const getCurrentUserProfile = async (req, res) => {
 
 // Update user profile
 export const updateUserProfile = async (req, res) => {
-  const { full_name, bio, profile_pic_url } = req.body;
+  const userId = req.user.id; // get user id from token
+
+  const { username, full_name, bio, profile_pic_url, date_of_birth } = req.body;
+
   try {
+    // update user profile
     const result = await pool.query(
-      "UPDATE users SET full_name = $1, bio = $2, profile_pic_url = $3 WHERE id = $4 RETURNING id, username, email, full_name, bio, profile_pic_url, created_at",
-      [full_name, bio, profile_pic_url, req.params.id]
+      "UPDATE users SET username = COALESCE($1, username), full_name = COALESCE($2, full_name), bio = COALESCE($3, bio), profile_pic_url = COALESCE($4, profile_pic_url), date_of_birth = COALESCE($5, date_of_birth) WHERE id = $6 RETURNING id, username, email, full_name, bio, profile_pic_url, created_at",
+      [username, full_name, bio, profile_pic_url, date_of_birth, userId]
     );
-    if (result.rows.length === 0)
-      return res.status(404).json({ error: "User not found" });
-    res.json(result.rows[0]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(result.rows[0]);
   } catch (error) {
+    console.error("Error updating user profile:", error);
     res.status(500).json({ error: error.message });
   }
 };

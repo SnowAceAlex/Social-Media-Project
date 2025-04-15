@@ -9,6 +9,7 @@ CREATE TABLE users (
     full_name VARCHAR(100),
     bio TEXT,
     profile_pic_url TEXT,
+    date_of_birth DATE, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
