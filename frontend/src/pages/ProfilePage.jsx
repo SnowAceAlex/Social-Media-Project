@@ -13,10 +13,10 @@ function ProfilePage() {
   }
 
   return (
-    <div className="md:ml-9 lg:ml-0">
-      <div className="w-full h-72 mb-12">
+    <div className="md:ml-9 lg:ml-0 flex flex-col items-center">
+      <div className="w-full h-72 mb-28 xl:mb-20">
         <div className="w-full h-4/5 bg-gradient-to-tr from-[#fd9739] via-[#e75982] to-[#c91dc4] relative">
-          <div className="absolute -bottom-20 left-8 flex items-end gap-4">
+          <div className="absolute -bottom-20 left-2 md:left-8 flex items-end gap-4">
             {/* Avatar */}
             <div className="w-36 aspect-square rounded-full border-4 border-white overflow-hidden bg-gray-300 dark:border-dark">
               {loading ? (
@@ -63,6 +63,38 @@ function ProfilePage() {
             title="Edit Profile"
             onClick={() => setShowEditModal(true)}
           />
+        </div>
+      </div>
+      <div className="h-16 w-[30rem] md:w-[25rem] lg:w-[35rem] rounded-2xl p-2
+                    bg-light-card border border-light-button-hover
+                    dark:bg-dark-card dark:border-dark-card-border">
+        <div className="h-full flex items-center gap-4">
+          <div className="h-full aspect-square rounded-full border-4 border-white overflow-hidden bg-gray-300 dark:border-dark">
+              {loading ? (
+                <div className="w-full h-full bg-gray-300 animate-pulse"></div>
+              ) : (
+                <img
+                  src={profile.profile_pic_url}
+                  alt={profile.username}
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
+            <div
+              className="w-[80%] h-full bg-light-input border border-light-input-border rounded-full
+                        flex items-center px-6
+                        cursor-pointer hover:bg-light-input-hover
+                        dark:bg-dark-inputCard dark:border-dark-input-border
+                        dark:text-dark-text dark:hover:bg-dark-inputCard-hover"
+            >
+              {
+                profile ? (
+                  <span>Hi {profile.username}, what do you want to share today?</span>
+                ) : (
+                  <span className="text-gray-400 dark:text-dark-text-subtle">Loading profile...</span>
+                )
+              }
+            </div>
         </div>
       </div>
     </div>

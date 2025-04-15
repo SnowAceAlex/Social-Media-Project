@@ -7,7 +7,7 @@ const SidebarItem = ({ icon: Icon, label, onClick }) => {
                         dark:hover:bg-dark-hover'
                         onClick={onClick}>
             <Icon size={30} />
-            <p className='font-medium text-lg'>{label}</p>
+            <p className='font-[400] text-md'>{label}</p>
         </div>
     );
 };
