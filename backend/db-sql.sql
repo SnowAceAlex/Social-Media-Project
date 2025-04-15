@@ -80,8 +80,3 @@ CREATE TABLE notifications (
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
---Update following and follower in users table
-ALTER TABLE users
-ADD COLUMN following INT[] DEFAULT '{}',
-ADD COLUMN followers INT[] DEFAULT '{}';

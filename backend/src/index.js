@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors"; // Import cors
 import userRoute from "./routes/userRoute.js";
+import postRoute from "./routes/postRoute.js";
 import { pool } from "./config/pool.js";
 import cookieParser from "cookie-parser"; // Import cookie-parser
 import { authenticateToken } from "./middleware/authMiddleware.js";
@@ -31,6 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); // Use cookie-parser middleware
 
 app.use("/users", userRoute);
+app.use("/posts", postRoute); // Ensure authentication for post routes
 
 app.listen(PORT, async () => {
   console.log("Server is running on port " + PORT);
