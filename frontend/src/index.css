@@ -14,7 +14,9 @@
     --color-light-button-hover: #d6d9dd;
     --color-light-card: #f2f2f2;
     --color-light-border: #e0e0e0;
-    --color-light-input-border: #d1d5d8;
+    --color-light-input: #fcfcfc;
+    --color-light-input-border: #cfd4d8;
+    --color-light-input-hover: #f5f5f5;
     --color-light-input-disabled: #f0f0f0; 
     --color-light-input-disabled-text: #a1a1a1;
 
@@ -22,6 +24,7 @@
     --color-dark-hover: #2A2A2A;
     --color-dark-border: #3A3A3A;
     --color-dark-card: #1E1E1E;
+    --color-dark-card-border: #3A3A3A;
     --color-dark-text: #E0E0E0;
     --color-dark-text-subtle: #B0B0B0;
     --color-dark-button: #3b3d3e;
@@ -29,7 +32,11 @@
     --color-dark-input: #1e1e1e;
     --color-dark-input-border: #2c2c2c;
     --color-dark-input-disabled: #2b2b2b; 
-    --color-dark-input-disabled-text: #5e5e5e;    
+    --color-dark-input-disabled-text: #5e5e5e;   
+    
+    --color-dark-inputCard: #333334;
+    --color-dark-inputCard-hover: #484849;   
+    --color-dark-textCard: #b8bbbf;
 }
 
 ::-webkit-scrollbar {
@@ -61,4 +68,10 @@
   
   .dark ::-webkit-scrollbar-thumb:hover {
     background: #777777;
+  }
+
+  @media (max-height: 200px) {
+    .min-h-fallback {
+      overflow: hidden;
+    }
   }

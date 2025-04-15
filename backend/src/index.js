@@ -21,6 +21,12 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions)); // Use cors middleware with options
+
+app.use((req, res, next) => {
+  console.log(`CORS passed for origin: ${req.headers.origin}`);
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); // Use cookie-parser middleware

@@ -1,179 +1,234 @@
 import { pool } from "../config/pool.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 
-// Register user
-export const registerUser = async (req, res) => {
-  const { username, email, password, full_name, bio, profile_pic_url } =
-    req.body;
+// Create a new post
+export const createPost = async (req, res) => {
+  const { caption, media_url } = req.body;
+  const userId = req.user.id;
 
-  console.log("Received data:", req.body);
-
-  if (!username || !email || !password) {
-    return res.status(400).json({ error: "Missing required fields" });
+  if (!media_url) {
+    return res.status(400).json({ error: "Media URL is required" });
   }
 
   try {
-    // hash password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
     const result = await pool.query(
-      `INSERT INTO users (username, email, password, full_name, bio, profile_pic_url, following, followers) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-       RETURNING id, username, email, full_name, bio, profile_pic_url, following, followers, created_at`,
-      [
-        username,
-        email,
-        hashedPassword,
-        full_name,
-        bio,
-        profile_pic_url,
-        "{}",
-        "{}",
-      ]
+      `INSERT INTO posts (user_id, caption, media_url) 
+       VALUES ($1, $2, $3) 
+       RETURNING id, user_id, caption, media_url, created_at`,
+      [userId, caption, media_url]
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
+    console.error("Error creating post:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// Login user
-export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    console.log("Login attempt with email:", email);
+// Get all posts with pagination
+export const getAllPosts = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const offset = (page - 1) * limit;
 
-    const userResult = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
-
-    if (userResult.rows.length === 0) {
-      console.error("Login failed: Email not found");
-      return res.status(400).json({ error: "Invalid credentials" });
-    }
-
-    const user = userResult.rows[0];
-    console.log("User found:", user);
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      console.error("Login failed: Password mismatch");
-      return res.status(400).json({ error: "Invalid credentials" });
-    }
-
-    const payload = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-    };
-
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-    console.log("Generated JWT Token:", token);
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 3600000,
-    });
-
-    const safeUser = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      full_name: user.full_name,
-      bio: user.bio,
-      profile_pic_url: user.profile_pic_url,
-      following: user.following,
-      followers: user.followers,
-      created_at: user.created_at,
-    };
-
-    res.status(200).json({ user: safeUser });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Logout user
-export const logoutUser = (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-  });
-  res.status(200).json({ message: "Logged out successfully" });
-};
-
-// Get all users profile
-export const getAllUsersProfile = async (req, res) => {
-  try {
-    const users = await pool.query(
-      "SELECT id, username, email, full_name, bio, profile_pic_url, following, followers, created_at FROM users"
-    );
-    if (users.rows.length === 0)
-      return res.status(404).json({ error: "No users found" });
-    res.json(users.rows);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Get user profile
-export const getUserProfile = async (req, res) => {
-  try {
-    const user = await pool.query(
-      "SELECT id, username, email, full_name, bio, profile_pic_url, following, followers, created_at FROM users WHERE id = $1",
-      [req.params.id]
-    );
-    if (user.rows.length === 0)
-      return res.status(404).json({ error: "User not found" });
-    res.json(user.rows[0]);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Get current user profile
-export const getCurrentUserProfile = async (req, res) => {
-  try {
-    const userId = req.user.id; // lấy từ token
-    const result = await pool.query(
-      "SELECT id, username, email, full_name, bio, profile_pic_url, following, followers, created_at FROM users WHERE id = $1",
-      [userId]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    res.json(result.rows[0]);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Update user profile
-export const updateUserProfile = async (req, res) => {
-  const { full_name, bio, profile_pic_url, following, followers } = req.body;
   try {
     const result = await pool.query(
-      `UPDATE users 
-       SET full_name = $1, bio = $2, profile_pic_url = $3, following = $4, followers = $5 
-       WHERE id = $6 
-       RETURNING id, username, email, full_name, bio, profile_pic_url, following, followers, created_at`,
-      [full_name, bio, profile_pic_url, following, followers, req.params.id]
+      `SELECT posts.*, users.username, users.profile_pic_url
+       FROM posts
+       JOIN users ON posts.user_id = users.id
+       ORDER BY posts.created_at DESC
+       LIMIT $1 OFFSET $2`,
+      [limit, offset]
     );
-    if (result.rows.length === 0)
-      return res.status(404).json({ error: "User not found" });
-    res.json(result.rows[0]);
+
+    res.status(200).json({ page, posts: result.rows });
   } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Like a post
+export const likePost = async (req, res) => {
+  const { post_id } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO likes (user_id, post_id) 
+       VALUES ($1, $2) 
+       ON CONFLICT (user_id, post_id) DO NOTHING 
+       RETURNING *`,
+      [userId, post_id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(200).json({ message: "Already liked" });
+    }
+
+    res.status(201).json({ message: "Post liked", like: result.rows[0] });
+  } catch (error) {
+    console.error("Error liking post:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Unlike a post
+export const unlikePost = async (req, res) => {
+  const { post_id } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const result = await pool.query(
+      `DELETE FROM likes WHERE user_id = $1 AND post_id = $2 RETURNING *`,
+      [userId, post_id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Like not found" });
+    }
+
+    res.status(200).json({ message: "Post unliked" });
+  } catch (error) {
+    console.error("Error unliking post:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Comment on a post
+export const commentPost = async (req, res) => {
+  const { post_id, content } = req.body;
+  const userId = req.user.id;
+
+  if (!content) {
+    return res.status(400).json({ error: "Comment content is required" });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO comments (user_id, post_id, content) 
+       VALUES ($1, $2, $3) 
+       RETURNING id, user_id, post_id, content, created_at`,
+      [userId, post_id, content]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error commenting on post:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get comments of a post
+export const getComments = async (req, res) => {
+  const postId = req.params.postId;
+
+  try {
+    const result = await pool.query(
+      `SELECT comments.*, users.username, users.profile_pic_url 
+       FROM comments 
+       JOIN users ON comments.user_id = users.id 
+       WHERE post_id = $1 
+       ORDER BY comments.created_at ASC`,
+      [postId]
+    );
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Delete a post (only if user is the owner)
+export const deletePost = async (req, res) => {
+  const postId = req.params.id;
+  const userId = req.user.id;
+
+  try {
+    const check = await pool.query(
+      `SELECT * FROM posts WHERE id = $1 AND user_id = $2`,
+      [postId, userId]
+    );
+
+    if (check.rows.length === 0) {
+      return res.status(403).json({ error: "Unauthorized or post not found" });
+    }
+
+    await pool.query(`DELETE FROM posts WHERE id = $1`, [postId]);
+    res.status(200).json({ message: "Post deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get single post with likes and comments
+export const getSinglePost = async (req, res) => {
+  const postId = req.params.id;
+
+  try {
+    const postResult = await pool.query(
+      `SELECT posts.*, users.username, users.profile_pic_url
+         FROM posts 
+         JOIN users ON posts.user_id = users.id 
+         WHERE posts.id = $1`,
+      [postId]
+    );
+
+    if (postResult.rows.length === 0) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    const likesResult = await pool.query(
+      `SELECT users.id, users.username, users.profile_pic_url 
+         FROM likes 
+         JOIN users ON likes.user_id = users.id 
+         WHERE post_id = $1`,
+      [postId]
+    );
+
+    const commentsResult = await pool.query(
+      `SELECT comments.*, users.username, users.profile_pic_url 
+         FROM comments 
+         JOIN users ON comments.user_id = users.id 
+         WHERE post_id = $1 
+         ORDER BY comments.created_at ASC`,
+      [postId]
+    );
+
+    res.status(200).json({
+      post: postResult.rows[0],
+      likes: likesResult.rows,
+      comments: commentsResult.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching post details:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Edit post caption (only by owner)
+export const editPost = async (req, res) => {
+  const postId = req.params.id;
+  const userId = req.user.id;
+  const { caption } = req.body;
+
+  try {
+    const check = await pool.query(
+      `SELECT * FROM posts WHERE id = $1 AND user_id = $2`,
+      [postId, userId]
+    );
+
+    if (check.rows.length === 0) {
+      return res.status(403).json({ error: "Unauthorized or post not found" });
+    }
+
+    const result = await pool.query(
+      `UPDATE posts SET caption = $1 WHERE id = $2 RETURNING *`,
+      [caption, postId]
+    );
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error editing post:", error);
     res.status(500).json({ error: error.message });
   }
 };
