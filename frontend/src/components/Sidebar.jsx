@@ -3,11 +3,14 @@ import { MdHomeFilled } from "react-icons/md";
 import SidebarItem from '../components/SidebarItem';
 import { IoIosSearch } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
-import { RiMenuFill } from "react-icons/ri";
+import { LuSunMedium } from "react-icons/lu";
+import { IoIosMenu } from "react-icons/io";
+import { IoMenu } from "react-icons/io5";
 import { TbSettings2 } from "react-icons/tb";
-import { MdOutlineDarkMode } from "react-icons/md";
 import { useTheme } from '../contexts/ThemeContext';
+import { IoLogOutOutline } from "react-icons/io5";
 import useProfile from '../hook/useProfile';
+import MenuItem from './MenuItem';
 
 function Sidebar() {
     const navigate = useNavigate();
@@ -56,7 +59,7 @@ function Sidebar() {
                     />
                     )}
                 </div>                
-                <p className='font-medium text-lg'>Profile</p>
+                <p className='font-400 text-md'>Profile</p>
             </div>
         </div>
         <div className="relative" ref={moreRef}>
@@ -65,15 +68,19 @@ function Sidebar() {
                                 transition-all duration-200 ease-in-out\
                                 dark:hover:bg-dark-hover"
                     onClick={() => setShowMore(!showMore)}>
-                    <RiMenuFill size={30} />
-                    <p className="font-medium text-lg">More</p>
+                    {
+                        showMore ? <IoMenu size={30}/> : <IoIosMenu size={30} />
+                    }
+                    <p className={`${showMore ? "font-[700]" : "font-[400]"} text-md  `}>More</p>
                 </div>
                 {showMore && (
-                    <div className="absolute left-4 bottom-full mb-2 h-fit w-60 bg-white border border-gray-200 rounded-lg
-                                    py-8 px-2 flex flex-col gap-2 shadow-lg
+                    <div className="absolute left-4 bottom-full mb-2 h-fit w-70 bg-white border border-gray-200 rounded-lg
+                                    py-4 flex flex-col gap-2 shadow-lg items-center
                                     dark:bg-dark-card dark:text-white dark:border-dark-border">
-                        <SidebarItem icon={TbSettings2} label="Settings" />
-                        <SidebarItem icon={MdOutlineDarkMode} label="Dark mode" onClick={toggleTheme} />
+                        <MenuItem icon={TbSettings2} label="Settings" />
+                        <MenuItem icon={LuSunMedium} label="Switch appearance" onClick={toggleTheme} />
+                        <hr className="my-1 border-t-1 border-gray-200 dark:border-dark-button w-full" />
+                        <MenuItem icon={IoLogOutOutline} label="Log out" onClick={() => navigate("/")} isLogout="true" />
                     </div>
                 )}
         </div>
