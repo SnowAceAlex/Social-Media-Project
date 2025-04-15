@@ -15,7 +15,8 @@ function LogInPage() {
                 <Carousel/>
             </div>
             <div className='relative flex-1 md:!bg-none md:bg-white]
-                            flex justify-center items-center min-h-screen'>
+                            flex justify-center items-center min-h-screen overflow-auto
+                            min-h-fallback'>
                 <div className="p-8 rounded-2xl w-96 text-[#1B1B1B]">
                     <motion.div
                         animate={{ y: showRegister ? "-10vh" : "0%" }}
