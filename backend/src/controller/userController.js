@@ -15,7 +15,7 @@ export const registerUser = async (req, res) => {
   } = req.body;
 
   console.log("Received data:", req.body);
-  console.log("typeof dateOfBirth:", typeof dateOfBirth);
+  // console.log("typeof dateOfBirth:", typeof dateOfBirth);
 
   if (!username || !email || !password) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -123,7 +123,7 @@ export const loginUser = async (req, res) => {
 export const getUserProfile = async (req, res) => {
   try {
     const user = await pool.query(
-      "SELECT id, username, email, full_name, bio, profile_pic_url, created_at FROM users WHERE id = $1",
+      "SELECT id, username, email, full_name, bio, profile_pic_url, date_of_birth, created_at FROM users WHERE id = $1",
       [req.params.id]
     );
     if (user.rows.length === 0) {
@@ -140,8 +140,8 @@ export const getCurrentUserProfile = async (req, res) => {
   try {
     const userId = req.user.id; // Extracted from token
     const result = await pool.query(
-      "SELECT id, username, email, full_name, bio, profile_pic_url, created_at FROM users WHERE id = $1",
-      [userId]
+    "SELECT id, username, email, full_name, bio, profile_pic_url, date_of_birth, created_at FROM users WHERE id = $1",      
+    [userId]
     );
 
     if (result.rows.length === 0) {
@@ -158,7 +158,7 @@ export const getCurrentUserProfile = async (req, res) => {
 export const getAllUsersProfile = async (req, res) => {
   try {
     const users = await pool.query(
-      "SELECT id, username, email, full_name, bio, profile_pic_url, created_at FROM users"
+      "SELECT id, username, email, full_name, bio, profile_pic_url, date_of_birth, created_at FROM users"
     );
     if (users.rows.length === 0)
       return res.status(404).json({ error: "No users found" });

@@ -22,7 +22,8 @@ const EditProfileModal = ({ onClose }) => {
                 username: profile.username || "",
                 email: profile.email || "",
                 full_name: profile.full_name || "",
-                dob: profile.date_of_birth ? profile.date_of_birth.slice(0, 10) : "",                bio: profile.bio || "",
+                dob: profile.date_of_birth ? profile.date_of_birth.slice(0, 10) : "",                
+                bio: profile.bio || "",
                 imageUrl: profile.profile_pic_url || "",
             });
         }
