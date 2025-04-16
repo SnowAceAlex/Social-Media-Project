@@ -11,6 +11,7 @@ const useProfile = () => {
             setLoading(true); // Bắt đầu loading
             try {
                 const data = await getProfile();
+                console.log("📦 Profile data from backend:", data);
                 setProfile(data);
             } catch (err) {
                 setError(err.message || "Failed to fetch profile data");
