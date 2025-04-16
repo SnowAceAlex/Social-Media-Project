@@ -19,19 +19,10 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const result = await pool.query(
-      `INSERT INTO users (username, email, password, full_name, bio, profile_pic_url, following, followers) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-       RETURNING id, username, email, full_name, bio, profile_pic_url, following, followers, created_at`,
-      [
-        username,
-        email,
-        hashedPassword,
-        full_name,
-        bio,
-        profile_pic_url,
-        "{}",
-        "{}",
-      ]
+      `INSERT INTO users (username, email, password, full_name, bio, profile_pic_url) 
+       VALUES ($1, $2, $3, $4, $5, $6) 
+       RETURNING id, username, email, full_name, bio, profile_pic_url, created_at`,
+      [username, email, hashedPassword, full_name, bio, profile_pic_url]
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -90,8 +81,6 @@ export const loginUser = async (req, res) => {
       full_name: user.full_name,
       bio: user.bio,
       profile_pic_url: user.profile_pic_url,
-      following: user.following,
-      followers: user.followers,
       created_at: user.created_at,
     };
 
@@ -116,7 +105,7 @@ export const logoutUser = (req, res) => {
 export const getAllUsersProfile = async (req, res) => {
   try {
     const users = await pool.query(
-      "SELECT id, username, email, full_name, bio, profile_pic_url, following, followers, created_at FROM users"
+      "SELECT id, username, email, full_name, bio, profile_pic_url, created_at FROM users"
     );
     if (users.rows.length === 0)
       return res.status(404).json({ error: "No users found" });
@@ -130,7 +119,7 @@ export const getAllUsersProfile = async (req, res) => {
 export const getUserProfile = async (req, res) => {
   try {
     const user = await pool.query(
-      "SELECT id, username, email, full_name, bio, profile_pic_url, following, followers, created_at FROM users WHERE id = $1",
+      "SELECT id, username, email, full_name, bio, profile_pic_url, created_at FROM users WHERE id = $1",
       [req.params.id]
     );
     if (user.rows.length === 0)
@@ -146,7 +135,7 @@ export const getCurrentUserProfile = async (req, res) => {
   try {
     const userId = req.user.id; // lấy từ token
     const result = await pool.query(
-      "SELECT id, username, email, full_name, bio, profile_pic_url, following, followers, created_at FROM users WHERE id = $1",
+      "SELECT id, username, email, full_name, bio, profile_pic_url, created_at FROM users WHERE id = $1",
       [userId]
     );
 
@@ -162,15 +151,15 @@ export const getCurrentUserProfile = async (req, res) => {
 
 // Update user profile
 export const updateUserProfile = async (req, res) => {
-  const { full_name, bio, profile_pic_url, following, followers } = req.body;
+  const { full_name, bio, profile_pic_url } = req.body;
 
   try {
     const result = await pool.query(
       `UPDATE users 
-       SET full_name = $1, bio = $2, profile_pic_url = $3, following = $4, followers = $5 
+       SET full_name = $1, bio = $2, profile_pic_url = $3
        WHERE id = $6 
-       RETURNING id, username, email, full_name, bio, profile_pic_url, following, followers, created_at`,
-      [full_name, bio, profile_pic_url, following, followers, req.params.id]
+       RETURNING id, username, email, full_name, bio, profile_pic_url, created_at`,
+      [full_name, bio, profile_pic_url, req.params.id]
     );
     if (result.rows.length === 0)
       return res.status(404).json({ error: "User not found" });
