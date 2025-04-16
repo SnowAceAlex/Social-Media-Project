@@ -2,23 +2,9 @@ import { pool } from "../config/pool.js";
 
 // Create a new post
 export const createPost = async (req, res) => {
-  const { postedBy, caption, media_url } = req.body;
+  const { caption, media_url } = req.body;
 
-  if (!postedBy || !caption || !media_url) {
-    return res.status(400).json({ error: "All fields are required" });
-  }
-
-  const userResult = await pool.query(`SELECT id FROM users WHERE id = $1`, [
-    postedBy,
-  ]);
-  if (userResult.rows.length === 0) {
-    return res.status(404).json({ error: "User not found" });
-  }
-  const userId = userResult.rows[0].id;
-
-  if (!userId) {
-    return res.status(400).json({ error: "User ID not found" });
-  }
+  const userId = req.user.id;
 
   if (!media_url) {
     return res.status(400).json({ error: "Media URL is required" });
@@ -63,18 +49,8 @@ export const getAllPosts = async (req, res) => {
 
 // Like a post
 export const likePost = async (req, res) => {
-  const { postedBy, post_id } = req.body;
-  const userResult = await pool.query(`SELECT id FROM users WHERE id = $1`, [
-    postedBy,
-  ]);
-  if (userResult.rows.length === 0) {
-    return res.status(404).json({ error: "User not found" });
-  }
-  const userId = userResult.rows[0].id;
-
-  if (!userId) {
-    return res.status(400).json({ error: "User ID not found" });
-  }
+  const { post_id } = req.body;
+  const userId = req.user.id;
 
   try {
     const result = await pool.query(
@@ -98,18 +74,8 @@ export const likePost = async (req, res) => {
 
 // Unlike a post
 export const unlikePost = async (req, res) => {
-  const { postedBy, post_id } = req.body;
-  const userResult = await pool.query(`SELECT id FROM users WHERE id = $1`, [
-    postedBy,
-  ]);
-  if (userResult.rows.length === 0) {
-    return res.status(404).json({ error: "User not found" });
-  }
-  const userId = userResult.rows[0].id;
-
-  if (!userId) {
-    return res.status(400).json({ error: "User ID not found" });
-  }
+  const { post_id } = req.body;
+  const userId = req.user.id;
 
   try {
     const result = await pool.query(
@@ -130,22 +96,8 @@ export const unlikePost = async (req, res) => {
 
 // Comment on a post
 export const commentPost = async (req, res) => {
-  const { postedBy, post_id, content } = req.body;
-  const userResult = await pool.query(`SELECT id FROM users WHERE id = $1`, [
-    postedBy,
-  ]);
-  if (userResult.rows.length === 0) {
-    return res.status(404).json({ error: "User not found" });
-  }
-  const userId = userResult.rows[0].id;
-
-  if (!userId) {
-    return res.status(400).json({ error: "User ID not found" });
-  }
-
-  if (!content) {
-    return res.status(400).json({ error: "Comment content is required" });
-  }
+  const { post_id, content } = req.body;
+  const userId = req.user.id;
 
   try {
     const result = await pool.query(
@@ -186,21 +138,11 @@ export const getComments = async (req, res) => {
 
 // Delete a post (only if user is the owner)
 export const deletePost = async (req, res) => {
-  const { postedBy, post_Id } = req.body;
+  const { post_Id } = req.body;
 
   const postId = post_Id;
 
-  const userResult = await pool.query(`SELECT id FROM users WHERE id = $1`, [
-    postedBy,
-  ]);
-  if (userResult.rows.length === 0) {
-    return res.status(404).json({ error: "User not found" });
-  }
-  const userId = userResult.rows[0].id;
-
-  if (!userId) {
-    return res.status(400).json({ error: "User ID not found" });
-  }
+  const userId = req.user.id;
 
   try {
     const check = await pool.query(
@@ -222,19 +164,11 @@ export const deletePost = async (req, res) => {
 
 // Get single post with likes and comments
 export const getSinglePost = async (req, res) => {
-  const { postedBy, post_Id } = req.body;
-  const postId = post_Id;
-  const userResult = await pool.query(`SELECT id FROM users WHERE id = $1`, [
-    postedBy,
-  ]);
-  if (userResult.rows.length === 0) {
-    return res.status(404).json({ error: "User not found" });
-  }
-  const userId = userResult.rows[0].id;
+  const { post_Id } = req.body;
 
-  if (!userId) {
-    return res.status(400).json({ error: "User ID not found" });
-  }
+  const postId = post_Id;
+
+  const userId = req.user.id;
 
   try {
     const postResult = await pool.query(
@@ -279,19 +213,9 @@ export const getSinglePost = async (req, res) => {
 
 // Edit post caption (only by owner)
 export const editPost = async (req, res) => {
-  const { postedBy, post_Id, caption } = req.body;
+  const { post_Id, caption } = req.body;
   const postId = post_Id;
-  const userResult = await pool.query(`SELECT id FROM users WHERE id = $1`, [
-    postedBy,
-  ]);
-  if (userResult.rows.length === 0) {
-    return res.status(404).json({ error: "User not found" });
-  }
-  const userId = userResult.rows[0].id;
-
-  if (!userId) {
-    return res.status(400).json({ error: "User ID not found" });
-  }
+  const userId = req.user.id;
 
   try {
     const check = await pool.query(
