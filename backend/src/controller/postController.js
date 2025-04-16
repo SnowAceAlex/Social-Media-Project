@@ -3,6 +3,7 @@ import { pool } from "../config/pool.js";
 // Create a new post
 export const createPost = async (req, res) => {
   const { caption, media_url } = req.body;
+
   const userId = req.user.id;
 
   if (!media_url) {
@@ -98,10 +99,6 @@ export const commentPost = async (req, res) => {
   const { post_id, content } = req.body;
   const userId = req.user.id;
 
-  if (!content) {
-    return res.status(400).json({ error: "Comment content is required" });
-  }
-
   try {
     const result = await pool.query(
       `INSERT INTO comments (user_id, post_id, content) 
@@ -118,7 +115,9 @@ export const commentPost = async (req, res) => {
 
 // Get comments of a post
 export const getComments = async (req, res) => {
-  const postId = req.params.postId;
+  const { post_Id } = req.body;
+
+  const postId = post_Id;
 
   try {
     const result = await pool.query(
@@ -139,7 +138,10 @@ export const getComments = async (req, res) => {
 
 // Delete a post (only if user is the owner)
 export const deletePost = async (req, res) => {
-  const postId = req.params.id;
+  const { post_Id } = req.body;
+
+  const postId = post_Id;
+
   const userId = req.user.id;
 
   try {
@@ -162,7 +164,11 @@ export const deletePost = async (req, res) => {
 
 // Get single post with likes and comments
 export const getSinglePost = async (req, res) => {
-  const postId = req.params.id;
+  const { post_Id } = req.body;
+
+  const postId = post_Id;
+
+  const userId = req.user.id;
 
   try {
     const postResult = await pool.query(
@@ -207,9 +213,9 @@ export const getSinglePost = async (req, res) => {
 
 // Edit post caption (only by owner)
 export const editPost = async (req, res) => {
-  const postId = req.params.id;
+  const { post_Id, caption } = req.body;
+  const postId = post_Id;
   const userId = req.user.id;
-  const { caption } = req.body;
 
   try {
     const check = await pool.query(
