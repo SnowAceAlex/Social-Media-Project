@@ -112,7 +112,6 @@ export const loginUser = async (req, res) => {
       token,
       user: safeUser,
     });
-
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ error: error.message });
@@ -140,8 +139,8 @@ export const getCurrentUserProfile = async (req, res) => {
   try {
     const userId = req.user.id; // Extracted from token
     const result = await pool.query(
-    "SELECT id, username, email, full_name, bio, profile_pic_url, date_of_birth, created_at FROM users WHERE id = $1",      
-    [userId]
+      "SELECT id, username, email, full_name, bio, profile_pic_url, date_of_birth, created_at FROM users WHERE id = $1",
+      [userId]
     );
 
     if (result.rows.length === 0) {
@@ -171,10 +170,11 @@ export const getAllUsersProfile = async (req, res) => {
 // Update user profile
 export const updateUserProfile = async (req, res) => {
   const userId = req.user.id; // get user id from token
- 
-   const { username, full_name, bio, profile_pic_url, date_of_birth } = req.body;
- 
-   try {
+  const { username, full_name, bio, profile_pic_url, date_of_birth } = req.body;
+
+  console.log("Received data for update:", req.body);
+
+  try {
     // update user profile
     const result = await pool.query(
       "UPDATE users SET username = COALESCE($1, username), full_name = COALESCE($2, full_name), bio = COALESCE($3, bio), profile_pic_url = COALESCE($4, profile_pic_url), date_of_birth = COALESCE($5, date_of_birth) WHERE id = $6 RETURNING id, username, email, full_name, bio, profile_pic_url, created_at",
