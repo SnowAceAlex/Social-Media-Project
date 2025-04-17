@@ -22,6 +22,6 @@ router.post("/logout", logoutUser);
 // router.put("/profile/:id", authenticateToken, updateUserProfile);
 router.get("/profile/:id", authenticate, getUserProfile);
 router.get("/profile", authenticate, getCurrentUserProfile);
-router.put("/profile/:id", authenticate, updateUserProfile);
+router.put("/profile/me/update", authenticate, updateUserProfile);
 
 export default router;
