@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { IoCloseOutline } from "react-icons/io5";
 import useProfile from "../../hook/useProfile";
+import { useEditProfileService } from "../../hook/useEditProfileService";
 
 const EditProfileModal = ({ onClose }) => {
   const { profile, loading } = useProfile();
@@ -36,49 +37,20 @@ const EditProfileModal = ({ onClose }) => {
     }));
   };
 
-  const handleSave = async () => {
-    console.log("Saving profile with data:", formData);
-    try {
-      const res = await fetch(`http://localhost:5000/users/profile/me/update`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          username: formData.username,
-          full_name: formData.full_name,
-          date_of_birth: formData.dob,
-          bio: formData.bio,
-          profile_pic_url: formData.imageUrl,
-        }),
-      });
-  
-      let data;
-      const text = await res.text();
-      try {
-        data = text ? JSON.parse(text) : null;
-      } catch (err) {
-        console.error("Lỗi parse JSON:", err);
-        alert("Failed to parse response data");
-        data = null;
-      }
-  
-      console.log("API response data:", data);
-  
-      if (res.ok) {
-        alert("Profile updated successfully");
-        onClose(); // đóng modal
-      } else {
-        console.error("❌ Update failed:", data);
-        alert("Update failed: " + (data?.message || data?.error || "Unknown error"));
-      }
-    } catch (err) {
-      console.error("❌ Error when saving profile:", err);
-      alert("Something went wrong");
+  const { handleSaveProfile } = useEditProfileService (
+    () => {
+      alert("Profile updated successfully");
+      onClose(); // đóng modal
+    },
+    (errMessage) => {
+      alert("Update failed: " + errMessage);
     }
-  };
+  );
   
+  const handleSave = () => {
+    console.log("Saving profile with data:", formData);
+    handleSaveProfile(formData);
+  };
 
   return (
     <div
