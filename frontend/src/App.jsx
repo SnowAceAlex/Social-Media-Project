@@ -15,25 +15,25 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<LogInPage />} />
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<LogInPage />} />
 
-        {/* Protected Routes /home and /profile if user hasn't logined yet*/}
-        <Route element={<Layout />}>
-          <Route path="/home" element={
-            <PrivateRoute>
-              <HomePage />
-            </PrivateRoute>
-          } />
-          <Route path="/profile" element={
-            <PrivateRoute>
-              <ProfilePage />
-            </PrivateRoute>
-          } />
-        </Route>
-      </Routes>
-    </Router>
+          {/* Protected Routes /home and /profile if user hasn't logined yet*/}
+          <Route element={<Layout />}>
+            <Route path="/home" element={
+              <PrivateRoute>
+                <HomePage />
+              </PrivateRoute>
+            } />
+            <Route path="/profile" element={
+              <PrivateRoute>
+                <ProfilePage />
+              </PrivateRoute>
+            } />
+          </Route>
+        </Routes>
+      </Router>
     </ThemeProvider>
   );
 }

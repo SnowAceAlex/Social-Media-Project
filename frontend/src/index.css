@@ -42,6 +42,7 @@
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
+    
   }
   
   ::-webkit-scrollbar-track {
@@ -74,4 +75,12 @@
     .min-h-fallback {
       overflow: hidden;
     }
+  }
+
+  .epr-category-nav {
+    display: none !important;
+  }
+  
+  .epr-group-title {
+    display: none !important;
   }

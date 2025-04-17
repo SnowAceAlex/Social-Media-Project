@@ -5,7 +5,8 @@ import { GoSearch } from "react-icons/go";
 function HeaderMB() {
     return (
         <div className="w-full h-16 fixed top-0 left-0 bg-light z-50 md:hidden
-                    flex items-center justify-between px-4">
+                        dark:bg-dark dark:text-dark-text
+                        flex items-center justify-between px-4">
             <span className="font-norican-regular text-3xl mr-6">Instagram</span>
             <div className='flex items-center gap-4 flex-1'>
             <div className="relative w-full">
@@ -14,6 +15,7 @@ function HeaderMB() {
                     type="text" 
                     placeholder="Search" 
                     className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-md bg-[#e8f0fe] text-[#1B1B1B]
+                            dark:bg-dark-input dark:border-dark-input-border dark:text-dark-text dark:hover:bg-dark-inputCard
                             focus:ring-2 focus:ring-[#E1306C] focus:border-[#F77737] outline-none placeholder-gray-400" 
                 />
             </div>
