@@ -6,7 +6,7 @@ import { useOutletContext } from "react-router-dom";
 
 function ProfilePage() {
   const { profile, loading, error } = useProfile();
-  const { setShowEditModal } = useOutletContext();
+  const { setShowEditModal, setShowCreatePostModal } = useOutletContext();
 
   if (error) {
     return <div className="p-4 text-red-500">{error}</div>;
@@ -89,7 +89,7 @@ function ProfilePage() {
             >
               {
                 profile ? (
-                  <span>Hi {profile.username}, what do you want to share today?</span>
+                  <span onClick={() => setShowCreatePostModal(true)}>Hi {profile.username}, what do you want to share today?</span>
                 ) : (
                   <span className="text-gray-400 dark:text-dark-text-subtle">Loading profile...</span>
                 )

@@ -3,14 +3,21 @@ import Sidebar from '../components/Sidebar';
 import { Outlet } from 'react-router-dom';
 import HeaderMB from '../components/Mobile/Header';
 import HeaderBotMB from '../components/Mobile/HeaderBot';
-import EditProfileModal from '../components/PopUp/EditProfileModal';
+import EditProfileModal from '../components/Modal/EditProfileModal';
+import CreatePostModal from '../components/Modal/CreatePostModal';
 
 function Layout() {
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showCreatePostModal, setShowCreatePostModal] = useState(false);
     
     useEffect(() => {
         document.body.style.overflow = showEditModal ? 'hidden' : 'auto';
     }, [showEditModal]);
+
+    useEffect(() => {
+        document.body.style.overflow = showCreatePostModal ? 'hidden' : 'auto';
+    }
+    , [showCreatePostModal]);
 
     return (
         <div className="w-full relative">
@@ -28,7 +35,7 @@ function Layout() {
                     <div className="h-[42rem]"></div>
                     <div className="h-[42rem] "></div>
                     <div className="h-[42rem] "></div> */}
-                    <Outlet context={{ setShowEditModal }}/>
+                    <Outlet context={{ setShowEditModal, setShowCreatePostModal }}/>
                 </div>
 
                 {/* Sidebar phải */}
@@ -39,6 +46,7 @@ function Layout() {
             <HeaderBotMB/>
 
             {showEditModal && <EditProfileModal onClose={() => setShowEditModal(false)} />}
+            {showCreatePostModal && <CreatePostModal onClose={() => setShowCreatePostModal(false)} />}
         </div>
     )
 }

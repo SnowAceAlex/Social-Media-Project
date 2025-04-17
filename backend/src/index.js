@@ -5,7 +5,6 @@ import userRoute from "./routes/userRoute.js";
 import postRoute from "./routes/postRoute.js";
 import { pool } from "./config/pool.js";
 import cookieParser from "cookie-parser"; // Import cookie-parser
-import { authenticateToken } from "./middleware/authMiddleware.js";
 
 dotenv.config();
 
