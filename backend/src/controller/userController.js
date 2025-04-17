@@ -89,12 +89,12 @@ export const loginUser = async (req, res) => {
     });
     console.log("Generated token:", token);
 
-    // res.cookie("token", token, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production",
-    //   sameSite: "strict",
-    //   maxAge: 3600000,
-    // });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 3600000,
+    });
 
     const safeUser = {
       id: user.id,
@@ -109,7 +109,6 @@ export const loginUser = async (req, res) => {
 
     // returnn token and user
     res.status(200).json({
-      token,
       user: safeUser,
     });
   } catch (error) {
@@ -194,10 +193,10 @@ export const updateUserProfile = async (req, res) => {
 
 // Logout user
 export const logoutUser = (req, res) => {
-  // res.clearCookie("token", {
-  //   httpOnly: true,
-  //   secure: process.env.NODE_ENV === "production",
-  //   sameSite: "strict",
-  // });
-  // res.status(200).json({ message: "Logged out successfully" });
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+  res.status(200).json({ message: "Logged out successfully" });
 };

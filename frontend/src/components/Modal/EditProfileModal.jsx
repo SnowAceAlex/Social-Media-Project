@@ -39,12 +39,12 @@ const EditProfileModal = ({ onClose }) => {
   const handleSave = async () => {
     console.log("Saving profile with data:", formData);
     try {
-      const res = await fetch(`http://localhost:5000/users/profile/${profile.id}`, {
+      const res = await fetch(`http://localhost:5000/users/profile/me/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           username: formData.username,
           full_name: formData.full_name,
@@ -55,7 +55,6 @@ const EditProfileModal = ({ onClose }) => {
       });
   
       let data;
-      // Kiểm tra nếu có dữ liệu trả về
       const text = await res.text();
       try {
         data = text ? JSON.parse(text) : null;
@@ -79,6 +78,7 @@ const EditProfileModal = ({ onClose }) => {
       alert("Something went wrong");
     }
   };
+  
 
   return (
     <div
@@ -263,9 +263,9 @@ const EditProfileModal = ({ onClose }) => {
               </button>
               <button
                 onClick={onClose}
-                className="bg-light-button                                      text-black px-4 py-2 rounded 
-                                     hover:bg-light-button-hover dark:bg-dark-button dark:text-white dark:hover:bg-dark-button-hover
-                                cursor-pointer"
+                className="bg-light-button text-black px-4 py-2 rounded 
+                            hover:bg-light-button-hover dark:bg-dark-button dark:text-white dark:hover:bg-dark-button-hover
+                            cursor-pointer"
               >
                 Cancel
               </button>

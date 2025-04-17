@@ -9,16 +9,15 @@ export const loginUser = async (email, password) => {
         const response = await axios.post(`${API_URL}/login`, {
             email,
             password,
+        },
+        {
+            withCredentials: true,
         });
 
         const data = response.data;
         console.log("📥 Response từ server:", data);
 
         if (!response.status === 200) throw new Error(data.message || "Fail to login");
-
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-
         return data;
     } catch (error) {
         throw new Error(error.response?.data?.message || "Fail to Login");
@@ -57,13 +56,7 @@ export const registerUser = async (formData) => {
 
 export const getProfile = async () => {
     try {
-        const token = localStorage.getItem("token");
-
         const response = await axios.get(`${API_URL}/profile`, {
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
             withCredentials: true, 
         });
 

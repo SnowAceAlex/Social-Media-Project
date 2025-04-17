@@ -10,7 +10,6 @@ import {
   getSinglePost,
   editPost,
 } from "../controller/postController.js";
-import { authenticateToken } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
