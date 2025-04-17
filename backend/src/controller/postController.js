@@ -4,6 +4,10 @@ import { pool } from "../config/pool.js";
 export const createPost = async (req, res) => {
   const { caption, media_url } = req.body;
 
+  if (!req.user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   const userId = req.user.id;
 
   if (!media_url) {
@@ -94,6 +98,25 @@ export const unlikePost = async (req, res) => {
   }
 };
 
+// Get number of likes on a post
+export const getLikes = async (req, res) => {
+  const postId = parseInt(req.params.postId);
+
+  try {
+    const result = await pool.query(
+      `SELECT COUNT(*) AS like_count
+       FROM likes
+       WHERE post_id = $1`,
+      [postId]
+    );
+
+    res.status(200).json({ likeCount: parseInt(result.rows[0].like_count) });
+  } catch (error) {
+    console.error("Error counting likes:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Comment on a post
 export const commentPost = async (req, res) => {
   const { post_id, content } = req.body;
@@ -115,9 +138,7 @@ export const commentPost = async (req, res) => {
 
 // Get comments of a post
 export const getComments = async (req, res) => {
-  const { post_Id } = req.body;
-
-  const postId = post_Id;
+  const postId = parseInt(req.params.postId);
 
   try {
     const result = await pool.query(
@@ -138,9 +159,7 @@ export const getComments = async (req, res) => {
 
 // Delete a post (only if user is the owner)
 export const deletePost = async (req, res) => {
-  const { post_Id } = req.body;
-
-  const postId = post_Id;
+  const postId = parseInt(req.params.postId);
 
   const userId = req.user.id;
 
@@ -164,18 +183,17 @@ export const deletePost = async (req, res) => {
 
 // Get single post with likes and comments
 export const getSinglePost = async (req, res) => {
-  const { post_Id } = req.body;
-
-  const postId = post_Id;
+  const postId = parseInt(req.params.postId);
 
   const userId = req.user.id;
 
   try {
+    // Fetch the post details
     const postResult = await pool.query(
       `SELECT posts.*, users.username, users.profile_pic_url
-         FROM posts 
-         JOIN users ON posts.user_id = users.id 
-         WHERE posts.id = $1`,
+       FROM posts 
+       JOIN users ON posts.user_id = users.id 
+       WHERE posts.id = $1`,
       [postId]
     );
 
@@ -183,27 +201,31 @@ export const getSinglePost = async (req, res) => {
       return res.status(404).json({ error: "Post not found" });
     }
 
+    // Fetch likes for the post
     const likesResult = await pool.query(
       `SELECT users.id, users.username, users.profile_pic_url 
-         FROM likes 
-         JOIN users ON likes.user_id = users.id 
-         WHERE post_id = $1`,
+       FROM likes 
+       JOIN users ON likes.user_id = users.id 
+       WHERE post_id = $1`,
       [postId]
     );
 
+    // Fetch comments for the post
     const commentsResult = await pool.query(
       `SELECT comments.*, users.username, users.profile_pic_url 
-         FROM comments 
-         JOIN users ON comments.user_id = users.id 
-         WHERE post_id = $1 
-         ORDER BY comments.created_at ASC`,
+       FROM comments 
+       JOIN users ON comments.user_id = users.id 
+       WHERE post_id = $1 
+       ORDER BY comments.created_at ASC`,
       [postId]
     );
 
+    // Include userId in the response
     res.status(200).json({
       post: postResult.rows[0],
       likes: likesResult.rows,
       comments: commentsResult.rows,
+      userId: userId, // Include the userId of the authenticated user
     });
   } catch (error) {
     console.error("Error fetching post details:", error);
@@ -213,8 +235,8 @@ export const getSinglePost = async (req, res) => {
 
 // Edit post caption (only by owner)
 export const editPost = async (req, res) => {
-  const { post_Id, caption } = req.body;
-  const postId = post_Id;
+  const { caption } = req.body;
+  const postId = parseInt(req.params.postId);
   const userId = req.user.id;
 
   try {

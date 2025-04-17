@@ -71,13 +71,13 @@ export const loginUser = async (req, res) => {
 
     const user = userResult.rows[0];
 
-    // compare input password with hashed password in db
+    // Compare input password with hashed password in the database
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // create JWT token
+    // Create JWT token
     const payload = {
       id: user.id,
       username: user.username,
@@ -87,14 +87,14 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
-    console.log("Generated token:", token);
 
-    // res.cookie("token", token, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production",
-    //   sameSite: "strict",
-    //   maxAge: 3600000,
-    // });
+    // Set the token as a cookie
+    res.cookie("token", token, {
+      httpOnly: true, // Prevent access from JavaScript
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      sameSite: "strict", // Prevent CSRF
+      maxAge: 3600000, // 1 hour in milliseconds
+    });
 
     const safeUser = {
       id: user.id,
@@ -107,9 +107,9 @@ export const loginUser = async (req, res) => {
       created_at: user.created_at,
     };
 
-    // returnn token and user
+    // Return the user information
     res.status(200).json({
-      token,
+      message: "Login successful",
       user: safeUser,
     });
   } catch (error) {
@@ -194,10 +194,10 @@ export const updateUserProfile = async (req, res) => {
 
 // Logout user
 export const logoutUser = (req, res) => {
-  // res.clearCookie("token", {
-  //   httpOnly: true,
-  //   secure: process.env.NODE_ENV === "production",
-  //   sameSite: "strict",
-  // });
-  // res.status(200).json({ message: "Logged out successfully" });
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  res.status(200).json({ message: "Logged out successfully" });
 };

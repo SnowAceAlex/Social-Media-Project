@@ -9,19 +9,21 @@ import {
   deletePost,
   getSinglePost,
   editPost,
+  getLikes,
 } from "../controller/postController.js";
-import { authenticateToken } from "../middleware/authMiddleware.js";
+import { authenticate } from "../middleware/authenticateUser.js";
 
 const router = Router();
 
-router.post("/", createPost);
+router.post("/", authenticate, createPost);
 router.get("/", getAllPosts);
-router.post("/like", likePost);
-router.post("/comment", commentPost);
-router.get("/:postId/comments", getComments);
-router.post("/unlike", unlikePost);
-router.delete("/:id", deletePost);
-router.get("/:id", getSinglePost);
-router.put("/:id", editPost);
+router.post("/like", authenticate, likePost);
+router.post("/unlike", authenticate, unlikePost);
+router.get("/getlikes/:postId", authenticate, getLikes);
+router.post("/comment", authenticate, commentPost);
+router.get("/comments/:postId", getComments);
+router.delete("/:postId", authenticate, deletePost);
+router.get("/:postId", authenticate, getSinglePost);
+router.put("/:postId", authenticate, editPost);
 
 export default router;
