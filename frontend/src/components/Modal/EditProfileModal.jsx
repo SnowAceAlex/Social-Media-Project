@@ -39,10 +39,8 @@ const EditProfileModal = ({ onClose }) => {
     return (
         <div className="fixed top-0 left-0 w-full h-full z-[99] bg-black/50 bg-opacity-50 
                         flex items-center justify-center dark:text-dark-text">
-            <div className="bg-white dark:bg-dark p-6 
-                            w-[30rem]
-                            max-h-[90vh] rounded-xl overflow-auto
-                            ">
+            <div className="bg-white dark:bg-dark pl-6 w-[30rem] max-h-[90vh] rounded-xl overflow-hidden">
+                <div className="overflow-auto max-h-[80vh] pr-4 py-6">
                 <div className="flex w-full justify-between items-center mb-4">
                     <h2 className="text-xl font-bold">Edit your profile</h2>
                     <IoCloseOutline 
@@ -204,6 +202,7 @@ const EditProfileModal = ({ onClose }) => {
                         </div>
                     </div>
                 )}
+                </div>
             </div>
         </div>
     );
