@@ -26,10 +26,10 @@ function Avatar_Username({ profile = null, createdAt = null ,loading = false}) {
                     {
                         createdAt ? (
                             <>
-                                <div className="flex items-center dark:text-dark-button-hover text-light-input-disabled-text">
+                                <div className="flex items-center dark:text-dark-input-disabled-text text-light-input-disabled-text">
                                     <LuDot size={25} />
                                 </div>
-                                <span className=" dark:text-dark-button-hover text-light-input-disabled-text">
+                                <span className=" dark:text-dark-input-disabled-text text-light-input-disabled-text">
                                     {formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
                                 </span>
                             </>

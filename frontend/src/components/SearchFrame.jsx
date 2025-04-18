@@ -1,0 +1,58 @@
+import React, { useState } from 'react'
+import { IoIosClose } from "react-icons/io";
+import { motion, AnimatePresence } from 'framer-motion';
+import useMediaQuery from '../hook/useMediaQuery';
+
+function SearchFrame({showSearchFrame}) {
+    const [searchValue, setSearchValue] = useState('');
+    const isDesktop = useMediaQuery('(min-width: 768px)');
+    return (
+        <div>
+            <AnimatePresence>
+                {showSearchFrame && isDesktop && (
+                    <motion.div
+                    key="search-frame"
+                    initial={{ x: -200, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -200, opacity: 0 }}
+                    transition={{
+                        duration: 0.3,
+                        ease: "easeOut",
+                        exit: { duration: 0.2, ease: "easeIn" }
+                    }}
+                    className="fixed top-0 left-20 h-screen w-96 rounded-4xl
+                                bg-light dark:bg-dark z-40 border-r-1 border-light-border
+                                dark:border-dark-border px-8 py-6"
+                    >
+                    <h1 className="text-2xl font-bold mb-12 dark:text-dark-text">Search</h1>
+                    <div className="relative w-full">
+                        <input
+                            type="text"
+                            value={searchValue}
+                            onChange={(e) => setSearchValue(e.target.value)}
+                            placeholder="Search something..."
+                            className="w-full p-3 pr-10 rounded-lg border border-gray-300 dark:border-dark-border
+                                    bg-light-input dark:bg-dark-input focus:outline-none
+                                    dark:text-dark-text placeholder:dark:text-dark-input-disabled-text"
+                        />
+
+                        {searchValue && (
+                            <button
+                            type="button"
+                            onClick={() => setSearchValue('')}
+                            className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 rounded-full cursor-pointer
+                                        bg-light-button hover:bg-light-button-hover dark:bg-dark-button dark:hover:bg-dark-button-hover"
+                            >
+                            <IoIosClose size={20} />
+                            </button>
+                        )}
+                    </div>
+
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    )
+}
+
+export default SearchFrame

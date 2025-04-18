@@ -84,3 +84,29 @@
   .epr-group-title {
     display: none !important;
   }
+
+  @keyframes slideInFromLeft {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes slideOutToLeft {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  .animate-slide-in {
+    animation: slideInFromLeft 0.3s ease-out forwards;
+  }
+  
+  .animate-slide-out {
+    animation: slideOutToLeft 0.3s ease-in forwards;
+  }
