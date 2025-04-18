@@ -71,8 +71,8 @@
     background: #777777;
   }
 
-  @media (max-height: 200px) {
-    .min-h-fallback {
+  @media (min-height: 800px) {
+    .max-h-fallback {
       overflow: hidden;
     }
   }
