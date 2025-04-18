@@ -1,19 +1,22 @@
-import React from "react";
+import React, { act, useState } from "react";
 import useProfile from "../hook/useProfile";
 import PostCard from "../components/PostCard";
 import { LiaEdit } from "react-icons/lia";
 import { useOutletContext } from "react-router-dom";
+import PostList from "../components/PostList";
 
 function ProfilePage() {
   const { profile, loading, error } = useProfile();
   const { setShowEditModal, setShowCreatePostModal } = useOutletContext();
+
+  const [activeTab, setActiveTab] = useState("post");
 
   if (error) {
     return <div className="p-4 text-red-500">{error}</div>;
   }
 
   return (
-    <div className="md:ml-9 lg:ml-0 flex flex-col items-center">
+    <div className="md:ml-9 lg:ml-0 flex flex-col items-center gap-6 pb-18">
       <div className="w-full h-72 mb-28 xl:mb-20">
         <div className="w-full h-4/5 bg-gradient-to-tr from-[#fd9739] via-[#e75982] to-[#c91dc4] relative">
           <div className="absolute -bottom-20 left-2 md:left-8 flex items-end gap-4">
@@ -65,7 +68,8 @@ function ProfilePage() {
           />
         </div>
       </div>
-      <div className="h-16 w-[30rem] md:w-[25rem] lg:w-[35rem] rounded-2xl p-2
+      {/* CREATE POST */}
+      <div className="h-16 w-[30rem] md:w-[25rem] lg:w-[35rem] rounded-2xl p-2 
                     bg-light-card border border-light-button-hover
                     dark:bg-dark-card dark:border-dark-card-border">
         <div className="h-full flex items-center gap-4">
@@ -96,6 +100,41 @@ function ProfilePage() {
               }
             </div>
         </div>
+      </div>
+      <div className="min-h-16 w-[30rem] md:w-[32rem] lg:w-[45rem]">
+        {/* HEADER */}
+        <div className="sticky top-15 md:top-0 z-10 bg-white dark:bg-dark h-16 w-full flex justify-around
+                        border-b-1 border-light-border
+                        dark:border-dark-border">
+            <div className="relative w-full h-full flex justify-around">
+              {/* UNDERLINE */}
+              <div
+                className={`absolute bottom-0 left-0 h-[2px] w-1/2 bg-black dark:bg-light transition-transform duration-300 ease-in-out
+                            ${activeTab === "post" ? "translate-x-0" : "translate-x-full"}`}
+              />
+              {/* TABS */}
+              <div
+                className={`flex-1 uppercase h-full flex items-center justify-center cursor-pointer dark:text-dark-text
+                            ${activeTab === "post" ? "font-semibold" : ""}`}
+                onClick={() => setActiveTab("post")}
+              >
+                post
+              </div>
+              <div
+                className={`flex-1 uppercase h-full flex items-center justify-center cursor-pointer dark:text-dark-text
+                          ${activeTab === "media" ? "font-semibold" : ""}`}
+                onClick={() => setActiveTab("media")}
+              >
+                media
+              </div>
+            </div>
+        </div>
+        {/* CONTENT */}
+        {
+          activeTab === "post" && (
+            <PostList profile={profile} loadingProfile={loading}/>
+          )
+        }
       </div>
     </div>
   );

@@ -37,9 +37,6 @@ function Layout() {
                     <div className="h-[42rem] "></div> */}
                     <Outlet context={{ setShowEditModal, setShowCreatePostModal }}/>
                 </div>
-
-                {/* Sidebar phải */}
-                <div className="md:w-1/5 hidden md:block"></div>
             </div>
 
             {/* Header bottom (for mobile) */}

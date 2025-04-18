@@ -10,9 +10,9 @@ export const createPost = async (req, res) => {
 
   const userId = req.user.id;
 
-  if (!media_url) {
-    return res.status(400).json({ error: "Media URL is required" });
-  }
+  // if (!media_url) {
+  //   return res.status(400).json({ error: "Media URL is required" });
+  // }
 
   try {
     const result = await pool.query(
@@ -43,10 +43,11 @@ export const getAllPosts = async (req, res) => {
        LIMIT $1 OFFSET $2`,
       [limit, offset]
     );
+    console.log(result.length);
 
-    res.status(200).json({ page, posts: result.rows });
+    res.status(200).json({ page, posts: result.rows, hasMore: result.rows.length === limit });
   } catch (error) {
-    console.error("Error fetching posts:", error);
+    console.error("Error fetching posts:", error) ;
     res.status(500).json({ error: error.message });
   }
 };
