@@ -4,10 +4,23 @@ import useProfile from '../../hook/useProfile';
 import CaptionTextarea from '../CaptionTextarea';
 import { LiaPhotoVideoSolid } from "react-icons/lia";
 import UploadBlock from '../UploadBlock';
+import axios from 'axios';
+import { useCreatePostService } from '../../hook/useCreatePostService';
+import Avatar_Username from '../Avatar_Username';
 
 const CreatePostModal = ({ onClose }) => {
     const { profile, loading } = useProfile();
     const [caption, setCaption] = useState("");
+    
+    const { handleCreatePost } = useCreatePostService(
+        () => {
+            alert("Post created!");
+            onClose();
+        },
+        (errMsg) => {
+            alert("Failed to create post: " + errMsg);
+        }
+    );
 
     return (
         <div className="fixed top-0 left-0 w-full h-full z-[99] bg-black/50
@@ -41,25 +54,8 @@ const CreatePostModal = ({ onClose }) => {
                         </div>
 
                         {/* Avatar */}
-                        <div className="flex gap-4 items-center mt-6 mb-4">
-                            <div className="w-14 aspect-square rounded-full border-4 border-white overflow-hidden bg-gray-300 dark:border-dark">
-                                {loading ? (
-                                    <div className="w-full h-full bg-gray-300 animate-pulse"></div>
-                                ) : (
-                                    <img
-                                        src={profile?.profile_pic_url}
-                                        alt={profile?.username}
-                                        className="w-full h-full object-cover"
-                                    />
-                                )}
-                            </div>
-                            <div>
-                                {profile ? (
-                                    <span className="text-lg font-medium dark:text-dark-text">{profile.username}</span>
-                                ) : (
-                                    <div className="w-32 h-4 bg-gray-300 rounded animate-pulse" />
-                                )}
-                            </div>
+                        <div className="w-full h-[10%] flex items-center gap-4 mt-6 mb-6">
+                            <Avatar_Username profile={profile} loading={loading}/>
                         </div>
 
                         <CaptionTextarea value={caption} onChange={setCaption} />
@@ -67,6 +63,18 @@ const CreatePostModal = ({ onClose }) => {
 
                     {/* Upload block - order second on mobile, first on desktop */}
                     <UploadBlock/>
+                    <button
+                        className="w-fit h-fit text-lg py-2 px-4 order-3 ml-auto
+                            md:absolute md:bottom-4 md:right-4 cursor-pointer
+                            bg-gradient-to-tr from-[#fd9739] via-[#e75982] to-[#c91dc4]
+                            text-white shadow-lg
+                            hover:scale-105 hover:shadow-2xl hover:font-semibold
+                            transition-all duration-300 ease-in-out"
+                        title='Create your post'
+                        onClick={() => handleCreatePost(caption)}
+                        >
+                        Create
+                    </button>
                 </div>
             </div>
         </div>
