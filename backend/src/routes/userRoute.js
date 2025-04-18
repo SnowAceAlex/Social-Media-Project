@@ -6,6 +6,10 @@ import {
   updateUserProfile,
   getCurrentUserProfile,
   logoutUser,
+  followUser,
+  unfollowUser,
+  getFollowers,
+  getFollowing,
 } from "../controller/userController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 import { authenticate } from "../middleware/authenticateUser.js";
@@ -16,12 +20,12 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 
-// Protect the following routes with authentication middleware
-// router.get("/profile/:id", authenticateToken, getUserProfile);
-// router.get("/profile", authenticateToken, getCurrentUserProfile);
-// router.put("/profile/:id", authenticateToken, updateUserProfile);
 router.get("/profile/:id", authenticate, getUserProfile);
 router.get("/profile", authenticate, getCurrentUserProfile);
 router.put("/profile/me/update", authenticate, updateUserProfile);
 
+router.post("/follow", authenticate, followUser);
+router.post("/unfollow", authenticate, unfollowUser);
+router.get("/followers", authenticate, getFollowers);
+router.get("/followings", authenticate, getFollowing);
 export default router;

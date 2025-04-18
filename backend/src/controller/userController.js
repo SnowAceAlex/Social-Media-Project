@@ -201,3 +201,116 @@ export const logoutUser = (req, res) => {
   });
   res.status(200).json({ message: "Logged out successfully" });
 };
+
+// Follow user
+export const followUser = async (req, res) => {
+  const followerId = req.user.id; // Extracted from token
+  const { followingId } = req.body;
+
+  if (followerId === followingId) {
+    return res.status(400).json({ error: "You cannot follow yourself" });
+  }
+
+  try {
+    // Check if the user is already following
+    const followCheck = await pool.query(
+      "SELECT * FROM followers WHERE follower_id = $1 AND following_id = $2",
+      [followerId, followingId]
+    );
+
+    if (followCheck.rows.length > 0) {
+      return res
+        .status(400)
+        .json({ message: "You are already following this user" });
+    }
+
+    // Insert follow relationship into the followers table
+    const result = await pool.query(
+      "INSERT INTO followers (follower_id, following_id) VALUES ($1, $2) RETURNING *",
+      [followerId, followingId]
+    );
+
+    res.status(200).json({
+      message: "Followed successfully",
+      follower: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error following user:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Unfollow user
+export const unfollowUser = async (req, res) => {
+  const followerId = req.user.id; // Extracted from token
+  const { followingId } = req.body;
+
+  try {
+    // Check if the user is following the target user
+    const followCheck = await pool.query(
+      "SELECT * FROM followers WHERE follower_id = $1 AND following_id = $2",
+      [followerId, followingId]
+    );
+
+    if (followCheck.rows.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "You are not following this user" });
+    }
+
+    // Delete the follow relationship
+    await pool.query(
+      "DELETE FROM followers WHERE follower_id = $1 AND following_id = $2",
+      [followerId, followingId]
+    );
+
+    res.status(200).json({ message: "Unfollowed successfully" });
+  } catch (error) {
+    console.error("Error unfollowing user:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get followers of a user
+export const getFollowers = async (req, res) => {
+  const userId = req.user.id; // User ID whose followers are to be fetched
+
+  try {
+    const result = await pool.query(
+      "SELECT users.id, users.username, users.full_name, users.profile_pic_url FROM followers INNER JOIN users ON followers.follower_id = users.id WHERE followers.following_id = $1",
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "No followers found" });
+    }
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error fetching followers:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get following users of a user
+export const getFollowing = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const result = await pool.query(
+      `SELECT u.id, u.username, u.full_name, u.profile_pic_url
+       FROM followers f
+       JOIN users u ON u.id = f.following_id
+       WHERE f.follower_id = $1`,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(200).json({ message: "Not following anyone" });
+    }
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
