@@ -1,0 +1,43 @@
+import React from "react";
+import useInfinitePosts from "../hook/useFetchPost";
+import Post from "./Post";
+
+function PostList({profile = null, loadingProfile = false}) {
+    const { posts, loading, lastPostRef } = useInfinitePosts();
+    console.log(posts);
+
+    return (
+        <div className="flex flex-col w-full">
+            {posts.map((post, index) => {
+                const isLast = index === posts.length - 1;
+                return (
+                <div
+                    key={post.id}
+                    ref={isLast ? lastPostRef : null}
+                    className="py-2 border-b-[1px] border-light-border dark:border-dark-border"
+                >
+                    <Post post={post} profile={profile} loading={loadingProfile}/>
+                </div>
+                );
+            })}
+            {loading && 
+                <div className="h-[42rem] w-full
+                            pt-4
+                            flex flex-col
+                            ">
+                    <div className="w-full h-[10%] flex items-center px-4 gap-4">
+                        <div className="w-14 aspect-square rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+                        <div className="w-52 md:w-60 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+                    </div>
+                    <div className="px-4 py-2 space-y-2">
+                        <div className="w-3/4 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                        <div className="w-2/3 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                        <div className="w-1/2 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                    </div>
+                </div>
+            }
+        </div>
+    );
+}
+
+export default PostList;
