@@ -131,8 +131,8 @@ function ProfilePage() {
         </div>
         {/* CONTENT */}
         {
-          activeTab === "post" && (
-            <PostList profile={profile} loadingProfile={loading}/>
+          activeTab === "post" && !loading && profile && (
+            <PostList profile={profile} loadingProfile={loading} userId={profile.id} />
           )
         }
       </div>

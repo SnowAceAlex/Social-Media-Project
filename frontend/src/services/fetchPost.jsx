@@ -1,10 +1,16 @@
 import axios from 'axios'
 import React from 'react'
 
-export const fetchPost = async (page = 1) => {
+export const fetchPost = async (page = 1, userId = null) => {
     try {
         await new Promise(resolve => setTimeout(resolve, 2000));
-        const res = await axios.get(`http://localhost:5000/posts?page=${page}`);
+        const queryParams = new URLSearchParams({ page });
+
+        if (userId) {
+        queryParams.append('userId', userId);
+        }
+
+        const res = await axios.get(`http://localhost:5000/posts?${queryParams.toString()}`);
         return res.data; 
     } catch (err) {
         console.error("Error fetching posts:", err);
