@@ -167,6 +167,30 @@ export const getAllUsersProfile = async (req, res) => {
   }
 };
 
+//Get Users By Username
+export const searchUsersByUsername = async (req, res) => {
+  const { username } = req.query; 
+
+  if (!username) {
+    return res.status(400).json({ error: "Username is required for search" });
+  }
+
+  try {
+    const result = await pool.query(
+        `SELECT id, username, full_name, profile_pic_url
+        FROM users
+        WHERE username ILIKE $1`,
+      [`%${username}%`] 
+    );
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error searching users:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 // Update user profile
 export const updateUserProfile = async (req, res) => {
   const userId = req.user.id; // get user id from token

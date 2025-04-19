@@ -54,9 +54,9 @@ export const registerUser = async (formData) => {
     }
 };
 
-export const getProfile = async () => {
+export const getProfile = async (id = null) => {
     try {
-        const response = await axios.get(`${API_URL}/profile`, {
+        const response = await axios.get(`${API_URL}/profile/${id}`, {
             withCredentials: true, 
         });
 

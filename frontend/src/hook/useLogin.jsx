@@ -18,6 +18,7 @@ export const useLogin = () => {
             const userData = await loginUser(email, password);
             console.log("Login successfully:", userData);
 
+            sessionStorage.setItem("currentUser", JSON.stringify(userData));
             localStorage.setItem("token", userData.token);
 
             navigate("/home");

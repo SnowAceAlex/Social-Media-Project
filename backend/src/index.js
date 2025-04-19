@@ -16,7 +16,7 @@ const corsOptions = {
   origin: "http://localhost:5173",
   optionsSuccessStatus: 200,
   credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
 };
 
 app.use(cors(corsOptions)); // Use cors middleware with options

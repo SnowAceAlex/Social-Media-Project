@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getProfile } from "../services/authService";
 
-const useProfile = () => {
+const useProfile = (id) => {
     const [profile, setProfile] = useState(null);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
@@ -10,7 +10,7 @@ const useProfile = () => {
         const fetchData = async () => {
             setLoading(true); // Bắt đầu loading
             try {
-                const data = await getProfile();
+                const data = await getProfile(id);
                 console.log("📦 Profile data from backend:", data);
                 setProfile(data);
             } catch (err) {
@@ -21,7 +21,7 @@ const useProfile = () => {
         };
 
         fetchData();
-    }, []);
+    }, [id]);
 
     return { profile, error, loading };
 };

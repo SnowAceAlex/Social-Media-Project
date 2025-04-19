@@ -10,6 +10,8 @@ function Layout() {
     const [showEditModal, setShowEditModal] = useState(false);
     const [showCreatePostModal, setShowCreatePostModal] = useState(false);
     
+    const [searchValue, setSearchValue] = useState('');
+
     useEffect(() => {
         document.body.style.overflow = showEditModal ? 'hidden' : 'auto';
     }, [showEditModal]);
@@ -22,11 +24,11 @@ function Layout() {
     return (
         <div className="w-full relative">
             {/* Header (for mobile) */}
-            <HeaderMB/>
+            <HeaderMB searchValue={searchValue} setSearchValue={setSearchValue}/>
 
             <div className="md:flex dark:bg-dark">
                 {/* Sidebar */}
-                <Sidebar/>
+                <Sidebar searchValue={searchValue} setSearchValue={setSearchValue}/>
                 {/* Main */}
                 <div className="flex-1 md:ml-[16.67%] mt-16 mb-14 md:mt-0 md:mb-0 min-h-screen
                                 flex flex-col dark:bg-dark
