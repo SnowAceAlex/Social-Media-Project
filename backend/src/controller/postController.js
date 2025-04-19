@@ -28,30 +28,37 @@ export const createPost = async (req, res) => {
   }
 };
 
-// Get all posts with pagination
+// Get all posts with optional user filter
 export const getAllPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
   const offset = (page - 1) * limit;
+  const userId = req.query.userId;
 
   try {
-    const result = await pool.query(
-      `SELECT posts.*, users.username, users.profile_pic_url
-       FROM posts
-       JOIN users ON posts.user_id = users.id
-       ORDER BY posts.created_at DESC
-       LIMIT $1 OFFSET $2`,
-      [limit, offset]
-    );
-    console.log(result.length);
+    const baseQuery = `
+      SELECT posts.*, users.username, users.profile_pic_url
+      FROM posts
+      JOIN users ON posts.user_id = users.id
+      ${userId ? 'WHERE posts.user_id = $3' : ''}
+      ORDER BY posts.created_at DESC
+      LIMIT $1 OFFSET $2
+    `;
 
-    res.status(200).json({ page, posts: result.rows, hasMore: result.rows.length === limit });
+    const values = userId ? [limit, offset, userId] : [limit, offset];
+
+    const result = await pool.query(baseQuery, values);
+
+    res.status(200).json({ 
+      page,
+      posts: result.rows, 
+      hasMore: result.rows.length === limit 
+    });
   } catch (error) {
-    console.error("Error fetching posts:", error) ;
+    console.error("Error fetching posts:", error);
     res.status(500).json({ error: error.message });
   }
 };
-
 // Like a post
 export const likePost = async (req, res) => {
   const { post_id } = req.body;
