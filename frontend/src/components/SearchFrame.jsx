@@ -63,7 +63,7 @@ function SearchFrame({ showSearchFrame, searchValue, setSearchValue}) {
                 {/* RESULT */}
                 <div className="mt-6 space-y-4">
                     {loading ? (
-                        <motion.p
+                        <motion.div
                             key="loading"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -76,10 +76,10 @@ function SearchFrame({ showSearchFrame, searchValue, setSearchValue}) {
                             <SearchLoading/>
                             <SearchLoading/>
                             <SearchLoading/>
-                        </motion.p>
+                        </motion.div>
                     ) : results.length > 0 ? (
                         results.map(user => (
-                            <SearchCard user={user}/>
+                            <SearchCard key={user.id} user={user}/>
                         ))
                     ) : (
                         searchValue && (

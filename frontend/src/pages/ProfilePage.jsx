@@ -1,10 +1,11 @@
 import React, { act, useEffect, useState } from "react";
 import useProfile from "../hook/useProfile";
-import PostCard from "../components/PostCard";
 import { LiaEdit } from "react-icons/lia";
 import { useOutletContext, useParams } from "react-router-dom";
 import PostList from "../components/PostList";
 import { getCurrentUser } from "../helpers/getCurrentUser";
+import FollowButton from "../components/FollowButton";
+import useFollowStatus from "../hook/useFollowStatus";
 
 function ProfilePage() {
   const {id} = useParams();
@@ -12,8 +13,8 @@ function ProfilePage() {
   const { profile, loading, error } = useProfile(id || currentUser?.user?.id);
   const { setShowEditModal, setShowCreatePostModal } = useOutletContext();
   const [selfProfile, setSelfProfile] = useState(false);
-
   const [activeTab, setActiveTab] = useState("post");
+  const { followCount } = useFollowStatus(profile?.id ?? null);
 
   useEffect(() => {
     if (!id || id === currentUser?.user?.id) {
@@ -29,8 +30,8 @@ function ProfilePage() {
 
   return (
     <div className="md:ml-9 lg:ml-0 flex flex-col items-center gap-6 pb-18">
-      <div className="w-full h-72 mb-28 xl:mb-20">
-        <div className="w-full h-4/5 bg-gradient-to-tr from-[#fd9739] via-[#e75982] to-[#c91dc4] relative">
+      <div className="w-full h-72 mb-28 xl:mb-20 relative">
+        <div className="w-full h-4/5 md:rounded-b-4xl bg-gradient-to-tr from-[#fd9739] via-[#e75982] to-[#c91dc4] relative">
           <div className="absolute -bottom-20 left-2 md:left-8 flex items-end gap-4">
             {/* Avatar */}
             <div className="w-36 aspect-square rounded-full border-4 border-white overflow-hidden bg-gray-300 dark:border-dark">
@@ -47,7 +48,7 @@ function ProfilePage() {
 
             {/* User Info */}
             <span className="text-black text-2xl font-bold drop-shadow dark:text-dark-text flex flex-col gap-2 absolute left-[10rem] top-20 
-                            w-[10rem] sm:w-[14rem] md:w-[12rem] lg:w-[20rem] xl:w-[25rem] ">
+                            w-[10rem] sm:w-[14rem] lg:w-[20rem] xl:w-[25rem] ">
               {loading ? (
                 <>
                   <div className="w-48 h-6 bg-gray-300 rounded animate-pulse"></div>
@@ -57,15 +58,19 @@ function ProfilePage() {
               ) : (
                 <>
                   {profile.username}
-                  <span className="text-[1rem] text-gray-500 font-medium flex gap-2 text-nowrap">
+                  <span className="text-[1rem] text-gray-500 dark:text-dark-text-subtle font-[400] flex gap-2 text-nowrap">
                     <span>
-                      <span className="text-black dark:text-dark-text">134</span> Follower
+                      <span className="text-black font-medium dark:text-dark-text">
+                        {followCount ? followCount.followers : "0"}
+                      </span> Follower
                     </span>
                     <span>
-                      <span className="text-black dark:text-dark-text">1</span> Following
+                      <span className="text-black font-medium dark:text-dark-text">
+                        {followCount ? followCount.following : "0"}  
+                      </span> Following
                     </span>
                   </span>
-                  <span className="text-[1rem] text-gray-500 font-medium">{profile.bio}</span>
+                  <span className="text-[1rem] text-gray-500 dark:text-dark-text-subtle font-[400]">{profile.bio}</span>
                 </>
               )}
             </span>
@@ -80,6 +85,9 @@ function ProfilePage() {
             onClick={() => setShowEditModal(true)}
           />}
         </div>
+
+        {/* FOLLOW BUTTON */}
+        <FollowButton targetUserId={profile?.id ?? null} selfProfile={selfProfile} />
       </div>
       {/* CREATE POST */}
       {

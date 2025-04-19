@@ -7,9 +7,12 @@ import UploadBlock from '../UploadBlock';
 import axios from 'axios';
 import { useCreatePostService } from '../../hook/useCreatePostService';
 import Avatar_Username from '../Avatar_Username';
+import { getCurrentUser } from '../../helpers/getCurrentUser';
 
 const CreatePostModal = ({ onClose }) => {
-    const { profile, loading } = useProfile();
+    const {currentUser} = getCurrentUser();
+    const { profile, loading, error } = useProfile(currentUser?.user?.id);
+    
     const [caption, setCaption] = useState("");
     
     const { handleCreatePost } = useCreatePostService(
