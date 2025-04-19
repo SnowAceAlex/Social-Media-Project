@@ -11,6 +11,8 @@ import {
   getFollowers,
   getFollowing,
   searchUsersByUsername,
+  isFollowing,
+  getFollowerFollowingCount,
 } from "../controller/userController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 import { authenticate } from "../middleware/authenticateUser.js";
@@ -30,4 +32,6 @@ router.post("/follow", authenticate, followUser);
 router.post("/unfollow", authenticate, unfollowUser);
 router.get("/followers", authenticate, getFollowers);
 router.get("/followings", authenticate, getFollowing);
+router.get("/is-following/:id", authenticate, isFollowing);
+router.get("/followCount/:id", authenticate, getFollowerFollowingCount);
 export default router;

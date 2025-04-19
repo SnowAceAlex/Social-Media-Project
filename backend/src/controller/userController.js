@@ -338,3 +338,45 @@ export const getFollowing = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Check if current user is following someone
+export const isFollowing = async (req, res) => {
+  const followerId = req.user.id;
+  const followingId = req.params.id;
+
+  try {
+    const result = await pool.query(
+      "SELECT 1 FROM followers WHERE follower_id = $1 AND following_id = $2",
+      [followerId, followingId]
+    );
+
+    res.status(200).json({ isFollowing: result.rows.length > 0 });
+  } catch (error) {
+    console.error("Error checking follow status:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get follower & following count
+export const getFollowerFollowingCount = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const followers = await pool.query(
+      "SELECT COUNT(*) FROM followers WHERE following_id = $1",
+      [userId]
+    );
+    const following = await pool.query(
+      "SELECT COUNT(*) FROM followers WHERE follower_id = $1",
+      [userId]
+    );
+
+    res.status(200).json({
+      followers: parseInt(followers.rows[0].count),
+      following: parseInt(following.rows[0].count),
+    });
+  } catch (error) {
+    console.error("Error getting follower/following count:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
