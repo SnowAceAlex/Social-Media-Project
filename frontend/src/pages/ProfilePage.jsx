@@ -1,15 +1,27 @@
-import React, { act, useState } from "react";
+import React, { act, useEffect, useState } from "react";
 import useProfile from "../hook/useProfile";
 import PostCard from "../components/PostCard";
 import { LiaEdit } from "react-icons/lia";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import PostList from "../components/PostList";
+import { getCurrentUser } from "../helpers/getCurrentUser";
 
 function ProfilePage() {
-  const { profile, loading, error } = useProfile();
+  const {id} = useParams();
+  const {currentUser} = getCurrentUser();
+  const { profile, loading, error } = useProfile(id || currentUser?.user?.id);
   const { setShowEditModal, setShowCreatePostModal } = useOutletContext();
+  const [selfProfile, setSelfProfile] = useState(false);
 
   const [activeTab, setActiveTab] = useState("post");
+
+  useEffect(() => {
+    if (!id || id === currentUser?.user?.id) {
+      setSelfProfile(true); 
+    } else {
+      setSelfProfile(false); 
+    }
+  }, [id, currentUser?.user?.id,]);
 
   if (error) {
     return <div className="p-4 text-red-500">{error}</div>;
@@ -60,16 +72,19 @@ function ProfilePage() {
           </div>
 
           {/* Edit Button */}
-          <LiaEdit
+          { selfProfile && 
+            <LiaEdit
             size={40}
             className="absolute -bottom-15 right-8 p-2 rounded-xl bg-light-button flex justify-center items-center text-black cursor-pointer hover:bg-light-button-hover transition dark:bg-dark-button dark:hover:bg-dark-button-hover dark:text-dark-text"
             title="Edit Profile"
             onClick={() => setShowEditModal(true)}
-          />
+          />}
         </div>
       </div>
       {/* CREATE POST */}
-      <div className="h-16 w-[30rem] md:w-[25rem] lg:w-[35rem] rounded-2xl p-2 
+      {
+        selfProfile && 
+        <div className="h-16 w-[30rem] md:w-[25rem] lg:w-[35rem] rounded-2xl p-2 
                     bg-light-card border border-light-button-hover
                     dark:bg-dark-card dark:border-dark-card-border">
         <div className="h-full flex items-center gap-4">
@@ -101,6 +116,7 @@ function ProfilePage() {
             </div>
         </div>
       </div>
+      }
       <div className="min-h-16 w-[30rem] md:w-[32rem] lg:w-[45rem]">
         {/* HEADER */}
         <div className="sticky top-15 md:top-0 z-10 bg-white dark:bg-dark h-16 w-full flex justify-around
