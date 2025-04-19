@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { MdHomeFilled } from "react-icons/md";
 import SidebarItem from '../components/SidebarItem';
 import { IoIosClose, IoIosSearch } from "react-icons/io";
-import { useNavigate } from 'react-router-dom';
 import { LuSunMedium } from "react-icons/lu";
 import { IoIosMenu } from "react-icons/io";
 import { IoMenu } from "react-icons/io5";
@@ -15,15 +14,16 @@ import { LuInstagram } from "react-icons/lu";
 import { motion, AnimatePresence } from 'framer-motion';
 import useMediaQuery from '../hook/useMediaQuery';
 import SearchFrame from './SearchFrame';
+import { getCurrentUser } from '../helpers/getCurrentUser';
+import { Link } from 'react-router-dom';
 
 function Sidebar({ searchValue, setSearchValue }) {
-    const navigate = useNavigate();
     const [showMore, setShowMore] = useState(false);
     const moreRef = useRef(null);
     const { toggleTheme } = useTheme();
-    const { profile, loading, error } = useProfile();
     const [isSearchMode, setIsSearchMode] = useState(false);
     const [showSearchFrame, setShowSearchFrame] = useState(false);
+    const {currentUser,loading} = getCurrentUser();
 
     const handleToggleSearch = () => {
         if (!isSearchMode) {
@@ -84,34 +84,38 @@ function Sidebar({ searchValue, setSearchValue }) {
             </AnimatePresence>
 
             <div className='flex flex-col gap-2 flex-grow items-center'>
-                <SidebarItem icon={MdHomeFilled} label="Home" onClick={() => {
-                            navigate("/home")}} 
-                            isCollapsed={isSearchMode} />
+                <SidebarItem
+                    icon={MdHomeFilled}
+                    label="Home"
+                    to="/home"
+                    isCollapsed={isSearchMode}
+                />
+
                 <SidebarItem
                     icon={IoIosSearch} 
                     label="Search"
                     onClick={handleToggleSearch}
-                    isCollapsed={isSearchMode} />
-                <div className='flex items-center justify-start w-full h-fit py-2 px-4 gap-4
+                    isCollapsed={isSearchMode} 
+                />
+                <Link
+                    to="/profile/me"
+                    className="flex items-center justify-start w-full h-fit py-2 px-4 gap-4
                                 rounded-xl hover:bg-light-hover cursor-pointer
-                                transition-all duration-200 ease-in-out
-                                dark:hover:bg-dark-hover'
-                    onClick={() => 
-                        {   navigate("/profile")
-                        }}>
+                                transition-all duration-200 ease-in-out dark:hover:bg-dark-hover"
+                    >
                     <div className='w-8 h-8 rounded-full overflow-hidden bg-gray-300'>
                         {loading ? (
                         <div className='w-full h-full bg-gray-300 animate-pulse rounded-full' />
                         ) : (
                         <img
-                            src={profile?.profile_pic_url}
+                            src={currentUser?.user?.profile_pic_url}
                             alt="avatar"
                             className='w-full h-full object-cover'
                         />
                         )}
-                    </div>                
-                    {!isSearchMode && <p className='font-[400] text-md'>Profile</p>}    
-                </div>
+                    </div>
+                    {!isSearchMode && <p className='font-[400] text-md'>Profile</p>}
+                </Link>
             </div>
             <div className="relative" ref={moreRef}>
                     <div className="flex items-center justify-start w-full h-fit py-2 px-4 gap-4
@@ -132,7 +136,7 @@ function Sidebar({ searchValue, setSearchValue }) {
                             <MenuItem icon={TbSettings2} label="Settings" />
                             <MenuItem icon={LuSunMedium} label="Switch appearance" onClick={toggleTheme} />
                             <hr className="my-1 border-t-1 border-gray-200 dark:border-dark-button w-full" />
-                            <MenuItem icon={IoLogOutOutline} label="Log out" onClick={() => navigate("/")} isLogout="true" />
+                            <MenuItem icon={IoLogOutOutline} label="Log out" to="/" isLogout="true" />
                         </div>
                     )}
             </div>
