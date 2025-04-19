@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useMediaQuery from '../hook/useMediaQuery';
 import SearchFrame from './SearchFrame';
 
-function Sidebar() {
+function Sidebar({ searchValue, setSearchValue }) {
     const navigate = useNavigate();
     const [showMore, setShowMore] = useState(false);
     const moreRef = useRef(null);
@@ -138,7 +138,7 @@ function Sidebar() {
             </div>
         </div>
         {/* Search Frame */}
-        <SearchFrame showSearchFrame={showSearchFrame}/>
+        <SearchFrame showSearchFrame={showSearchFrame} searchValue={searchValue} setSearchValue={setSearchValue}/>
         </>
     )
 }
