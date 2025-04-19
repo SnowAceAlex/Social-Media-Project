@@ -30,7 +30,7 @@ function ProfilePage() {
   return (
     <div className="md:ml-9 lg:ml-0 flex flex-col items-center gap-6 pb-18">
       <div className="w-full h-72 mb-28 xl:mb-20">
-        <div className="w-full h-4/5 bg-gradient-to-tr from-[#fd9739] via-[#e75982] to-[#c91dc4] relative">
+        <div className="w-full h-4/5 rounded-b-4xl bg-gradient-to-tr from-[#fd9739] via-[#e75982] to-[#c91dc4] relative">
           <div className="absolute -bottom-20 left-2 md:left-8 flex items-end gap-4">
             {/* Avatar */}
             <div className="w-36 aspect-square rounded-full border-4 border-white overflow-hidden bg-gray-300 dark:border-dark">

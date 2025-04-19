@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useMediaQuery from '../hook/useMediaQuery';
 import SearchFrame from './SearchFrame';
 import { getCurrentUser } from '../helpers/getCurrentUser';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 function Sidebar({ searchValue, setSearchValue }) {
     const [showMore, setShowMore] = useState(false);
@@ -24,6 +24,8 @@ function Sidebar({ searchValue, setSearchValue }) {
     const [isSearchMode, setIsSearchMode] = useState(false);
     const [showSearchFrame, setShowSearchFrame] = useState(false);
     const {currentUser,loading} = getCurrentUser();
+    const location = useLocation();
+    const pathname = location.pathname;
 
     const handleToggleSearch = () => {
         if (!isSearchMode) {
@@ -89,6 +91,7 @@ function Sidebar({ searchValue, setSearchValue }) {
                     label="Home"
                     to="/home"
                     isCollapsed={isSearchMode}
+                    isActive={pathname.startsWith('/home')} 
                 />
 
                 <SidebarItem
@@ -99,22 +102,24 @@ function Sidebar({ searchValue, setSearchValue }) {
                 />
                 <Link
                     to="/profile/me"
-                    className="flex items-center justify-start w-full h-fit py-2 px-4 gap-4
-                                rounded-xl hover:bg-light-hover cursor-pointer
-                                transition-all duration-200 ease-in-out dark:hover:bg-dark-hover"
+                    className={`flex items-center justify-start w-full h-fit py-2 px-4 gap-4
+                        rounded-xl hover:bg-light-hover cursor-pointer
+                        transition-all duration-200 ease-in-out dark:hover:bg-dark-hover
+                        ${pathname.startsWith('/profile') ? 'font-bold bg-light-hover dark:bg-dark-hover' : 'font-[400]'}`} 
                     >
-                    <div className='w-8 h-8 rounded-full overflow-hidden bg-gray-300'>
+                    <div className={`rounded-full overflow-hidden bg-gray-300 box-border
+                                    ${pathname.startsWith('/profile') ? "w-9 h-9 border-[3px] border-dark-border dark:border-light-border" : "w-8 h-8"}`}>
                         {loading ? (
                         <div className='w-full h-full bg-gray-300 animate-pulse rounded-full' />
                         ) : (
                         <img
                             src={currentUser?.user?.profile_pic_url}
                             alt="avatar"
-                            className='w-full h-full object-cover'
+                            className={`w-full h-full object-cover"}`}
                         />
                         )}
                     </div>
-                    {!isSearchMode && <p className='font-[400] text-md'>Profile</p>}
+                    {!isSearchMode && <p className='text-md'>Profile</p>}
                 </Link>
             </div>
             <div className="relative" ref={moreRef}>
