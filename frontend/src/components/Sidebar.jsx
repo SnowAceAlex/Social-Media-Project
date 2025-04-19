@@ -105,10 +105,10 @@ function Sidebar({ searchValue, setSearchValue }) {
                     className={`flex items-center justify-start w-full h-fit py-2 px-4 gap-4
                         rounded-xl hover:bg-light-hover cursor-pointer
                         transition-all duration-200 ease-in-out dark:hover:bg-dark-hover
-                        ${pathname.startsWith('/profile') ? 'font-bold bg-light-hover dark:bg-dark-hover' : 'font-[400]'}`} 
+                        ${pathname.startsWith('/profile/me') ? 'font-bold bg-light-hover dark:bg-dark-hover' : 'font-[400]'}`} 
                     >
                     <div className={`rounded-full overflow-hidden bg-gray-300 box-border
-                                    ${pathname.startsWith('/profile') ? "w-9 h-9 border-[3px] border-dark-border dark:border-light-border" : "w-8 h-8"}`}>
+                                    ${pathname.startsWith('/profile/me') ? "w-9 h-9 border-[3px] border-dark-border dark:border-light-border" : "w-8 h-8"}`}>
                         {loading ? (
                         <div className='w-full h-full bg-gray-300 animate-pulse rounded-full' />
                         ) : (
