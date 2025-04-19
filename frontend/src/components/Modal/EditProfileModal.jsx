@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { IoCloseOutline } from "react-icons/io5";
 import useProfile from "../../hook/useProfile";
 import { useEditProfileService } from "../../hook/useEditProfileService";
+import { getCurrentUser } from "../../helpers/getCurrentUser";
 
 const EditProfileModal = ({ onClose }) => {
-  const { profile, loading } = useProfile();
+  const {currentUser} = getCurrentUser();
+  const { profile, loading, error } = useProfile(currentUser?.user?.id);
   const [imageInputType, setImageInputType] = useState("file");
 
   const [formData, setFormData] = useState({
