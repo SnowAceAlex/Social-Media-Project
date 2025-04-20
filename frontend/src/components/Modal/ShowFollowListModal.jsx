@@ -105,7 +105,7 @@ const DisplayFollowListModal = ({
             ) : (
                 filteredUsers.map((user) => (
                 <div key={user.id} className="flex items-center gap-4 relative">
-                    <Link className="flex gap-4" to={`/profile/${user.id}`} onClick={onClose}>
+                    <Link className="flex gap-4" to={`/profile/${user.id}`} onClick={onClose} title={user.username}>
                         <img
                         src={user.profile_pic_url}
                         alt={user.username}
@@ -113,7 +113,8 @@ const DisplayFollowListModal = ({
                         />
                         <div>
                             <div className="font-medium">{user.username}</div>
-                            <div className="text-sm text-gray-500">{user.full_name}</div>
+                            <div className="text-sm text-gray-500 w-44 truncate"
+                                title={user.full_name}>{user.full_name}</div>
                         </div>
                     </Link>
                     <FollowButton
