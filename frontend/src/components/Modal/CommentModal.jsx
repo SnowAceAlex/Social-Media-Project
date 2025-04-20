@@ -12,12 +12,13 @@ import { Link } from 'react-router-dom';
 function CommentModal({post, profile, loading, onClose }) {
     const captionRef = useRef(null);
     const [content, setContent] = useState("");
-    const { comments, loading: loadingComments, addComment } = useComments(post?.id);
+    const { comments, loading: loadingComments, addComment, fetchComments  } = useComments(post?.id);
 
     const handleSubmit = async () => {
         if (content.trim()) {
             await addComment(content);
             setContent("");
+            await fetchComments();
         }
     };
 
@@ -80,7 +81,7 @@ function CommentModal({post, profile, loading, onClose }) {
                                 ) : (
                                     comments.map((user) => (
                                         console.log(user),
-                                    <div key={user.user_id} className='p-2 rounded dark:text-white flex gap-4 text-md'>
+                                    <div key={user.id} className='p-2 rounded dark:text-white flex gap-4 text-md'>
                                         {
                                             user.profile_pic_url && (
                                                 <Link to={`/profile/${user.user_id}`}>

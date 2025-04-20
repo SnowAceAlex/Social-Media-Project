@@ -20,6 +20,7 @@ export default function useComments(postId) {
     const addComment = async (content) => {
         try {
             const res = await postComment(postId, content);
+            console.log("Comment added:", res.data);
             setComments((prev) => [...prev, res.data]);
         } catch (err) {
         console.error("Failed to post comment", err);
@@ -30,5 +31,5 @@ export default function useComments(postId) {
         fetchComments();
     }, [postId]);
 
-    return { comments, loading, addComment };
+    return { comments, loading, addComment, fetchComments };
 }
