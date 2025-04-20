@@ -1,7 +1,7 @@
 import React, { act, useEffect, useState } from "react";
 import useProfile from "../hook/useProfile";
 import { LiaEdit } from "react-icons/lia";
-import { useOutletContext, useParams } from "react-router-dom";
+import { useLocation, useOutletContext, useParams } from "react-router-dom";
 import PostList from "../components/PostList";
 import { getCurrentUser } from "../helpers/getCurrentUser";
 import FollowButton from "../components/FollowButton";
@@ -12,7 +12,7 @@ function ProfilePage() {
   const {id} = useParams();
   const {currentUser} = getCurrentUser();
   const { profile, loading, error } = useProfile(id || currentUser?.user?.id);
-  const { setShowEditModal, setShowCreatePostModal, setShowFollowingModal, setShowFollowerModal } = useOutletContext();
+  const { setShowEditModal, setShowCreatePostModal} = useOutletContext();
 
   const [selfProfile, setSelfProfile] = useState(false);
   const [activeTab, setActiveTab] = useState("post");
@@ -26,7 +26,7 @@ function ProfilePage() {
   const [followListType, setFollowListType] = useState("followers");
   
   useEffect(() => {
-    if (!id || id === currentUser?.user?.id) {
+    if (!id || Number(id) === currentUser?.user?.id) {
       setSelfProfile(true); 
     } else {
       setSelfProfile(false); 
