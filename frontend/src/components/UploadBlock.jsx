@@ -29,7 +29,7 @@ export default function UploadBlock({}) {
         return (
         <>
             <div
-            className="order-2 md:order-1 w-full md:w-1/2 aspect-[3/3]
+            className="order-2 md:order-1 w-full md:flex-4 aspect-[3/3]
                         min-h-[20rem]
                         md:aspect-auto
                         flex items-center justify-center cursor-pointer
