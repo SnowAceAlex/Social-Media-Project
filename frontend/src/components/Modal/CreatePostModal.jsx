@@ -2,9 +2,7 @@ import React, { useState } from 'react'
 import { IoCloseOutline } from "react-icons/io5";
 import useProfile from '../../hook/useProfile';
 import CaptionTextarea from '../CaptionTextarea';
-import { LiaPhotoVideoSolid } from "react-icons/lia";
 import UploadBlock from '../UploadBlock';
-import axios from 'axios';
 import { useCreatePostService } from '../../hook/useCreatePostService';
 import Avatar_Username from '../Avatar_Username';
 import { getCurrentUser } from '../../helpers/getCurrentUser';
