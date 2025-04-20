@@ -38,13 +38,13 @@ const useFollowStatus = (targetUserId, selfProfile) => {
 
     const toggleFollow = async () => {
         try {
-        if (isFollowing) {
-            await unfollowUser(targetUserId);
-            setIsFollowing(false);
-        } else {
-            await followUser(targetUserId);
-            setIsFollowing(true);
-        }
+            if (isFollowing) {
+                await unfollowUser(targetUserId);
+                setIsFollowing(false);
+            } else {
+                await followUser(targetUserId);
+                setIsFollowing(true);
+            }
         } catch (err) {
         console.error("Follow/unfollow failed:", err.response?.data || err.message);
         }

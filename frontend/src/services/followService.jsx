@@ -36,3 +36,29 @@ export const getFollowCount = async (userId) => {
         throw error;
     }
 };
+
+export const getFollowers = async (userId) => {
+    try {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        const res = await axios.get(`${API_URL}/${userId}/followers`, {
+            withCredentials: true,
+        });
+        return res.data;
+    } catch (error) {
+        console.error("❌ Error fetching followers:", error);
+        throw error;
+    }
+};
+
+export const getFollowing = async (userId) => {
+    try {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        const res = await axios.get(`${API_URL}/${userId}/followings`, {
+            withCredentials: true,
+        });
+        return res.data;
+    } catch (error) {
+        console.error("❌ Error fetching following:", error);
+        throw error;
+    }
+};

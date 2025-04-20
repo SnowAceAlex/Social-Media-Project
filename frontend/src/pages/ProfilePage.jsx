@@ -6,16 +6,25 @@ import PostList from "../components/PostList";
 import { getCurrentUser } from "../helpers/getCurrentUser";
 import FollowButton from "../components/FollowButton";
 import useFollowStatus from "../hook/useFollowStatus";
+import DisplayFollowListModal from "../components/Modal/ShowFollowListModal";
 
 function ProfilePage() {
   const {id} = useParams();
   const {currentUser} = getCurrentUser();
   const { profile, loading, error } = useProfile(id || currentUser?.user?.id);
-  const { setShowEditModal, setShowCreatePostModal } = useOutletContext();
+  const { setShowEditModal, setShowCreatePostModal, setShowFollowingModal, setShowFollowerModal } = useOutletContext();
+
   const [selfProfile, setSelfProfile] = useState(false);
   const [activeTab, setActiveTab] = useState("post");
-  const { followCount } = useFollowStatus(profile?.id ?? null);
+  
+  const followStatus = useFollowStatus(
+    profile?.id && !loading ? profile.id : null,
+    selfProfile
+  );  
 
+  const [showFollowListModal, setShowFollowListModal] = useState(false);
+  const [followListType, setFollowListType] = useState("followers");
+  
   useEffect(() => {
     if (!id || id === currentUser?.user?.id) {
       setSelfProfile(true); 
@@ -59,15 +68,29 @@ function ProfilePage() {
                 <>
                   {profile.username}
                   <span className="text-[1rem] text-gray-500 dark:text-dark-text-subtle font-[400] flex gap-2 text-nowrap">
-                    <span>
-                      <span className="text-black font-medium dark:text-dark-text">
-                        {followCount ? followCount.followers : "0"}
-                      </span> Follower
+                    <span className="flex gap-1">
+                    <span className="text-black font-medium dark:text-dark-text">
+                      {followStatus.followCount?.followers ?? "0"}
                     </span>
-                    <span>
+                      <span className="hover:underline cursor-pointer"
+                            onClick={() => {
+                              setFollowListType("followers");
+                              setShowFollowListModal(true);
+                            }}>
+                        Followers
+                      </span>
+                    </span>
+                    <span className="flex gap-1">
                       <span className="text-black font-medium dark:text-dark-text">
-                        {followCount ? followCount.following : "0"}  
-                      </span> Following
+                        {followStatus.followCount?.following ?? "0"}
+                      </span> 
+                      <span className="hover:underline cursor-pointer"
+                            onClick={() => {
+                              setFollowListType("following");
+                              setShowFollowListModal(true);
+                            }}>
+                        Following
+                      </span>
                     </span>
                   </span>
                   <span className="text-[1rem] text-gray-500 dark:text-dark-text-subtle font-[400]">{profile.bio}</span>
@@ -87,7 +110,7 @@ function ProfilePage() {
         </div>
 
         {/* FOLLOW BUTTON */}
-        <FollowButton targetUserId={profile?.id ?? null} selfProfile={selfProfile} />
+        <FollowButton targetUserId={profile?.id ?? null} selfProfile={selfProfile} right="right-2 sm:right-10" />
       </div>
       {/* CREATE POST */}
       {
@@ -160,6 +183,15 @@ function ProfilePage() {
           )
         }
       </div>
+      {/* FOLLOW LIST MODAL */}
+      {showFollowListModal && (
+        <DisplayFollowListModal
+          title={followListType === "followers" ? "Followers" : "Following"}
+          userId={id || currentUser?.user?.id}
+          followListType={followListType}
+          onClose={() => setShowFollowListModal(false)}
+        />
+      )}
     </div>
   );
 }

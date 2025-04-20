@@ -1,7 +1,7 @@
 import React from "react";
 import useFollowStatus from "../hook/useFollowStatus";
 
-const FollowButton = ({ targetUserId, selfProfile }) => {
+const FollowButton = ({ targetUserId, selfProfile, right}) => {
     const { isFollowing, toggleFollow } = useFollowStatus(targetUserId, selfProfile);
 
     if (selfProfile) return null;
@@ -9,7 +9,7 @@ const FollowButton = ({ targetUserId, selfProfile }) => {
     return (
         <div
         onClick={toggleFollow}
-        className={`absolute right-2 sm:right-10 bottom-0 px-8 py-2 rounded-lg text-base font-semibold
+        className={`absolute ${right} bottom-0 px-8 py-2 rounded-lg text-base font-semibold
             dark:text-dark-text cursor-pointer
             ${isFollowing
             ? "border-2 border-light-border dark:border-dark-border"
