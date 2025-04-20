@@ -30,8 +30,8 @@ router.get("/search", authenticate, searchUsersByUsername)
 
 router.post("/follow", authenticate, followUser);
 router.post("/unfollow", authenticate, unfollowUser);
-router.get("/followers", authenticate, getFollowers);
-router.get("/followings", authenticate, getFollowing);
+router.get("/:id/followers", authenticate, getFollowers);
+router.get("/:id/followings", authenticate, getFollowing);
 router.get("/is-following/:id", authenticate, isFollowing);
 router.get("/followCount/:id", authenticate, getFollowerFollowingCount);
 export default router;

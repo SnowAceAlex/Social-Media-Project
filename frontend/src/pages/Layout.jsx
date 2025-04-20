@@ -5,6 +5,7 @@ import HeaderMB from '../components/Mobile/Header';
 import HeaderBotMB from '../components/Mobile/HeaderBot';
 import EditProfileModal from '../components/Modal/EditProfileModal';
 import CreatePostModal from '../components/Modal/CreatePostModal';
+import DisplayFollowListModal from '../components/Modal/ShowFollowListModal';
 
 function Layout() {
     const [showEditModal, setShowEditModal] = useState(false);
@@ -46,6 +47,7 @@ function Layout() {
 
             {showEditModal && <EditProfileModal onClose={() => setShowEditModal(false)} />}
             {showCreatePostModal && <CreatePostModal onClose={() => setShowCreatePostModal(false)} />}
+            
         </div>
     )
 }

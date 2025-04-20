@@ -28,9 +28,9 @@ function PostList({ profile = null, loadingProfile = false, userId = null }) {
                 const isLast = index === posts.length - 1;
                 return (
                     <div
-                    key={post.id}
-                    ref={isLast ? lastPostRef : null}
-                    className="py-2 border-b-[1px] border-light-border dark:border-dark-border"
+                        key={post.id}
+                        ref={isLast ? lastPostRef : null}
+                        className="py-2 border-b-[1px] border-light-border dark:border-dark-border"
                     >
                     <Post post={post} profile={profile} loading={loadingProfile} />
                     </div>

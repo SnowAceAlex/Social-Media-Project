@@ -297,19 +297,18 @@ export const unfollowUser = async (req, res) => {
 
 // Get followers of a user
 export const getFollowers = async (req, res) => {
-  const userId = req.user.id; // User ID whose followers are to be fetched
+  const userId = req.params.id;
 
   try {
     const result = await pool.query(
-      "SELECT users.id, users.username, users.full_name, users.profile_pic_url FROM followers INNER JOIN users ON followers.follower_id = users.id WHERE followers.following_id = $1",
+      `SELECT users.id, users.username, users.full_name, users.profile_pic_url
+        FROM followers
+        INNER JOIN users ON followers.follower_id = users.id
+        WHERE followers.following_id = $1`,
       [userId]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "No followers found" });
-    }
-
-    res.status(200).json(result.rows);
+    res.status(200).json(result.rows || []);
   } catch (error) {
     console.error("Error fetching followers:", error);
     res.status(500).json({ error: error.message });
@@ -318,22 +317,18 @@ export const getFollowers = async (req, res) => {
 
 // Get following users of a user
 export const getFollowing = async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.params.id;
 
   try {
     const result = await pool.query(
       `SELECT u.id, u.username, u.full_name, u.profile_pic_url
-       FROM followers f
-       JOIN users u ON u.id = f.following_id
-       WHERE f.follower_id = $1`,
+        FROM followers f
+        JOIN users u ON u.id = f.following_id
+        WHERE f.follower_id = $1`,
       [userId]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(200).json({ message: "Not following anyone" });
-    }
-
-    res.status(200).json(result.rows);
+    res.status(200).json(result.rows || []);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
