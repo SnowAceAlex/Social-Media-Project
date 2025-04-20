@@ -268,3 +268,27 @@ export const editPost = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Get the latest post from a specific user
+export const getLatestPostByUser = async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const result = await pool.query(
+        `SELECT posts.*, users.username, users.profile_pic_url
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        WHERE posts.user_id = $1
+        ORDER BY posts.created_at DESC
+        LIMIT 1`,
+      [userId]
+    );
+
+    return res.status(200).json({
+      data: result.rows.length > 0 ? result.rows[0] : null
+    });
+  } catch (error) {
+    console.error("Error fetching latest post:", error);
+    res.status(500).json({ error: error.message });
+  }
+};

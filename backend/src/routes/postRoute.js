@@ -10,6 +10,7 @@ import {
   getSinglePost,
   editPost,
   getLikes,
+  getLatestPostByUser,
 } from "../controller/postController.js";
 import { authenticate } from "../middleware/authenticateUser.js";
 
@@ -25,5 +26,6 @@ router.get("/comments/:postId", getComments);
 router.delete("/:postId", authenticate, deletePost);
 router.get("/:postId", authenticate, getSinglePost);
 router.put("/:postId", authenticate, editPost);
+router.get("/:userId/latestPost", getLatestPostByUser); 
 
 export default router;
