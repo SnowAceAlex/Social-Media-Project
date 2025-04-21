@@ -7,7 +7,8 @@ function PostOptionModal({onClose, onEdit, onDelete}) {
                     <div
                         className="h-14 flex items-center justify-center px-4 border-b-[1px] cursor-pointer
                                     border-light-border dark:border-gray-500/50 hover:bg-light-button-hover 
-                                    dark:hover:bg-dark-hover dark:text-white">
+                                    dark:hover:bg-dark-hover dark:text-white"
+                        onClick={onEdit}>
                         Edit post
                     </div>
                     <div
