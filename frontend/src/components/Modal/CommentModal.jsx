@@ -7,18 +7,40 @@ import TextareaAutosize from 'react-textarea-autosize';
 import useComments from '../../hook/useComments';
 import { formatDistanceToNow } from 'date-fns';
 import { IoMdSend } from "react-icons/io";
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
+import { BsThreeDots } from "react-icons/bs";
+import { getCurrentUser } from '../../helpers/getCurrentUser';
+import CommentOptionModal from './CommentOptionModal';
+import ConfirmModal from './ConfirmModal';
+import usePostService from '../../hook/usePostService';
+import { useReactions } from '../../hook/useReaction';
 
 function CommentModal({post, profile, loading, onClose }) {
     const captionRef = useRef(null);
+    const {currentUser} = getCurrentUser();
     const [content, setContent] = useState("");
-    const { comments, loading: loadingComments, addComment, fetchComments  } = useComments(post?.id);
+    const { comments, loading: loadingComments, addComment, refreshComments, deleteComment} = useComments(post?.id);
+    const [ showCommentOptions, setShowCommentOptions ] = useState(false);      
+    const [commentToDelete, setCommentToDelete] = useState(null);
+    const { showGlobalToast } = useOutletContext();
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const {commentCount, refreshCommentCount} = usePostService(post.id);
+    
+    //REACTION
+    const {
+        sortedReactions,
+        reactions,
+        refresh,
+        react: handleReact,
+        myReaction
+    } = useReactions(post.id);
 
     const handleSubmit = async () => {
         if (content.trim()) {
             await addComment(content);
             setContent("");
-            await fetchComments();
+            await refreshComments();
+            refreshCommentCount(); 
         }
     };
 
@@ -41,7 +63,7 @@ function CommentModal({post, profile, loading, onClose }) {
                     {/* Caption block - order first on mobile, second on desktop */}
                     <div className="order-1 md:order-2 w-full md:flex-3">
                         {/* Header (mobile only) */}
-                        <div className="relative flex items-center justify-center p-4 border-b border-light-border dark:border-dark-border">
+                        <div className="relative flex items-center justify-center pb-4 md:p-4 border-b border-light-border dark:border-dark-border">
                             <span className='text-xl font-semibold text-center'>
                                 Post of {profile?.username}
                             </span>
@@ -80,14 +102,14 @@ function CommentModal({post, profile, loading, onClose }) {
                                     <div>Loading comments...</div>
                                 ) : (
                                     comments.map((user) => (
-                                        console.log(user),
-                                    <div key={user.id} className='p-2 rounded dark:text-white flex gap-4 text-md'>
+                                    <div key={user.id} className='p-2 rounded dark:text-white flex gap-4 text-md group'>
                                         {
                                             user.profile_pic_url && (
                                                 <Link to={`/profile/${user.user_id}`}>
                                                     <div className="w-10 h-10 rounded-full overflow-hidden">
                                                         <img
                                                             src={user.profile_pic_url}
+                                                            title={user.username}
                                                             alt={user.username}
                                                             className="w-full h-full object-cover"
                                                         />
@@ -99,14 +121,23 @@ function CommentModal({post, profile, loading, onClose }) {
                                             <span>
                                                 <Link 
                                                     to={`/profile/${user.user_id}`} 
-                                                    className='font-semibold cursor-pointer text-nowrap mr-2'>
+                                                    className='font-semibold cursor-pointer text-nowrap mr-2'
+                                                    title={user.username}>
                                                     {user.username}
                                                 </Link>
                                                 {user.content}
                                             </span>
-                                            <span className=" dark:text-dark-input-disabled-text text-light-input-disabled-text text-[0.8rem]">
+                                            <div className=" dark:text-dark-input-disabled-text text-light-input-disabled-text text-[0.8rem] flex gap-4 items-center">
                                                 {user.created_at && formatDistanceToNow(new Date(user.created_at), { addSuffix: true })}
-                                            </span>
+                                                {
+                                                    currentUser?.user?.id === user.user_id && (
+                                                        <BsThreeDots size={18} className="hidden cursor-pointer group-hover:block" title='More options' 
+                                                                    onClick={() =>{ 
+                                                                        setShowCommentOptions(true),
+                                                                        setCommentToDelete(user.id);}}/>
+                                                    )
+                                                }
+                                            </div>
                                         </div>
                                     </div>
                                     ))
@@ -115,8 +146,13 @@ function CommentModal({post, profile, loading, onClose }) {
                         </div>
 
                         {/* Fixed input area always visible */}
-                        <div className="sticky bottom-0 bg-white dark:bg-dark-card">
-                            <PostReaction />
+                        <div className="md:sticky bottom-0 bg-white dark:bg-dark-card">
+                            <PostReaction 
+                                commentCount={commentCount}
+                                sortedReactions={sortedReactions}
+                                reactions={reactions}
+                                myReaction={myReaction}
+                                handleReact={handleReact}/>
                             <div className="flex items-center border rounded-md overflow-hidden">
                             <TextareaAutosize
                                 minRows={1}
@@ -145,6 +181,40 @@ function CommentModal({post, profile, loading, onClose }) {
 
                 </div>
             </div>
+            {
+                showCommentOptions && (
+                    <CommentOptionModal 
+                        onClose={() => setShowCommentOptions(false)}
+                        onDelete={() => {
+                            setShowConfirmModal(true);
+                            setShowCommentOptions(false);
+                        }} />
+                )
+            }
+            {
+                showConfirmModal && (
+                    <ConfirmModal
+                        title="Delete Comment"
+                        content="Are you sure you want to delete this comment?"
+                        confirm="Delete"
+                        onConfirm={async () => {
+                            try {
+                                await deleteComment(commentToDelete);
+                                await refreshCommentCount();
+                                showGlobalToast("Comment deleted successfully", "success");
+                            } catch (error) {
+                                showGlobalToast("Failed to delete comment", "error");
+                            } finally {
+                                setShowConfirmModal(false);
+                                setCommentToDelete(null);
+                            }
+                        }}
+                        onCancel={() => {
+                            setShowConfirmModal(false);
+                        }}
+                    />
+                )
+            }
         </div>
     );
 }
