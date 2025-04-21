@@ -26,7 +26,6 @@ router.get("/", getAllPosts); // Get all posts
 router.post("/react", authenticate, reactToPost); // React to a post (like, haha, wow, cry, angry)
 router.post("/unreact", authenticate, removeReaction); // Remove user's reaction
 router.get("/getreacts/:postId", authenticate, getReactions); // Get all reactions (counts) for a post
-router.get("/getreactsinfo/:postId", authenticate, getReactionsByPost); // Get all reactions (user info) for a post
 
 // Comments
 router.post("/comment", authenticate, commentPost); // Comment on a post
