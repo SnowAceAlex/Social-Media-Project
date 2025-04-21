@@ -12,6 +12,7 @@ import { BsThreeDots } from "react-icons/bs";
 import { getCurrentUser } from '../../helpers/getCurrentUser';
 import CommentOptionModal from './CommentOptionModal';
 import ConfirmModal from './ConfirmModal';
+import usePostService from '../../hook/usePostService';
 
 function CommentModal({post, profile, loading, onClose }) {
     const captionRef = useRef(null);
@@ -22,6 +23,21 @@ function CommentModal({post, profile, loading, onClose }) {
     const [commentToDelete, setCommentToDelete] = useState(null);
     const { showGlobalToast } = useOutletContext();
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const {getCommentCount} = usePostService();
+    const [commentCount, setCommentCount] = useState(0);
+    
+        useEffect(() => {
+            const fetchCommentCount = async () => {
+                try {
+                    const res = await getCommentCount(post.id);
+                    setCommentCount(res.commentCount);
+                } catch (err) {
+                    console.error("Failed to fetch comment count:", err);
+                }
+            };
+            fetchCommentCount();
+        }, [post.id]);
+    
 
     const handleSubmit = async () => {
         if (content.trim()) {
@@ -134,7 +150,7 @@ function CommentModal({post, profile, loading, onClose }) {
 
                         {/* Fixed input area always visible */}
                         <div className="md:sticky bottom-0 bg-white dark:bg-dark-card">
-                            <PostReaction />
+                            <PostReaction commentCount={commentCount} />
                             <div className="flex items-center border rounded-md overflow-hidden">
                             <TextareaAutosize
                                 minRows={1}
