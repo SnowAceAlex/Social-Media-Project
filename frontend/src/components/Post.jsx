@@ -9,11 +9,14 @@ import { BsThreeDots } from "react-icons/bs";
 import PostOptionModal from "./Modal/PostOptionModal";
 import usePostService from "../hook/usePostService";
 import ConfirmModal from "./Modal/ConfirmModal";
+import EditPostModal from "./Modal/EditPostModal";
 
 function Post({post = null, profile = null, loading = false}) {
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [showPostOptions, setShowPostOptions] = useState(false);
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+    const [showEditPost, setShowEditPost] = useState(false);
+
     const {currentUser} = getCurrentUser();
     const isCurrentUser = currentUser && currentUser.user?.id === post?.user_id;
     const { deletePost, loading: deleteLoading } = usePostService();
@@ -61,9 +64,14 @@ function Post({post = null, profile = null, loading = false}) {
                         setShowPostOptions(false);
                         setShowConfirmDelete(true);
                     }}
+                    onEdit={() => {
+                        setShowPostOptions(false);
+                        setShowEditPost(true);
+                    }}
                     />
                 )
             }
+            {/* CONFIRM DELETE MODAL */}
             {
                 showConfirmDelete && (
                     <ConfirmModal
@@ -75,6 +83,17 @@ function Post({post = null, profile = null, loading = false}) {
                             handleDeletePost();
                         }}
                         onCancel={() => setShowConfirmDelete(false)}
+                    />
+                )
+            }
+            {/* EDIT POST MODAL */}
+            {
+                showEditPost && (
+                    <EditPostModal 
+                    profile={profile}
+                    loading={loading}
+                    post={post}
+                    onClose={() => setShowEditPost(false)}
                     />
                 )
             }

@@ -16,6 +16,7 @@ import useMediaQuery from '../hook/useMediaQuery';
 import SearchFrame from './SearchFrame';
 import { getCurrentUser } from '../helpers/getCurrentUser';
 import { Link, useLocation } from 'react-router-dom';
+import ConfirmModal from './Modal/ConfirmModal';
 
 function Sidebar({ searchValue, setSearchValue }) {
     const [showMore, setShowMore] = useState(false);
@@ -26,6 +27,7 @@ function Sidebar({ searchValue, setSearchValue }) {
     const {currentUser,loading} = getCurrentUser();
     const location = useLocation();
     const pathname = location.pathname;
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     const handleToggleSearch = () => {
         if (!isSearchMode) {
@@ -108,15 +110,17 @@ function Sidebar({ searchValue, setSearchValue }) {
                         ${pathname.startsWith('/profile/me') ? 'font-bold bg-light-hover dark:bg-dark-hover' : 'font-[400]'}`} 
                     >
                     <div className={`rounded-full overflow-hidden bg-gray-300 box-border
-                                    ${pathname.startsWith('/profile/me') ? "w-9 h-9 border-[3px] border-dark-border dark:border-light-border" : "w-8 h-8"}`}>
+                                    ${pathname.startsWith('/profile/me') ? "w-9 h-9 border-[2px] border-dark-border dark:border-light-border" : "w-8 h-8"}`}>
                         {loading ? (
                         <div className='w-full h-full bg-gray-300 animate-pulse rounded-full' />
                         ) : (
-                        <img
-                            src={currentUser?.user?.profile_pic_url}
-                            alt="avatar"
-                            className={`w-full h-full object-cover"}`}
-                        />
+                        <div className="w-full h-full rounded-full overflow-hidden">
+                            <img
+                                src={currentUser?.user?.profile_pic_url}
+                                alt="avatar"
+                                className={`w-full h-full object-cover"}`}
+                            />
+                        </div>
                         )}
                     </div>
                     {!isSearchMode && <p className='text-md'>Profile</p>}
@@ -141,10 +145,25 @@ function Sidebar({ searchValue, setSearchValue }) {
                             <MenuItem icon={TbSettings2} label="Settings" />
                             <MenuItem icon={LuSunMedium} label="Switch appearance" onClick={toggleTheme} />
                             <hr className="my-1 border-t-1 border-gray-200 dark:border-dark-button w-full" />
-                            <MenuItem icon={IoLogOutOutline} label="Log out" to="/" isLogout="true" />
+                            <MenuItem icon={IoLogOutOutline} label="Log out" isLogout="true"
+                                onClick={() => setShowLogoutConfirm(true)}/>
                         </div>
                     )}
             </div>
+            {
+                showLogoutConfirm && (
+                    <ConfirmModal
+                        title={"Log out?"}
+                        content={"Are you sure you want to log out?"}
+                        confirm={"Confirm"}
+                        to="/"
+                        onConfirm={() => {
+
+                        }}
+                        onCancel={() => setShowLogoutConfirm(false)}
+                    />
+                )
+            }
         </div>
         {/* Search Frame */}
         <SearchFrame showSearchFrame={showSearchFrame} searchValue={searchValue} setSearchValue={setSearchValue}/>
