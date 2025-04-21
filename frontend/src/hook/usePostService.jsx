@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { deletePostById } from "../services/PostService";
+import { deletePostById, editPostService } from "../services/PostService";
 
 const usePostService = () => {
     const [loading, setLoading] = useState(false);
@@ -19,6 +19,20 @@ const usePostService = () => {
         }
     };
 
-    return { deletePost, loading, error };
+    const editPost = async (postId, data) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const result = await editPostService(postId, data);
+            return result;
+        } catch (err) {
+            setError(err);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return {editPost, deletePost, loading, error };
 };
 export default usePostService;

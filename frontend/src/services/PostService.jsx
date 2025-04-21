@@ -21,3 +21,10 @@ export const deletePostById = async (postId) => {
     });
     return response.data;
 };
+
+export const editPostService = async (postId, data) => {
+    const response = await axios.put(`http://localhost:5000/posts/${postId}`, data, {
+        withCredentials: true, 
+    });
+    return response.data;
+};
