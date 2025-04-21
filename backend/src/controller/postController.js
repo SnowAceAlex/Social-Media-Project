@@ -59,68 +59,105 @@ export const getAllPosts = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-// Like a post
-export const likePost = async (req, res) => {
-  const { post_id } = req.body;
+
+// React to a post
+export const reactToPost = async (req, res) => {
+  const { post_id, reaction_type } = req.body;
   const userId = req.user.id;
+
+  const validReactions = ["like", "haha", "wow", "cry", "angry"];
+  if (!validReactions.includes(reaction_type)) {
+    return res.status(400).json({ error: "Invalid reaction type" });
+  }
 
   try {
     const result = await pool.query(
-      `INSERT INTO likes (user_id, post_id) 
-       VALUES ($1, $2) 
-       ON CONFLICT (user_id, post_id) DO NOTHING 
+      `INSERT INTO reactions (user_id, post_id, reaction_type)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (user_id, post_id) 
+       DO UPDATE SET reaction_type = EXCLUDED.reaction_type, created_at = CURRENT_TIMESTAMP
        RETURNING *`,
-      [userId, post_id]
+      [userId, post_id, reaction_type]
     );
 
-    if (result.rowCount === 0) {
-      return res.status(200).json({ message: "Already liked" });
-    }
-
-    res.status(201).json({ message: "Post liked", like: result.rows[0] });
+    res
+      .status(200)
+      .json({ message: "Reaction recorded", reaction: result.rows[0] });
   } catch (error) {
-    console.error("Error liking post:", error);
+    console.error("Error reacting to post:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// Unlike a post
-export const unlikePost = async (req, res) => {
+// Remove reaction from a post
+export const removeReaction = async (req, res) => {
   const { post_id } = req.body;
   const userId = req.user.id;
 
   try {
     const result = await pool.query(
-      `DELETE FROM likes WHERE user_id = $1 AND post_id = $2 RETURNING *`,
+      `DELETE FROM reactions WHERE user_id = $1 AND post_id = $2 RETURNING *`,
       [userId, post_id]
     );
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Like not found" });
+      return res.status(404).json({ error: "Reaction not found" });
     }
 
-    res.status(200).json({ message: "Post unliked" });
+    res.status(200).json({ message: "Reaction removed" });
   } catch (error) {
-    console.error("Error unliking post:", error);
+    console.error("Error removing reaction:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// Get number of likes on a post
-export const getLikes = async (req, res) => {
+// Get reaction counts on a post
+export const getReactions = async (req, res) => {
   const postId = parseInt(req.params.postId);
 
   try {
     const result = await pool.query(
-      `SELECT COUNT(*) AS like_count
-       FROM likes
-       WHERE post_id = $1`,
+      `SELECT reaction_type, COUNT(*) AS count
+       FROM reactions
+       WHERE post_id = $1
+       GROUP BY reaction_type`,
       [postId]
     );
 
-    res.status(200).json({ likeCount: parseInt(result.rows[0].like_count) });
+    // Format result into an object
+    const reactionCounts = {
+      like: 0,
+      haha: 0,
+      wow: 0,
+      cry: 0,
+      angry: 0,
+    };
+
+    result.rows.forEach((row) => {
+      reactionCounts[row.reaction_type] = parseInt(row.count);
+    });
+
+    res.status(200).json(reactionCounts);
   } catch (error) {
-    console.error("Error counting likes:", error);
+    console.error("Error fetching reaction counts:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get the current user's reaction on a specific post
+export const getMyReaction = async (req, res) => {
+  const userId = req.user.id;
+  const postId = parseInt(req.params.postId);
+
+  try {
+    const result = await pool.query(
+      `SELECT reaction_type FROM reactions WHERE user_id = $1 AND post_id = $2`,
+      [userId, postId]
+    );
+
+    res.status(200).json({ reaction: result.rows[0]?.reaction_type || null });
+  } catch (error) {
+    console.error("Error fetching user reaction:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -258,11 +295,11 @@ export const getSinglePost = async (req, res) => {
     }
 
     // Fetch likes for the post
-    const likesResult = await pool.query(
-      `SELECT users.id, users.username, users.profile_pic_url 
-       FROM likes 
-       JOIN users ON likes.user_id = users.id 
-       WHERE post_id = $1`,
+    const reactionsResult = await pool.query(
+      `SELECT users.id, users.username, users.profile_pic_url, reactions.reaction_type
+       FROM reactions
+       JOIN users ON reactions.user_id = users.id
+       WHERE reactions.post_id = $1`,
       [postId]
     );
 
