@@ -6,11 +6,11 @@ import HeaderBotMB from '../components/Mobile/HeaderBot';
 import EditProfileModal from '../components/Modal/EditProfileModal';
 import CreatePostModal from '../components/Modal/CreatePostModal';
 import DisplayFollowListModal from '../components/Modal/ShowFollowListModal';
+import AlertToast from '../components/Modal/AlertModel';
 
 function Layout() {
     const [showEditModal, setShowEditModal] = useState(false);
     const [showCreatePostModal, setShowCreatePostModal] = useState(false);
-    
     const [searchValue, setSearchValue] = useState('');
 
     useEffect(() => {
@@ -21,6 +21,16 @@ function Layout() {
         document.body.style.overflow = showCreatePostModal ? 'hidden' : 'auto';
     }
     , [showCreatePostModal]);
+
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState('error');
+
+    const showGlobalToast = (message, type = 'error') => {
+        setToastMessage(message);
+        setToastType(type);
+        setShowToast(true);
+    };
 
     return (
         <div className="w-full relative">
@@ -38,7 +48,7 @@ function Layout() {
                     <div className="h-[42rem]"></div>
                     <div className="h-[42rem] "></div>
                     <div className="h-[42rem] "></div> */}
-                    <Outlet context={{ setShowEditModal, setShowCreatePostModal }}/>
+                    <Outlet context={{ setShowEditModal, setShowCreatePostModal, showGlobalToast}}/>
                 </div>
             </div>
 
@@ -48,9 +58,14 @@ function Layout() {
             {showEditModal && <EditProfileModal onClose={() => setShowEditModal(false)} />}
             {showCreatePostModal && <CreatePostModal onClose={() => setShowCreatePostModal(false)} />}
             
+            <AlertToast
+                show={showToast}
+                message={toastMessage}
+                type={toastType}
+                onClose={() => setShowToast(false)}
+            />
         </div>
     )
 }
-
 
 export default Layout

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createPostService } from "../services/createPostService";
+import { createPostService } from "../services/PostService";
 
 export const useCreatePostService = (onSuccess, onError) => {
     const [loading, setLoading] = useState(false);

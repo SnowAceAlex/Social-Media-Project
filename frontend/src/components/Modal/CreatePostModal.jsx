@@ -34,13 +34,13 @@ const CreatePostModal = ({ onClose }) => {
                                 rounded-full cursor-pointer hidden md:flex
                                 absolute right-6 top-4 z-10"
             />
-            <div className="bg-white dark:bg-dark-card w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[65rem]
+            <div className="bg-white dark:bg-dark-card w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]
                             max-h-[90vh] overflow-hidden shadow-md relative">
                 {/* Responsive Content */}
-                <div className="flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-auto px-4 py-6 md:h-[80vh]
+                <div className="flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-auto px-4 py-6 md:h-[90vh]
                                 md:p-0">
                     {/* Caption block - order first on mobile, second on desktop */}
-                    <div className="order-1 md:order-2 w-full md:w-1/2">
+                    <div className="order-1 md:order-2 w-full md:flex-3">
                         {/* Header (mobile only) */}
                         <div className="relative flex items-center justify-center p-4 border-b border-light-border dark:border-dark-border">
                             <span className='text-2xl font-bold text-center'>Create Post</span>

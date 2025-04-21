@@ -1,0 +1,84 @@
+import React, { useState } from 'react'
+import { IoCloseOutline } from "react-icons/io5";
+import useProfile from '../../hook/useProfile';
+import CaptionTextarea from '../CaptionTextarea';
+import UploadBlock from '../UploadBlock';
+import { useCreatePostService } from '../../hook/useCreatePostService';
+import Avatar_Username from '../Avatar_Username';
+import { getCurrentUser } from '../../helpers/getCurrentUser';
+import usePostService from '../../hook/usePostService';
+import { useOutletContext } from 'react-router-dom'; // 👈 dùng để nhận context từ layout
+
+const EditPostModal = ({ post, profile, loading, onClose }) => {
+    const [caption, setCaption] = useState(post.caption || "");
+    const { editPost, loading: editLoading } = usePostService();
+    const { showGlobalToast } = useOutletContext(); // 👈 lấy từ Layout
+
+    const handleEdit = async () => {
+        try {
+            await editPost(post.id, { caption });
+            showGlobalToast("Post updated!", "success");
+            onClose();
+        } catch (err) {
+            console.error('Error updating post:', err);
+            showGlobalToast("Failed to update post.", "error");
+        }
+    };
+
+    return (
+        <div className="fixed top-0 left-0 w-full h-full z-[99] bg-black/50
+                        flex items-center justify-center dark:text-dark-text">
+            <IoCloseOutline
+                size={45}
+                onClick={onClose}
+                title="Close"
+                className="p-1 dark:text-dark-text text-light
+                            rounded-full cursor-pointer hidden md:flex
+                            absolute right-6 top-4 z-10"
+            />
+            <div className="bg-white dark:bg-dark-card w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]
+                            max-h-[90vh] overflow-hidden shadow-md relative">
+                <div className="flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-auto px-4 py-6 md:h-[90vh] md:p-0">
+                    <div className="order-1 md:order-2 w-full md:flex-3">
+                        <div className="relative flex items-center justify-center pb-4 md:p-4 border-b border-light-border dark:border-dark-border">
+                            <span className='text-xl font-semibold text-center'>
+                                Post of {profile?.username}
+                            </span>
+                            <IoCloseOutline
+                                size={28}
+                                onClick={onClose}
+                                title="Close"
+                                className="p-1 bg-light-button hover:bg-light-button-hover md:hidden
+                                    dark:bg-dark-button dark:hover:bg-dark-button-hover dark:text-dark-text
+                                    rounded-full cursor-pointer absolute right-0 top-0"
+                            />
+                        </div>
+
+                        <div className="w-full flex items-center gap-4 mt-2 md:mb-2">
+                            <Avatar_Username profile={profile} loading={loading} createdAt={post.created_at} />
+                        </div>
+                        <CaptionTextarea value={caption} onChange={setCaption} />
+                    </div>
+
+                    <UploadBlock />
+
+                    <button
+                        onClick={handleEdit}
+                        disabled={editLoading}
+                        className="w-fit h-fit text-lg py-2 px-4 order-3 ml-auto
+                            md:absolute md:bottom-4 md:right-4 cursor-pointer
+                            bg-gradient-to-tr from-[#fd9739] via-[#e75982] to-[#c91dc4]
+                            text-white shadow-lg
+                            hover:scale-105 hover:shadow-2xl hover:font-semibold
+                            transition-all duration-300 ease-in-out"
+                        title='Edit your post'
+                    >
+                        {editLoading ? "Updating..." : "Confirm"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default EditPostModal;

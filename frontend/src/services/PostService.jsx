@@ -14,3 +14,17 @@ export const createPostService = async (caption) => {
         throw new Error(msg);
     }
 };
+
+export const deletePostById = async (postId) => {
+    const response = await axios.delete(`http://localhost:5000/posts/${postId}`, {
+        withCredentials: true, 
+    });
+    return response.data;
+};
+
+export const editPostService = async (postId, data) => {
+    const response = await axios.put(`http://localhost:5000/posts/${postId}`, data, {
+        withCredentials: true, 
+    });
+    return response.data;
+};
