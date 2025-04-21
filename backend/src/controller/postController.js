@@ -40,7 +40,7 @@ export const getAllPosts = async (req, res) => {
       SELECT posts.*, users.username, users.profile_pic_url
       FROM posts
       JOIN users ON posts.user_id = users.id
-      ${userId ? 'WHERE posts.user_id = $3' : ''}
+      ${userId ? "WHERE posts.user_id = $3" : ""}
       ORDER BY posts.created_at DESC
       LIMIT $1 OFFSET $2
     `;
@@ -49,10 +49,10 @@ export const getAllPosts = async (req, res) => {
 
     const result = await pool.query(baseQuery, values);
 
-    res.status(200).json({ 
+    res.status(200).json({
       page,
-      posts: result.rows, 
-      hasMore: result.rows.length === limit 
+      posts: result.rows,
+      hasMore: result.rows.length === limit,
     });
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -161,6 +161,54 @@ export const getComments = async (req, res) => {
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error fetching comments:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//Get number of comments on a post
+export const getCommentCount = async (req, res) => {
+  const postId = parseInt(req.params.postId);
+
+  try {
+    const result = await pool.query(
+      `SELECT COUNT(*) AS comment_count
+       FROM comments
+        WHERE post_id = $1`,
+      [postId]
+    );
+
+    res
+      .status(200)
+      .json({ commentCount: parseInt(result.rows[0].comment_count) });
+  } catch (error) {
+    console.error("Error counting comments:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//Delete a comment (only if user is the owner)
+export const deleteComment = async (req, res) => {
+  const commentId = parseInt(req.params.commentId);
+  const userId = req.user.id;
+
+  try {
+    // Check if the comment exists and belongs to the user
+    const check = await pool.query(
+      `SELECT * FROM comments WHERE id = $1 AND user_id = $2`,
+      [commentId, userId]
+    );
+
+    if (check.rows.length === 0) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized or comment not found" });
+    }
+
+    // Delete the comment
+    await pool.query(`DELETE FROM comments WHERE id = $1`, [commentId]);
+    res.status(200).json({ message: "Comment deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -275,7 +323,7 @@ export const getLatestPostByUser = async (req, res) => {
 
   try {
     const result = await pool.query(
-        `SELECT posts.*, users.username, users.profile_pic_url
+      `SELECT posts.*, users.username, users.profile_pic_url
         FROM posts
         JOIN users ON posts.user_id = users.id
         WHERE posts.user_id = $1
@@ -285,7 +333,7 @@ export const getLatestPostByUser = async (req, res) => {
     );
 
     return res.status(200).json({
-      data: result.rows.length > 0 ? result.rows[0] : null
+      data: result.rows.length > 0 ? result.rows[0] : null,
     });
   } catch (error) {
     console.error("Error fetching latest post:", error);
