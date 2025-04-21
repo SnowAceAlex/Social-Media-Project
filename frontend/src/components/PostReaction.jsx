@@ -4,10 +4,13 @@ import { CiBookmark } from "react-icons/ci";
 import { CiShare1 } from "react-icons/ci";
 import { IoBookmark } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
+import { CiHeart } from "react-icons/ci";
+import { useReactions } from '../hook/useReaction';
 
-function PostReaction({commentCount, setShowCommentModal}) {
+function PostReaction({sortedReactions, commentCount, setShowCommentModal, reactions, myReaction,handleReact}) {
     const [bookmarked, setBookmarked] = useState(false);
     const [isHovering, setIsHovering] = useState(false);
+    
     return (
     <div className="h-12 flex justify-between items-center">
         <div
@@ -16,15 +19,23 @@ function PostReaction({commentCount, setShowCommentModal}) {
             onMouseLeave={() => setIsHovering(false)}
         >
             {/* Nút cảm xúc */}
-            <span className="flex items-center hover:cursor-pointer hover:bg-gray-200 px-2 py-1 rounded-full
-                            dark:hover:bg-dark-hover">
-                <span className="">❤️</span>
-                <span>😂</span>
-                <span>😮</span>
-                <span>😢</span>
-                <span>😡</span>
+            <span
+                className="flex items-center hover:cursor-pointer hover:bg-gray-200 
+                px-2 py-1 rounded-full dark:hover:bg-dark-hover"
+                onClick={() => setIsHovering(true)} 
+                >
+                {sortedReactions.length === 0 ? (
+                    <CiHeart size={22} className="text-[#E1306C]" title="React" />
+                ) : (
+                    sortedReactions.map((emoji, i) => (
+                        <span key={i} className="text-xl">{emoji}</span>
+                    ))
+                )}
             </span>
-            <span className="dark:text-dark-text">209</span>
+
+            <span className="dark:text-dark-text">
+                {Object.values(reactions).reduce((a, b) => a + b, 0)}
+            </span>
 
             {/* Popup cảm xúc */}
             <AnimatePresence>
@@ -40,22 +51,31 @@ function PostReaction({commentCount, setShowCommentModal}) {
                         exit={{ opacity: 0, y: 10 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
                     >
-                        {["❤️", "😂", "😮", "😢", "😡"].map((emoji, index) => (
-                        <motion.span
-                            key={index}
-                            whileHover={{
-                                scale: 1.5,
-                                transition: {
-                                    type: "spring",
-                                    stiffness: 300,
-                                    damping: 10,
-                                },
-                            }}
-                            className="mx-1"
-                        >
-                            {emoji}
-                        </motion.span>
-                    ))}
+                        {[
+                            { emoji: "❤️", type: "like" },
+                            { emoji: "😂", type: "haha" },
+                            { emoji: "😮", type: "wow" },
+                            { emoji: "😢", type: "cry" },
+                            { emoji: "😡", type: "angry" }
+                        ].map(({ emoji, type }) => (
+                            <motion.span
+                                key={type}
+                                title={type}
+                                whileHover={{
+                                    scale: 1.5,
+                                    transition: { type: "spring", stiffness: 300, damping: 10 },
+                                }}
+                                whileTap={{ scale: 1.2 }}
+                                animate={{ scale: myReaction === type ? 1.5 : 1 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 12 }}
+                                className="mx-1"
+                                onClick={() => {
+                                    handleReact(type);
+                                    setIsHovering(false);
+                                }}>
+                                {emoji}
+                            </motion.span>
+                        ))}
                     </motion.div>
                 )}
             </AnimatePresence>
