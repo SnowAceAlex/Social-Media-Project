@@ -1,12 +1,17 @@
-// components/Modal/ConfirmDeleteModal.jsx
 import React from 'react';
-
+import { motion } from 'framer-motion'; 
 import { Link } from "react-router-dom";
 
 function ConfirmModal({ title, content, confirm, to, onConfirm, onCancel }) {
     return (
         <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center">
-            <div className="bg-white dark:bg-dark-card rounded-xl w-[22rem] text-center dark:text-dark-text overflow-hidden">
+            <motion.div
+                initial={{ scale: 1.2, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="bg-white dark:bg-dark-card rounded-xl w-[22rem] text-center dark:text-dark-text overflow-hidden shadow-lg"
+            >
                 <div className='w-full py-6 px-4'>
                     <h2 className="text-xl mb-4">{title}</h2>
                     <p>{content}</p>
@@ -35,7 +40,7 @@ function ConfirmModal({ title, content, confirm, to, onConfirm, onCancel }) {
                         Cancel
                     </button>
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 }
