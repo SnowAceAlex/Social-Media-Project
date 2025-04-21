@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { deletePostById, editPostService } from "../services/PostService";
+import { deletePostById, editPostService, getCommentCountService } from "../services/PostService";
 
 const usePostService = () => {
     const [loading, setLoading] = useState(false);
@@ -33,6 +33,20 @@ const usePostService = () => {
         }
     };
 
-    return {editPost, deletePost, loading, error };
+    const getCommentCount = async (postId) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await getCommentCountService(postId);
+            return response;
+        } catch (err) {
+            setError(err?.response?.data?.error || "Error fetching comment count");
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return {editPost, deletePost, getCommentCount, loading, error };
 };
 export default usePostService;
