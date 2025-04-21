@@ -7,17 +7,37 @@ import TextareaAutosize from 'react-textarea-autosize';
 import useComments from '../../hook/useComments';
 import { formatDistanceToNow } from 'date-fns';
 import { IoMdSend } from "react-icons/io";
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import { BsThreeDots } from "react-icons/bs";
 import { getCurrentUser } from '../../helpers/getCurrentUser';
 import CommentOptionModal from './CommentOptionModal';
+import ConfirmModal from './ConfirmModal';
+import usePostService from '../../hook/usePostService';
 
 function CommentModal({post, profile, loading, onClose }) {
     const captionRef = useRef(null);
     const {currentUser} = getCurrentUser();
     const [content, setContent] = useState("");
-    const { comments, loading: loadingComments, addComment, fetchComments  } = useComments(post?.id);
-    const [ showCommentOptions, setShowCommentOptions ] = useState(false);
+    const { comments, loading: loadingComments, addComment, fetchComments, deleteComment} = useComments(post?.id);
+    const [ showCommentOptions, setShowCommentOptions ] = useState(false);      
+    const [commentToDelete, setCommentToDelete] = useState(null);
+    const { showGlobalToast } = useOutletContext();
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const {getCommentCount} = usePostService();
+    const [commentCount, setCommentCount] = useState(0);
+    
+        useEffect(() => {
+            const fetchCommentCount = async () => {
+                try {
+                    const res = await getCommentCount(post.id);
+                    setCommentCount(res.commentCount);
+                } catch (err) {
+                    console.error("Failed to fetch comment count:", err);
+                }
+            };
+            fetchCommentCount();
+        }, [post.id]);
+    
 
     const handleSubmit = async () => {
         if (content.trim()) {
@@ -115,7 +135,9 @@ function CommentModal({post, profile, loading, onClose }) {
                                                 {
                                                     currentUser?.user?.id === user.user_id && (
                                                         <BsThreeDots size={18} className="hidden cursor-pointer group-hover:block" title='More options' 
-                                                                    onClick={() => setShowCommentOptions(true)}/>
+                                                                    onClick={() =>{ 
+                                                                        setShowCommentOptions(true),
+                                                                        setCommentToDelete(user.id);}}/>
                                                     )
                                                 }
                                             </div>
@@ -128,7 +150,7 @@ function CommentModal({post, profile, loading, onClose }) {
 
                         {/* Fixed input area always visible */}
                         <div className="md:sticky bottom-0 bg-white dark:bg-dark-card">
-                            <PostReaction />
+                            <PostReaction commentCount={commentCount} />
                             <div className="flex items-center border rounded-md overflow-hidden">
                             <TextareaAutosize
                                 minRows={1}
@@ -159,7 +181,35 @@ function CommentModal({post, profile, loading, onClose }) {
             </div>
             {
                 showCommentOptions && (
-                    <CommentOptionModal onClose={() => setShowCommentOptions(false)} />
+                    <CommentOptionModal 
+                        onClose={() => setShowCommentOptions(false)}
+                        onDelete={() => {
+                            setShowConfirmModal(true);
+                            setShowCommentOptions(false);
+                        }} />
+                )
+            }
+            {
+                showConfirmModal && (
+                    <ConfirmModal
+                        title="Delete Comment"
+                        content="Are you sure you want to delete this comment?"
+                        confirm="Delete"
+                        onConfirm={async () => {
+                            try {
+                                await deleteComment(commentToDelete);
+                                showGlobalToast("Comment deleted successfully", "success");
+                            } catch (error) {
+                                showGlobalToast("Failed to delete comment", "error");
+                            } finally {
+                                setShowConfirmModal(false);
+                                setCommentToDelete(null);
+                            }
+                        }}
+                        onCancel={() => {
+                            setShowConfirmModal(false);
+                        }}
+                    />
                 )
             }
         </div>

@@ -5,7 +5,7 @@ import { CiShare1 } from "react-icons/ci";
 import { IoBookmark } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
 
-function PostReaction({setShowCommentModal}) {
+function PostReaction({commentCount, setShowCommentModal}) {
     const [bookmarked, setBookmarked] = useState(false);
     const [isHovering, setIsHovering] = useState(false);
     return (
@@ -65,7 +65,7 @@ function PostReaction({setShowCommentModal}) {
                             dark:text-dark-text-subtle dark:hover:text-dark-text"
                 onClick={() => setShowCommentModal(true)}>
                 <TfiComment size={18} className="mt-1" title="Comments"/>
-                <span>18</span>
+                <span>{commentCount || 0}</span>
             </div>
             <div className="flex items-center gap-1 cursor-pointer hover:text-black
                             dark:text-dark-text-subtle dark:hover:text-dark-text">

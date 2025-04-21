@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Avatar_Username from "./Avatar_Username";
 import PostCaption from "./PostCaption";
@@ -19,7 +19,21 @@ function Post({post = null, profile = null, loading = false}) {
 
     const {currentUser} = getCurrentUser();
     const isCurrentUser = currentUser && currentUser.user?.id === post?.user_id;
-    const { deletePost, loading: deleteLoading } = usePostService();
+    const {getCommentCount, deletePost, loading: deleteLoading } = usePostService();
+    const [commentCount, setCommentCount] = useState(0);
+
+    useEffect(() => {
+        const fetchCommentCount = async () => {
+            try {
+                const res = await getCommentCount(post.id);
+                setCommentCount(res.commentCount);
+            } catch (err) {
+                console.error("Failed to fetch comment count:", err);
+            }
+        };
+        fetchCommentCount();
+    }, [post.id]);
+
     const handleDeletePost = async () => {
         try {
             await deletePost(post.id);
@@ -44,7 +58,7 @@ function Post({post = null, profile = null, loading = false}) {
                 }
             </div>
             <PostCaption caption={post.caption}/>
-            <PostReaction setShowCommentModal={setShowCommentModal}/>
+            <PostReaction commentCount={commentCount} setShowCommentModal={setShowCommentModal}/>
             {/* COMMENTS MODAL */}
             {
                 showCommentModal && (

@@ -1,6 +1,6 @@
 // hooks/useComments.js
 import { useEffect, useState } from "react";
-import { getComments, postComment } from "../services/commentService";
+import { deleteCommentService, getComments, postComment } from "../services/PostService";
 
 export default function useComments(postId) {
     const [comments, setComments] = useState([]);
@@ -27,9 +27,18 @@ export default function useComments(postId) {
         }
     };
 
+    const deleteComment = async (commentId) => {
+        try {
+            await deleteCommentService(commentId);
+            setComments((prev) => prev.filter(comment => comment.id !== commentId));
+        } catch (err) {
+            console.error("Failed to delete comment", err);
+        }
+    };
+
     useEffect(() => {
         fetchComments();
     }, [postId]);
 
-    return { comments, loading, addComment, fetchComments };
+    return { comments, loading, deleteComment, addComment, fetchComments };
 }

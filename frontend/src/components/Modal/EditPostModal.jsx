@@ -12,7 +12,7 @@ import { useOutletContext } from 'react-router-dom'; // 👈 dùng để nhận 
 const EditPostModal = ({ post, profile, loading, onClose }) => {
     const [caption, setCaption] = useState(post.caption || "");
     const { editPost, loading: editLoading } = usePostService();
-    const { showGlobalToast } = useOutletContext(); // 👈 lấy từ Layout
+    const { showGlobalToast } = useOutletContext();
 
     const handleEdit = async () => {
         try {
