@@ -162,6 +162,23 @@ export const getMyReaction = async (req, res) => {
   }
 };
 
+// Get all reactions for a post
+export const getReactionsByPost = async (req, res) => {
+  const postId = parseInt(req.params.postId);
+
+  try {
+    const result = await pool.query(
+      `SELECT user_id, reaction_type FROM reactions WHERE post_id = $1`,
+      [postId]
+    );
+
+    res.status(200).json({ reactions: result.rows });
+  } catch (error) {
+    console.error("Error fetching reactions for post:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Comment on a post
 export const commentPost = async (req, res) => {
   const { post_id, content } = req.body;
