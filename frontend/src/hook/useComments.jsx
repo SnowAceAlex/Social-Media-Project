@@ -40,5 +40,5 @@ export default function useComments(postId) {
         fetchComments();
     }, [postId]);
 
-    return { comments, loading, deleteComment, addComment, fetchComments };
+    return { comments, loading, deleteComment, addComment, refreshComments:fetchComments };
 }
