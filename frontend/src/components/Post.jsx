@@ -10,6 +10,7 @@ import PostOptionModal from "./Modal/PostOptionModal";
 import usePostService from "../hook/usePostService";
 import ConfirmModal from "./Modal/ConfirmModal";
 import EditPostModal from "./Modal/EditPostModal";
+import { useReactions } from "../hook/useReaction";
 
 function Post({post = null, profile = null, loading = false}) {
     const [showCommentModal, setShowCommentModal] = useState(false);
@@ -19,21 +20,23 @@ function Post({post = null, profile = null, loading = false}) {
 
     const {currentUser} = getCurrentUser();
     const isCurrentUser = currentUser && currentUser.user?.id === post?.user_id;
-    const {getCommentCount, deletePost, loading: deleteLoading } = usePostService();
-    const [commentCount, setCommentCount] = useState(0);
+    const {
+        commentCount,
+        refreshCommentCount,
+        deletePost,
+        loading: deleteLoading
+    } = usePostService(post.id);
 
-    useEffect(() => {
-        const fetchCommentCount = async () => {
-            try {
-                const res = await getCommentCount(post.id);
-                setCommentCount(res.commentCount);
-            } catch (err) {
-                console.error("Failed to fetch comment count:", err);
-            }
-        };
-        fetchCommentCount();
-    }, [post.id]);
+    //REACTION
+    const {
+        sortedReactions,
+        reactions,
+        refresh,
+        react: handleReact,
+        myReaction
+    } = useReactions(post.id);
 
+    // DELETE POST
     const handleDeletePost = async () => {
         try {
             await deletePost(post.id);
@@ -58,7 +61,13 @@ function Post({post = null, profile = null, loading = false}) {
                 }
             </div>
             <PostCaption caption={post.caption}/>
-            <PostReaction commentCount={commentCount} setShowCommentModal={setShowCommentModal}/>
+            <PostReaction 
+                commentCount={commentCount}
+                setShowCommentModal={setShowCommentModal}
+                sortedReactions={sortedReactions}
+                reactions={reactions}
+                myReaction={myReaction}
+                handleReact={handleReact}/>
             {/* COMMENTS MODAL */}
             {
                 showCommentModal && (
@@ -66,7 +75,7 @@ function Post({post = null, profile = null, loading = false}) {
                     profile={profile}
                     loading={loading}
                     post={post}
-                    onClose={() => setShowCommentModal(false)}/>
+                    onClose={() => {setShowCommentModal(false), refresh(), refreshCommentCount()}}/>
                 )
             }
             {/* POST OPTIONS MODAL */}

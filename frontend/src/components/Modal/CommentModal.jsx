@@ -13,37 +13,34 @@ import { getCurrentUser } from '../../helpers/getCurrentUser';
 import CommentOptionModal from './CommentOptionModal';
 import ConfirmModal from './ConfirmModal';
 import usePostService from '../../hook/usePostService';
+import { useReactions } from '../../hook/useReaction';
 
 function CommentModal({post, profile, loading, onClose }) {
     const captionRef = useRef(null);
     const {currentUser} = getCurrentUser();
     const [content, setContent] = useState("");
-    const { comments, loading: loadingComments, addComment, fetchComments, deleteComment} = useComments(post?.id);
+    const { comments, loading: loadingComments, addComment, refreshComments, deleteComment} = useComments(post?.id);
     const [ showCommentOptions, setShowCommentOptions ] = useState(false);      
     const [commentToDelete, setCommentToDelete] = useState(null);
     const { showGlobalToast } = useOutletContext();
     const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const {getCommentCount} = usePostService();
-    const [commentCount, setCommentCount] = useState(0);
+    const {commentCount, refreshCommentCount} = usePostService(post.id);
     
-        useEffect(() => {
-            const fetchCommentCount = async () => {
-                try {
-                    const res = await getCommentCount(post.id);
-                    setCommentCount(res.commentCount);
-                } catch (err) {
-                    console.error("Failed to fetch comment count:", err);
-                }
-            };
-            fetchCommentCount();
-        }, [post.id]);
-    
+    //REACTION
+    const {
+        sortedReactions,
+        reactions,
+        refresh,
+        react: handleReact,
+        myReaction
+    } = useReactions(post.id);
 
     const handleSubmit = async () => {
         if (content.trim()) {
             await addComment(content);
             setContent("");
-            await fetchComments();
+            await refreshComments();
+            refreshCommentCount(); 
         }
     };
 
@@ -150,7 +147,12 @@ function CommentModal({post, profile, loading, onClose }) {
 
                         {/* Fixed input area always visible */}
                         <div className="md:sticky bottom-0 bg-white dark:bg-dark-card">
-                            <PostReaction commentCount={commentCount} />
+                            <PostReaction 
+                                commentCount={commentCount}
+                                sortedReactions={sortedReactions}
+                                reactions={reactions}
+                                myReaction={myReaction}
+                                handleReact={handleReact}/>
                             <div className="flex items-center border rounded-md overflow-hidden">
                             <TextareaAutosize
                                 minRows={1}
@@ -198,6 +200,7 @@ function CommentModal({post, profile, loading, onClose }) {
                         onConfirm={async () => {
                             try {
                                 await deleteComment(commentToDelete);
+                                await refreshCommentCount();
                                 showGlobalToast("Comment deleted successfully", "success");
                             } catch (error) {
                                 showGlobalToast("Failed to delete comment", "error");
