@@ -44,7 +44,7 @@ const EditPostModal = ({ post, profile, loading, onClose }) => {
                 transition={{ duration: 0.25, ease: "easeOut" }}
                 className="bg-white dark:bg-dark-card w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]
                             max-h-[90vh] overflow-hidden shadow-md relative">
-                <div className="flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-auto px-4 py-6 md:h-[90vh] md:p-0">
+                <div className="flex flex-col md:flex-row gap-6 max-h-[90vh] px-4 py-6 md:h-[90vh] md:p-0 overflow-hidden">
                     <div className="order-1 md:order-2 w-full md:flex-3">
                         <div className="relative flex items-center justify-center pb-4 md:p-4 border-b border-light-border dark:border-dark-border">
                             <span className='text-xl font-semibold text-center'>
