@@ -7,7 +7,7 @@ import { useCreatePostService } from '../../hook/useCreatePostService';
 import Avatar_Username from '../Avatar_Username';
 import { getCurrentUser } from '../../helpers/getCurrentUser';
 import usePostService from '../../hook/usePostService';
-import { useOutletContext } from 'react-router-dom'; // 👈 dùng để nhận context từ layout
+import { useOutletContext } from 'react-router-dom'; 
 
 const EditPostModal = ({ post, profile, loading, onClose }) => {
     const [caption, setCaption] = useState(post.caption || "");

@@ -3,9 +3,19 @@ import { motion } from "framer-motion";
 import Carousel from '../components/Carousel';
 import LogInForm from '../components/Form/LogInForm';
 import SignUpForm from '../components/Form/SignUpForm';
+import AlertToast from '../components/Modal/AlertModel';
 
 function LogInPage() {
     const [showRegister, setShowRegister] = useState(false);
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState('error');
+
+    const showGlobalToast = (message, type = 'error') => {
+        setToastMessage(message);
+        setToastType(type);
+        setShowToast(true);
+    };
     
     return (
         <div className='flex bg-[#ffffff] h-screen w-screen overflow-hidden'>
@@ -29,9 +39,16 @@ function LogInPage() {
                     {/* LOG IN FORM */}
                     <LogInForm/>
                     {/* SIGN UP FORM */}
-                    <SignUpForm showRegister={showRegister} setShowRegister={setShowRegister}/>
+                    <SignUpForm showRegister={showRegister} setShowRegister={setShowRegister} showGlobalToast={showGlobalToast}
+                    />
                 </div>
             </div>
+            <AlertToast
+                show={showToast}
+                message={toastMessage}
+                type={toastType}
+                onClose={() => setShowToast(false)}
+            />
         </div>
     )
 }
