@@ -4,8 +4,9 @@ import useProfile from "../../hook/useProfile";
 import { useEditProfileService } from "../../hook/useEditProfileService";
 import { getCurrentUser } from "../../helpers/getCurrentUser";
 import { motion } from 'framer-motion'; 
+import { useOutletContext } from "react-router-dom";
 
-const EditProfileModal = ({ onClose }) => {
+const EditProfileModal = ({ onClose, showGlobalToast }) => {
   const {currentUser} = getCurrentUser();
   const { profile, loading, error } = useProfile(currentUser?.user?.id);
   const [imageInputType, setImageInputType] = useState("file");
@@ -42,11 +43,12 @@ const EditProfileModal = ({ onClose }) => {
 
   const { handleSaveProfile } = useEditProfileService (
     () => {
-      alert("Profile updated successfully");
+      showGlobalToast("Profile updated!", "success");
+      window.location.reload(); 
       onClose(); // đóng modal
     },
     (errMessage) => {
-      alert("Update failed: " + errMessage);
+      showGlobalToast("Failed to update profile", "error");
     }
   );
   

@@ -1,42 +1,71 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react';
 
 const PostCaption = ({ caption }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isOverflowing, setIsOverflowing] = useState(false);
 
-    const maxLength = 300; // Độ dài cắt ngắn text
-    const truncatedText = caption.length > maxLength ? caption.substring(0, maxLength) + '...' : caption;
+    // Chiều cao tối đa của text box khi chưa mở rộng
+    const maxHeight = '7.5rem';
+
+    const captionRef = useRef(null);
+
+    // Hàm kiểm tra xem văn bản có bị cắt hay không
+    const checkOverflow = () => {
+        if (captionRef.current) {
+            setIsOverflowing(captionRef.current.scrollHeight > captionRef.current.clientHeight);
+        }
+    };
+
+    // Kiểm tra độ tràn khi nội dung thay đổi
+    useEffect(() => {
+        checkOverflow();
+    }, [caption]);
+
+    function formatCaption(text) {
+        return text.split('\n').map((line, index) => (
+            <p key={index}>
+                {line.split(' ').map((word, i) =>
+                    /^#\w+/.test(word) ? (
+                        <span key={i} className="text-blue-500 cursor-pointer">{word}</span>
+                    ) : (
+                        word + ' '
+                    )
+                )}
+            </p>
+        ));
+    }
 
     return (
         <div className="pl-2 space-y-2">
             <div
-            className={`transition-all ${isExpanded ? '' : 'overflow-hidden'}`}
-            style={{
-                lineHeight: '1.5rem',
-                maxHeight: isExpanded ? 'none' : '7.5rem', // Điều chỉnh chiều cao khi ẩn
-            }}
-            >
-            {isExpanded ? caption : truncatedText}
+                ref={captionRef}
+                className={`whitespace-pre-wrap transition-all ${isExpanded ? '' : 'overflow-hidden'}`}
+                style={{
+                    lineHeight: '1.5rem',
+                    maxHeight: isExpanded ? 'none' : maxHeight,
+                }}>
+                {formatCaption(caption)}
             </div>
-    
-            {!isExpanded && caption.length > maxLength && (
-            <button
-                className="text-blue-500 cursor-pointer"
-                onClick={() => setIsExpanded(true)}
-            >
-                More...
-            </button>
+
+            {!isExpanded && isOverflowing && (
+                <button
+                    className="text-blue-500 cursor-pointer"
+                    onClick={() => setIsExpanded(true)}
+                >
+                    More...
+                </button>
             )}
-    
+
             {isExpanded && (
-            <button
-                className="text-blue-500 cursor-pointer"
-                onClick={() => setIsExpanded(false)}
-            >
-                Show less
-            </button>
+                <button
+                    className="text-blue-500 cursor-pointer"
+                    onClick={() => setIsExpanded(false)}
+                >
+                    Show less
+                </button>
             )}
         </div>
     );
 };
 
-export default PostCaption
+export default PostCaption;

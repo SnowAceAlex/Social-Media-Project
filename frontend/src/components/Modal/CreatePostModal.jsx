@@ -26,6 +26,11 @@ const CreatePostModal = ({ onClose, showGlobalToast }) => {
         }
     );
 
+    //HANDLE HASHTAGS
+    const extractHashtags = (text) => {
+        return (text.match(/#\w+/g) || []).map(tag => tag.slice(1).toLowerCase());
+    };
+
     return (
         <div className="fixed top-0 left-0 w-full h-full z-[99] bg-black/50
                         flex items-center justify-center dark:text-dark-text">
@@ -45,7 +50,7 @@ const CreatePostModal = ({ onClose, showGlobalToast }) => {
                 className="bg-white dark:bg-dark-card w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]
                             max-h-[90vh] overflow-hidden shadow-md relative">
                 {/* Responsive Content */}
-                <div className="flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-auto px-4 py-6 md:h-[90vh]
+                <div className="flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-hidden px-4 py-6 md:h-[90vh]
                                 md:p-0">
                     {/* Caption block - order first on mobile, second on desktop */}
                     <div className="order-1 md:order-2 w-full md:flex-3">
@@ -63,7 +68,7 @@ const CreatePostModal = ({ onClose, showGlobalToast }) => {
                         </div>
 
                         {/* Avatar */}
-                        <div className="w-full h-[10%] flex items-center gap-4 mt-6 mb-6">
+                        <div className="w-full h-[10%] flex items-center gap-4">
                             <Avatar_Username profile={profile} loading={loading}/>
                         </div>
 
