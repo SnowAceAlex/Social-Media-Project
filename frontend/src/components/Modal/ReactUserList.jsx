@@ -9,6 +9,10 @@ const ReactUserList = ({ reactUsers }) => {
         return [...new Set(reactUsers.map(r => r.user_id))];
     }, [reactUsers]);
 
+    if (uniqueUserIds.length === 0) {
+        return null;
+    }
+
     return (
         <motion.div
             className="absolute bottom-full left-0 mt-1 bg-white dark:bg-dark-card shadow-lg p-3 z-50 w-36 max-h-60 overflow-y-auto text-sm
