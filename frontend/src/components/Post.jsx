@@ -31,6 +31,7 @@ function Post({post = null, profile = null, loading = false}) {
     const {
         sortedReactions,
         reactions,
+        reactUsers,
         refresh,
         react: handleReact,
         myReaction
@@ -67,7 +68,8 @@ function Post({post = null, profile = null, loading = false}) {
                 sortedReactions={sortedReactions}
                 reactions={reactions}
                 myReaction={myReaction}
-                handleReact={handleReact}/>
+                handleReact={handleReact}
+                reactUsers={reactUsers}/>
             {/* COMMENTS MODAL */}
             {
                 showCommentModal && (
