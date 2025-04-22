@@ -30,6 +30,7 @@ function CommentModal({post, profile, loading, onClose }) {
     const {
         sortedReactions,
         reactions,
+        reactUsers,
         refresh,
         react: handleReact,
         myReaction
@@ -152,7 +153,9 @@ function CommentModal({post, profile, loading, onClose }) {
                                 sortedReactions={sortedReactions}
                                 reactions={reactions}
                                 myReaction={myReaction}
-                                handleReact={handleReact}/>
+                                handleReact={handleReact}
+                                reactUsers={reactUsers}/>
+
                             <div className="flex items-center border rounded-md overflow-hidden">
                             <TextareaAutosize
                                 minRows={1}
