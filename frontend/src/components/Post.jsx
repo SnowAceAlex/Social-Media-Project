@@ -11,12 +11,14 @@ import usePostService from "../hook/usePostService";
 import ConfirmModal from "./Modal/ConfirmModal";
 import EditPostModal from "./Modal/EditPostModal";
 import { useReactions } from "../hook/useReaction";
+import ReactUserModal from "./Modal/ReactUserModal";
 
 function Post({post = null, profile = null, loading = false}) {
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [showPostOptions, setShowPostOptions] = useState(false);
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
     const [showEditPost, setShowEditPost] = useState(false);
+    const [showUserReactModal, setShowUserReactModal] = useState(false);
 
     const {currentUser} = getCurrentUser();
     const isCurrentUser = currentUser && currentUser.user?.id === post?.user_id;
@@ -65,11 +67,13 @@ function Post({post = null, profile = null, loading = false}) {
             <PostReaction 
                 commentCount={commentCount}
                 setShowCommentModal={setShowCommentModal}
+                setShowUserReactModal={setShowUserReactModal}
                 sortedReactions={sortedReactions}
                 reactions={reactions}
                 myReaction={myReaction}
                 handleReact={handleReact}
-                reactUsers={reactUsers}/>
+                reactUsers={reactUsers}
+                />
             {/* COMMENTS MODAL */}
             {
                 showCommentModal && (
@@ -119,6 +123,15 @@ function Post({post = null, profile = null, loading = false}) {
                     loading={loading}
                     post={post}
                     onClose={() => setShowEditPost(false)}
+                    />
+                )
+            }
+            {/* USERS REACTION MODAL */}
+            {
+                showUserReactModal && (
+                    <ReactUserModal
+                    reactUsers={reactUsers.reactions}
+                    onClose={() => setShowUserReactModal(false)}
                     />
                 )
             }

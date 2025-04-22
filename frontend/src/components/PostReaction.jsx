@@ -9,7 +9,15 @@ import { useReactions } from '../hook/useReaction';
 import ReactUserList from './Modal/ReactUserList';
 import useDelayedHover from '../hook/Helper/useDelayHover';
 
-function PostReaction({sortedReactions, commentCount, setShowCommentModal, reactions, myReaction,handleReact, reactUsers}) {
+function PostReaction({
+        sortedReactions, 
+        commentCount, 
+        setShowUserReactModal,
+        setShowCommentModal, 
+        reactions, 
+        myReaction,
+        handleReact, 
+        reactUsers}) {
     const [bookmarked, setBookmarked] = useState(false);
     const {
         isHovering: isEmojiHovering,
@@ -112,6 +120,7 @@ function PostReaction({sortedReactions, commentCount, setShowCommentModal, react
                 className="relative inline-block"
                 onMouseEnter={handleUserEnter}
                 onMouseLeave={handleUserLeave}
+                onClick={() => setShowUserReactModal(true)}
                 ref={userReactRef}
             >
                 <span className="dark:text-dark-text hover:underline cursor-pointer">
