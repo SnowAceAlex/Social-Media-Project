@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { IoCloseOutline } from "react-icons/io5";
 import UploadBlock from '../UploadBlock';
 import Avatar_Username from '../Avatar_Username';
@@ -15,16 +15,17 @@ import ConfirmModal from './ConfirmModal';
 import usePostService from '../../hook/usePostService';
 import { useReactions } from '../../hook/useReaction';
 import { motion } from 'framer-motion'; 
+import ReactUserModal from './ReactUserModal';
 
 function CommentModal({post, profile, loading, onClose }) {
-    const captionRef = useRef(null);
-    const {currentUser} = getCurrentUser();
-    const [content, setContent] = useState("");
-    const { comments, loading: loadingComments, addComment, refreshComments, deleteComment} = useComments(post?.id);
     const [ showCommentOptions, setShowCommentOptions ] = useState(false);      
     const [commentToDelete, setCommentToDelete] = useState(null);
     const { showGlobalToast } = useOutletContext();
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showUserReactModal, setShowUserReactModal] = useState(false);
+    const {currentUser} = getCurrentUser();
+    const [content, setContent] = useState("");
+    const { comments, loading: loadingComments, addComment, refreshComments, deleteComment} = useComments(post?.id);
     const {commentCount, refreshCommentCount} = usePostService(post.id);
     
     //REACTION
@@ -156,6 +157,7 @@ function CommentModal({post, profile, loading, onClose }) {
                         <div className="md:sticky bottom-0 bg-white dark:bg-dark-card">
                             <PostReaction 
                                 commentCount={commentCount}
+                                setShowUserReactModal={setShowUserReactModal}
                                 sortedReactions={sortedReactions}
                                 reactions={reactions}
                                 myReaction={myReaction}
@@ -221,6 +223,14 @@ function CommentModal({post, profile, loading, onClose }) {
                         onCancel={() => {
                             setShowConfirmModal(false);
                         }}
+                    />
+                )
+            }
+            {
+                showUserReactModal && (
+                    <ReactUserModal
+                    reactUsers={reactUsers.reactions}
+                    onClose={() => setShowUserReactModal(false)}
                     />
                 )
             }
