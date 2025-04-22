@@ -6,20 +6,23 @@ import UploadBlock from '../UploadBlock';
 import { useCreatePostService } from '../../hook/useCreatePostService';
 import Avatar_Username from '../Avatar_Username';
 import { getCurrentUser } from '../../helpers/getCurrentUser';
+import { useOutletContext } from 'react-router-dom';
 
-const CreatePostModal = ({ onClose }) => {
+const CreatePostModal = ({ onClose, showGlobalToast }) => {
     const {currentUser} = getCurrentUser();
+
     const { profile, loading, error } = useProfile(currentUser?.user?.id);
     
     const [caption, setCaption] = useState("");
     
     const { handleCreatePost } = useCreatePostService(
         () => {
-            alert("Post created!");
+            showGlobalToast("Post created!", "success");
+            window.location.reload();
             onClose();
         },
         (errMsg) => {
-            alert("Failed to create post: " + errMsg);
+            showGlobalToast("Failed to create post", "error");
         }
     );
 
