@@ -20,6 +20,7 @@ export const removeReaction = async (postId) => {
     return response.data;
 };
 
+//GET REACTIONS COUNT FOR A POST
 export const getReactions = async (postId) => {
     const response = await axios.get(`${API_URL}/getreacts/${postId}`,{
         withCredentials: true,
@@ -27,9 +28,18 @@ export const getReactions = async (postId) => {
     return response.data;
 };
 
+//GET MY REACTION FOR A POST
 export const getMyReaction = async (postId) => {
     const response = await axios.get(`${API_URL}/getMyReaction/${postId}`,{
         withCredentials: true,
     });
     return response.data.reaction;
 };  
+
+//GET USERS OF REACTIONS FOR A POST
+export const getReactionsByPost = async (postId) => {
+    const response = await axios.get(`${API_URL}/getreactsinfo/${postId}`,{
+        withCredentials: true,
+    });
+    return response.data;
+}

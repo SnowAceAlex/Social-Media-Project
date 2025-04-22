@@ -6,7 +6,7 @@ import UploadBlock from '../UploadBlock';
 import { useCreatePostService } from '../../hook/useCreatePostService';
 import Avatar_Username from '../Avatar_Username';
 import { getCurrentUser } from '../../helpers/getCurrentUser';
-import { useOutletContext } from 'react-router-dom';
+import { motion } from 'framer-motion'; 
 
 const CreatePostModal = ({ onClose, showGlobalToast }) => {
     const {currentUser} = getCurrentUser();
@@ -37,7 +37,12 @@ const CreatePostModal = ({ onClose, showGlobalToast }) => {
                                 rounded-full cursor-pointer hidden md:flex
                                 absolute right-6 top-4 z-10"
             />
-            <div className="bg-white dark:bg-dark-card w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]
+            <motion.div
+                initial={{ scale: 1.2, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="bg-white dark:bg-dark-card w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]
                             max-h-[90vh] overflow-hidden shadow-md relative">
                 {/* Responsive Content */}
                 <div className="flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-auto px-4 py-6 md:h-[90vh]
@@ -80,7 +85,7 @@ const CreatePostModal = ({ onClose, showGlobalToast }) => {
                         Create
                     </button>
                 </div>
-            </div>
+            </motion.div>
         </div>
     )
 }

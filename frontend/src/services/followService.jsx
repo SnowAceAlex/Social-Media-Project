@@ -39,7 +39,6 @@ export const getFollowCount = async (userId) => {
 
 export const getFollowers = async (userId) => {
     try {
-        await new Promise(resolve => setTimeout(resolve, 2000));
         const res = await axios.get(`${API_URL}/${userId}/followers`, {
             withCredentials: true,
         });
@@ -52,7 +51,6 @@ export const getFollowers = async (userId) => {
 
 export const getFollowing = async (userId) => {
     try {
-        await new Promise(resolve => setTimeout(resolve, 2000));
         const res = await axios.get(`${API_URL}/${userId}/followings`, {
             withCredentials: true,
         });
