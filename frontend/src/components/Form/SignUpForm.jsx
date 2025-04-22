@@ -3,7 +3,7 @@ import { FaAngleDown, FaAngleUp } from "react-icons/fa6";
 import { motion } from "framer-motion";
 import { registerUser } from '../../services/authService';
 
-    function SignUpForm({showRegister, setShowRegister }) {
+    function SignUpForm({showRegister, setShowRegister, showGlobalToast }) {
         const [frameRegister, setFrameRegister] = useState(1);
         const [image, setImage] = useState(null);
         const [imageUrl, setImageUrl] = useState("");
@@ -61,7 +61,7 @@ import { registerUser } from '../../services/authService';
                 const response = await registerUser(dataToSend);
                 console.log("✅ Phản hồi từ server:", response);
 
-                alert("Đăng ký thành công!");
+                showGlobalToast("Account created successfully!", "success");
             } catch (err) {
                 setError(err.message);
                 console.error("❌ Lỗi đăng ký:", err);
