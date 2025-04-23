@@ -14,6 +14,7 @@ import {
   getCommentCount,
   deleteComment,
   getReactionsByPost,
+  getPostsByHashtag,
 } from "../controller/postController.js";
 import { authenticate } from "../middleware/authenticateUser.js";
 
@@ -39,5 +40,8 @@ router.delete("/:postId", authenticate, deletePost); // Delete a post
 router.get("/:postId", authenticate, getSinglePost); // Get a single post with comments + reactions
 router.put("/:postId", authenticate, editPost); // Edit a post
 router.get("/:userId/latestPost", getLatestPostByUser); // Get latest post by user
+
+//Hashtag
+router.get("/hashtag/:tag", getPostsByHashtag);
 
 export default router;

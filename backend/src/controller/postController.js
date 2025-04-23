@@ -1,5 +1,13 @@
 import { pool } from "../config/pool.js";
 
+const extractHashtags = (caption) => {
+  const regex = /#(\w+)/g;
+  const matches = caption.match(regex);
+  return matches
+    ? [...new Set(matches.map((tag) => tag.slice(1).toLowerCase()))]
+    : [];
+};
+
 // Create a new post
 export const createPost = async (req, res) => {
   const { caption, media_url } = req.body;
@@ -10,10 +18,6 @@ export const createPost = async (req, res) => {
 
   const userId = req.user.id;
 
-  // if (!media_url) {
-  //   return res.status(400).json({ error: "Media URL is required" });
-  // }
-
   try {
     const result = await pool.query(
       `INSERT INTO posts (user_id, caption, media_url) 
@@ -21,9 +25,35 @@ export const createPost = async (req, res) => {
        RETURNING id, user_id, caption, media_url, created_at`,
       [userId, caption, media_url]
     );
-    res.status(201).json(result.rows[0]);
+
+    const post = result.rows[0];
+    const hashtags = extractHashtags(caption);
+
+    for (const tag of hashtags) {
+      const tagResult = await pool.query(
+        `INSERT INTO hashtags (name)
+         VALUES ($1)
+         ON CONFLICT (name) DO NOTHING
+         RETURNING id`,
+        [tag]
+      );
+
+      // Get hashtag ID (either from INSERT or SELECT)
+      const hashtagId =
+        tagResult.rows[0]?.id ||
+        (await pool.query(`SELECT id FROM hashtags WHERE name = $1`, [tag]))
+          .rows[0].id;
+
+      await pool.query(
+        `INSERT INTO post_hashtags (post_id, hashtag_id) VALUES ($1, $2)
+         ON CONFLICT DO NOTHING`,
+        [post.id, hashtagId]
+      );
+    }
+
+    res.status(201).json(post);
   } catch (error) {
-    console.error("Error creating post:", error);
+    console.error("Error creating post with hashtags:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -391,6 +421,29 @@ export const getLatestPostByUser = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching latest post:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get posts by hashtag
+export const getPostsByHashtag = async (req, res) => {
+  const { tag } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT posts.*, users.username, users.profile_pic_url
+       FROM posts
+       JOIN post_hashtags ON posts.id = post_hashtags.post_id
+       JOIN hashtags ON post_hashtags.hashtag_id = hashtags.id
+       JOIN users ON posts.user_id = users.id
+       WHERE hashtags.name = $1
+       ORDER BY posts.created_at DESC`,
+      [tag.toLowerCase()]
+    );
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error fetching posts by hashtag:", error);
     res.status(500).json({ error: error.message });
   }
 };
