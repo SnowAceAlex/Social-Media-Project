@@ -7,7 +7,8 @@ import { useCreatePostService } from '../../hook/useCreatePostService';
 import Avatar_Username from '../Avatar_Username';
 import { getCurrentUser } from '../../helpers/getCurrentUser';
 import usePostService from '../../hook/usePostService';
-import { useOutletContext } from 'react-router-dom'; // 👈 dùng để nhận context từ layout
+import { useOutletContext } from 'react-router-dom'; 
+import { motion } from 'framer-motion'; 
 
 const EditPostModal = ({ post, profile, loading, onClose }) => {
     const [caption, setCaption] = useState(post.caption || "");
@@ -36,9 +37,14 @@ const EditPostModal = ({ post, profile, loading, onClose }) => {
                             rounded-full cursor-pointer hidden md:flex
                             absolute right-6 top-4 z-10"
             />
-            <div className="bg-white dark:bg-dark-card w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]
+            <motion.div
+                initial={{ scale: 1.2, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="bg-white dark:bg-dark-card w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]
                             max-h-[90vh] overflow-hidden shadow-md relative">
-                <div className="flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-auto px-4 py-6 md:h-[90vh] md:p-0">
+                <div className="flex flex-col md:flex-row gap-6 max-h-[90vh] px-4 py-6 md:h-[90vh] md:p-0 overflow-hidden">
                     <div className="order-1 md:order-2 w-full md:flex-3">
                         <div className="relative flex items-center justify-center pb-4 md:p-4 border-b border-light-border dark:border-dark-border">
                             <span className='text-xl font-semibold text-center'>
@@ -76,7 +82,7 @@ const EditPostModal = ({ post, profile, loading, onClose }) => {
                         {editLoading ? "Updating..." : "Confirm"}
                     </button>
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 };

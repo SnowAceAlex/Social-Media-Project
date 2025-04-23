@@ -3,8 +3,10 @@ import { IoCloseOutline } from "react-icons/io5";
 import useProfile from "../../hook/useProfile";
 import { useEditProfileService } from "../../hook/useEditProfileService";
 import { getCurrentUser } from "../../helpers/getCurrentUser";
+import { motion } from 'framer-motion'; 
+import { useOutletContext } from "react-router-dom";
 
-const EditProfileModal = ({ onClose }) => {
+const EditProfileModal = ({ onClose, showGlobalToast }) => {
   const {currentUser} = getCurrentUser();
   const { profile, loading, error } = useProfile(currentUser?.user?.id);
   const [imageInputType, setImageInputType] = useState("file");
@@ -41,11 +43,12 @@ const EditProfileModal = ({ onClose }) => {
 
   const { handleSaveProfile } = useEditProfileService (
     () => {
-      alert("Profile updated successfully");
+      showGlobalToast("Profile updated!", "success");
+      window.location.reload(); 
       onClose(); // đóng modal
     },
     (errMessage) => {
-      alert("Update failed: " + errMessage);
+      showGlobalToast("Failed to update profile", "error");
     }
   );
   
@@ -59,7 +62,11 @@ const EditProfileModal = ({ onClose }) => {
       className="fixed top-0 left-0 w-full h-full z-[99] bg-black/50 bg-opacity-50 
                         flex items-center justify-center dark:text-dark-text"
     >
-      <div
+      <motion.div
+        initial={{ scale: 1.2, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
         className="bg-white dark:bg-dark p-6 
                             w-[30rem]
                             max-h-[90vh] rounded-xl overflow-auto
@@ -246,7 +253,7 @@ const EditProfileModal = ({ onClose }) => {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };

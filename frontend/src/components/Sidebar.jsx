@@ -59,8 +59,8 @@ function Sidebar({ searchValue, setSearchValue }) {
                                 hidden md:flex flex-col
                                 z-50
                                 transition-all duration-300
-                        ${isSearchMode ? 'md:w-20 border-r-1  border-transparent  min-w-20' : 
-                        'md:w-1/6 border-r-1 border-gray-200 dark:border-r-2 dark:border-dark-border  min-w-48 '}`}>
+                        ${isSearchMode ? 'md:w-20 border-r-[1px] border-transparent  min-w-20' : 
+                        'md:w-1/6 border-r-[1px] border-gray-200 dark:border-r-2 dark:border-dark-border min-w-48 '}`}>
             <AnimatePresence mode="wait">
                 {!isSearchMode ? (
                     <motion.span
