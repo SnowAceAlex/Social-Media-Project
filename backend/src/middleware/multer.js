@@ -7,9 +7,9 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: (req, file) => {
     //TYPE: avatar, post
-    const type = req.body.type;
+    const type = req.query.type;
     //TARGET_ID: userId, postId
-    const targetId = req.body.targetId;
+    const targetId = req.query.targetId;
 
     let folder = "misc"; // fallback nếu không đủ thông tin
     

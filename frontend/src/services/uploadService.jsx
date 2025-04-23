@@ -9,7 +9,7 @@ export const uploadSingleImage = async (file, type, targetId) => {
     formData.append("type", type);
     formData.append("targetId", targetId);
 
-    const res = await axios.post(`${API_URL}/single`, formData, {
+    const res = await axios.post(`${API_URL}/single?type=avatar&targetId=${targetId}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
     });
 
