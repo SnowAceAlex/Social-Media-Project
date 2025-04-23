@@ -69,11 +69,7 @@ import fs from "fs";
 // };
 import cloudinary from "../utils/cloudinary.js";
 export const registerUser = async (req, res) => {
-  console.log("📥 req.body:", req.body);
-  console.log("📥 req.file:", req.file);
-
-  let userId = null; // ✅ Khai báo ở đây
-
+  let userId = null; 
   const {
     username,
     email,
