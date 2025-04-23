@@ -88,10 +88,14 @@ export const registerUser = async (req, res) => {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
+  if(!dateOfBirth) {
+    return res.status(400).json({ error: "Date of birth is required" });
+  }
+
   try {
     const emailCheck = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
     if (emailCheck.rows.length > 0) {
-      return res.status(400).json({ message: "Email already exists" });
+      return res.status(400).json({ error: "Email already exists" });
     }
 
     const saltRounds = 10;
@@ -105,7 +109,7 @@ export const registerUser = async (req, res) => {
     );
 
     const user = tempInsert.rows[0];
-    userId = user.id; // ✅ Gán vào biến đã khai báo
+    userId = user.id; 
 
     let uploadedUrl = null;
     let publicId = null;

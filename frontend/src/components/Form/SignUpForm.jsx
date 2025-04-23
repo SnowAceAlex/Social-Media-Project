@@ -98,7 +98,7 @@ function SignUpForm({ showRegister, setShowRegister, showGlobalToast }) {
     
             showGlobalToast("Account created successfully!", "success");
         } catch (err) {
-            setError(err.response?.data?.error || "Failed to register");
+            setError(err.error || "Failed to register");
             console.error("❌ Register error:", err);
         } finally {
             setLoading(false);
