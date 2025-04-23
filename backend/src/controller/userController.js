@@ -2,10 +2,78 @@ import { pool } from "../config/pool.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import upload from "../middleware/multer.js"; // Import upload config
-
+import { deleteCloudinaryImage } from "./uploadController.js";
+import fs from "fs";
 
 // Register user
+// export const registerUser = async (req, res) => {
+//   const {
+//     username,
+//     email,
+//     password,
+//     full_name,
+//     dateOfBirth,
+//     bio,
+//     profile_pic_url,
+//   } = req.body;
+
+//   if (!username || !email || !password) {
+//     return res.status(400).json({ error: "Missing required fields" });
+//   }
+
+//   try {
+//     const emailCheck = await pool.query(
+//       "SELECT id FROM users WHERE email = $1",
+//       [email]
+//     );
+//     if (emailCheck.rows.length > 0) {
+//       return res.status(400).json({ message: "Email already exists" });
+//     }
+
+//     const saltRounds = 10;
+//     const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+//     let cloudinaryUrl = null;
+//     let cloudinaryPublicId = null;
+
+//     if (req.file) {
+//       // Đã upload ảnh bằng multer
+//       cloudinaryUrl = req.file.path;
+//       cloudinaryPublicId = req.file.filename; // chính là public_id
+//     } else if (profile_pic_url) {
+//       cloudinaryUrl = profile_pic_url;
+//     }
+
+//     const result = await pool.query(
+//         `INSERT INTO users 
+//           (username, email, password, full_name, date_of_birth, bio, profile_pic_url, profile_pic_public_id)
+//         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+//         RETURNING id, username, email, full_name, date_of_birth, bio, profile_pic_url, profile_pic_public_id, created_at`,
+//       [
+//         username,
+//         email,
+//         hashedPassword,
+//         full_name,
+//         dateOfBirth,
+//         bio,
+//         cloudinaryUrl,
+//         cloudinaryPublicId,
+//       ]
+//     );
+
+//     res.status(201).json(result.rows[0]);
+//   } catch (error) {
+//     console.error("❌ Error at registerUser:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+import cloudinary from "../utils/cloudinary.js";
 export const registerUser = async (req, res) => {
+  console.log("📥 req.body:", req.body);
+  console.log("📥 req.file:", req.file);
+
+  let userId = null; // ✅ Khai báo ở đây
+
   const {
     username,
     email,
@@ -16,61 +84,65 @@ export const registerUser = async (req, res) => {
     profile_pic_url,
   } = req.body;
 
-  console.log("Received data:", req.body);
-  // console.log("typeof dateOfBirth:", typeof dateOfBirth);
-
   if (!username || !email || !password) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
-    // Check if email already exists
-    const emailCheck = await pool.query(
-      "SELECT id FROM users WHERE email = $1",
-      [email]
-    );
+    const emailCheck = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
     if (emailCheck.rows.length > 0) {
       return res.status(400).json({ message: "Email already exists" });
     }
 
-    // Hash password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // check if there is an image in the request
-    let cloudinaryUrl = null;
-    if (req.file) {
-      // get the image url from Cloudinary
-      console.log("Uploading file to Cloudinary...");
-      cloudinaryUrl = req.file.path;
-      console.log("Cloudinary URL:", cloudinaryUrl);
-    } else if (profile_pic_url) {
-      // if there is no image in the request, use the default image url
-      cloudinaryUrl = profile_pic_url;
-      console.log("Using provided profile_pic_url:", cloudinaryUrl);
-    } else {
-      console.log("No image provided, cloudinaryUrl will be null");
-    }
-
-    const result = await pool.query(
-      "INSERT INTO users (username, email, password, full_name, date_of_birth, bio, profile_pic_url) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, username, email, full_name, date_of_birth, bio, profile_pic_url, created_at",
-      [
-        username,
-        email,
-        hashedPassword,
-        full_name,
-        dateOfBirth,
-        bio,
-        cloudinaryUrl,
-      ]
+    const tempInsert = await pool.query(
+      `INSERT INTO users (username, email, password, full_name, date_of_birth, bio)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, username, email, full_name, date_of_birth, bio, created_at`,
+      [username, email, hashedPassword, full_name, dateOfBirth, bio]
     );
 
-    res.status(201).json(result.rows[0]);
+    const user = tempInsert.rows[0];
+    userId = user.id; // ✅ Gán vào biến đã khai báo
+
+    let uploadedUrl = null;
+    let publicId = null;
+
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: `users/${userId}/avatar`,
+        public_id: Date.now() + "-" + req.file.originalname,
+      });
+
+      uploadedUrl = result.secure_url;
+      publicId = result.public_id;
+    } else if (profile_pic_url) {
+      uploadedUrl = profile_pic_url;
+    }
+
+    await pool.query(
+      `UPDATE users SET profile_pic_url = $1, profile_pic_public_id = $2 WHERE id = $3`,
+      [uploadedUrl, publicId, userId]
+    );
+
+    const finalUser = await pool.query(
+      `SELECT id, username, email, full_name, date_of_birth, bio, profile_pic_url, profile_pic_public_id, created_at 
+       FROM users WHERE id = $1`,
+      [userId]
+    );
+
+    res.status(201).json(finalUser.rows[0]);
   } catch (error) {
+    if (userId) {
+      await pool.query("DELETE FROM users WHERE id = $1", [userId]);
+    }
     console.error("❌ Error at registerUser:", error);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Login user
 export const loginUser = async (req, res) => {
@@ -210,25 +282,75 @@ export const searchUsersByUsername = async (req, res) => {
 
 // Update user profile
 export const updateUserProfile = async (req, res) => {
-  const userId = req.user.id; // get user id from token
-  const { username, full_name, bio, profile_pic_url, date_of_birth } = req.body;
+  const userId = req.user.id;
+  const {
+    username,
+    full_name,
+    bio,
+    profile_pic_url,
+    profile_pic_public_id, // ảnh mới
+    date_of_birth,
+  } = req.body;
 
   console.log("Received data for update:", req.body);
 
   try {
-    // update user profile
+    // 1. Lấy public_id cũ từ DB
+    const { rows } = await pool.query(
+      "SELECT profile_pic_public_id FROM users WHERE id = $1",
+      [userId]
+    );
+    const currentPublicId = rows[0]?.profile_pic_public_id;
+
+        let finalProfilePicUrl = profile_pic_url;
+    let finalProfilePicPublicId = profile_pic_public_id;
+
+    // 2. Nếu có file upload từ multer (sau khi đăng ký avatar)
+    if (req.file) {
+      finalProfilePicUrl = req.file.path;
+      finalProfilePicPublicId = req.file.filename;
+    }
+
+    // 3. Nếu có ảnh cũ và ảnh mới khác → xóa ảnh cũ
+    if (
+      currentPublicId &&
+      finalProfilePicPublicId &&
+      finalProfilePicPublicId !== currentPublicId
+    ) {
+      await deleteCloudinaryImage(currentPublicId);
+    }
+
+    // 3. Update profile
     const result = await pool.query(
-      "UPDATE users SET username = COALESCE($1, username), full_name = COALESCE($2, full_name), bio = COALESCE($3, bio), profile_pic_url = COALESCE($4, profile_pic_url), date_of_birth = COALESCE($5, date_of_birth) WHERE id = $6 RETURNING id, username, email, full_name, bio, profile_pic_url, created_at",
-      [username, full_name, bio, profile_pic_url, date_of_birth, userId]
+        `UPDATE users 
+        SET 
+            username = COALESCE($1, username), 
+            full_name = COALESCE($2, full_name), 
+            bio = COALESCE($3, bio), 
+            profile_pic_url = COALESCE($4, profile_pic_url), 
+            profile_pic_public_id = COALESCE($5, profile_pic_public_id), 
+            date_of_birth = COALESCE($6, date_of_birth)
+        WHERE id = $7 
+        RETURNING id, username, email, full_name, bio, profile_pic_url, profile_pic_public_id, created_at`,
+      [
+        username,
+        full_name,
+        bio,
+        profile_pic_url,
+        profile_pic_public_id,
+        date_of_birth,
+        userId,
+      ]
     );
 
     if (result.rows.length === 0) {
+      console.warn("⚠️ No user found to update with ID:", userId);
       return res.status(404).json({ message: "User not found" });
     }
 
     res.status(200).json(result.rows[0]);
   } catch (error) {
-    console.error("Error updating user profile:", error);
+    console.error("❌ Error updating user profile:", error);
     res.status(500).json({ error: error.message });
   }
 };
