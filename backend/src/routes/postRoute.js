@@ -16,6 +16,10 @@ import {
   getReactionsByPost,
   getMyReaction,
   getPostsByHashtag,
+  followUser,
+  unfollowUser,
+  getNotifications,
+  deleteNotification,
 } from "../controller/postController.js";
 import { authenticate } from "../middleware/authenticateUser.js";
 
@@ -45,5 +49,13 @@ router.get("/:userId/latestPost", getLatestPostByUser); // Get latest post by us
 
 //Hashtag
 router.get("/hashtag/:tag", getPostsByHashtag);
+
+// Follow/Unfollow user
+router.post("/follow", authenticate, followUser); // Follow a user
+router.post("/unfollow", authenticate, unfollowUser); // Unfollow a user
+
+// Notifications
+router.get("/notifications", authenticate, getNotifications); // Get notifications for the user
+router.delete("/notifications/:notificationId", authenticate, deleteNotification); // Delete a notification
 
 export default router;

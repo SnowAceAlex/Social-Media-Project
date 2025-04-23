@@ -4,70 +4,9 @@ import jwt from "jsonwebtoken";
 import upload from "../middleware/multer.js"; // Import upload config
 import { deleteCloudinaryImage } from "./uploadController.js";
 import fs from "fs";
+import cloudinary from "../utils/cloudinary.js";
 
 // Register user
-// export const registerUser = async (req, res) => {
-//   const {
-//     username,
-//     email,
-//     password,
-//     full_name,
-//     dateOfBirth,
-//     bio,
-//     profile_pic_url,
-//   } = req.body;
-
-//   if (!username || !email || !password) {
-//     return res.status(400).json({ error: "Missing required fields" });
-//   }
-
-//   try {
-//     const emailCheck = await pool.query(
-//       "SELECT id FROM users WHERE email = $1",
-//       [email]
-//     );
-//     if (emailCheck.rows.length > 0) {
-//       return res.status(400).json({ message: "Email already exists" });
-//     }
-
-//     const saltRounds = 10;
-//     const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-//     let cloudinaryUrl = null;
-//     let cloudinaryPublicId = null;
-
-//     if (req.file) {
-//       // Đã upload ảnh bằng multer
-//       cloudinaryUrl = req.file.path;
-//       cloudinaryPublicId = req.file.filename; // chính là public_id
-//     } else if (profile_pic_url) {
-//       cloudinaryUrl = profile_pic_url;
-//     }
-
-//     const result = await pool.query(
-//         `INSERT INTO users 
-//           (username, email, password, full_name, date_of_birth, bio, profile_pic_url, profile_pic_public_id)
-//         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-//         RETURNING id, username, email, full_name, date_of_birth, bio, profile_pic_url, profile_pic_public_id, created_at`,
-//       [
-//         username,
-//         email,
-//         hashedPassword,
-//         full_name,
-//         dateOfBirth,
-//         bio,
-//         cloudinaryUrl,
-//         cloudinaryPublicId,
-//       ]
-//     );
-
-//     res.status(201).json(result.rows[0]);
-//   } catch (error) {
-//     console.error("❌ Error at registerUser:", error);
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-import cloudinary from "../utils/cloudinary.js";
 export const registerUser = async (req, res) => {
   console.log("📥 req.body:", req.body);
   console.log("📥 req.file:", req.file);

@@ -20,7 +20,7 @@ import upload from "../middleware/multer.js";
 
 const router = Router();
 
-// // Route register: Áp dụng middleware upload.single("image") để xử lý form-data
+// Route register: Áp dụng middleware upload.single("image") để xử lý form-data
 router.post("/register", upload.single("avatar"), registerUser);
 
 router.post("/login", loginUser);
