@@ -1,6 +1,8 @@
 import { pool } from "../config/pool.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import upload from "../middleware/multer.js"; // Import upload config
+
 
 // Register user
 export const registerUser = async (req, res) => {
@@ -35,6 +37,21 @@ export const registerUser = async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    // check if there is an image in the request
+    let cloudinaryUrl = null;
+    if (req.file) {
+      // get the image url from Cloudinary
+      console.log("Uploading file to Cloudinary...");
+      cloudinaryUrl = req.file.path;
+      console.log("Cloudinary URL:", cloudinaryUrl);
+    } else if (profile_pic_url) {
+      // if there is no image in the request, use the default image url
+      cloudinaryUrl = profile_pic_url;
+      console.log("Using provided profile_pic_url:", cloudinaryUrl);
+    } else {
+      console.log("No image provided, cloudinaryUrl will be null");
+    }
+
     const result = await pool.query(
       "INSERT INTO users (username, email, password, full_name, date_of_birth, bio, profile_pic_url) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, username, email, full_name, date_of_birth, bio, profile_pic_url, created_at",
       [
@@ -44,7 +61,7 @@ export const registerUser = async (req, res) => {
         full_name,
         dateOfBirth,
         bio,
-        profile_pic_url,
+        cloudinaryUrl,
       ]
     );
 

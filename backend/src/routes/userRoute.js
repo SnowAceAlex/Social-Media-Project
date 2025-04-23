@@ -16,10 +16,13 @@ import {
 } from "../controller/userController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 import { authenticate } from "../middleware/authenticateUser.js";
+import upload from "../middleware/multer.js";
 
 const router = Router();
 
-router.post("/register", registerUser);
+// // Route register: Áp dụng middleware upload.single("image") để xử lý form-data
+router.post("/register", upload.single("image"), registerUser);
+
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 
