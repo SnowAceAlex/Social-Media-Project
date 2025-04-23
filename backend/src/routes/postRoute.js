@@ -15,6 +15,7 @@ import {
   deleteComment,
   getReactionsByPost,
   getMyReaction,
+  getPostsByHashtag,
 } from "../controller/postController.js";
 import { authenticate } from "../middleware/authenticateUser.js";
 
@@ -28,7 +29,7 @@ router.post("/react", authenticate, reactToPost); // React to a post (like, haha
 router.post("/unreact", authenticate, removeReaction); // Remove user's reaction
 router.get("/getreacts/:postId", authenticate, getReactions); // Get all reactions (counts) for a post
 router.get("/getreactsinfo/:postId", authenticate, getReactionsByPost); // Get all reactions (user info) for a post
-router.get("/getMyReaction/:postId", authenticate, getMyReaction); 
+router.get("/getMyReaction/:postId", authenticate, getMyReaction);
 
 // Comments
 router.post("/comment", authenticate, commentPost); // Comment on a post
@@ -41,5 +42,8 @@ router.delete("/:postId", authenticate, deletePost); // Delete a post
 router.get("/:postId", authenticate, getSinglePost); // Get a single post with comments + reactions
 router.put("/:postId", authenticate, editPost); // Edit a post
 router.get("/:userId/latestPost", getLatestPostByUser); // Get latest post by user
+
+//Hashtag
+router.get("/hashtag/:tag", getPostsByHashtag);
 
 export default router;
