@@ -13,7 +13,8 @@ export const useEditProfileService = (onSuccess, onError) => {
             full_name: formData.full_name,
             date_of_birth: formData.dob,
             bio: formData.bio,
-            profile_pic_url: formData.imageUrl,
+            profile_pic_url: formData.profile_pic_url,          
+            profile_pic_public_id: formData.profile_pic_public_id, 
         });
 
         if (onSuccess) onSuccess(result);

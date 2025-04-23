@@ -6,7 +6,7 @@ export const editProfile = async (profileData) => {
         headers: {
         "Content-Type": "application/json",
         },
-        credentials: "include", // gửi cookie
+        credentials: "include", 
         body: JSON.stringify(profileData),
     });
 
