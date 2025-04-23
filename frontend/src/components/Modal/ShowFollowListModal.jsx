@@ -6,6 +6,7 @@ import useFollowing from "../../hook/useFollowing";
 import FollowButton from "../FollowButton";
 import SearchLoading from "../Skeleton/SearchLoading";
 import { Link } from "react-router-dom";
+import { motion } from 'framer-motion'; 
 
 const DisplayFollowListModal = ({
     title,
@@ -47,7 +48,12 @@ const DisplayFollowListModal = ({
 
     return (
         <div className="fixed top-0 left-0 w-full h-full z-[99] bg-black/50 flex items-center justify-center dark:text-dark-text">
-        <div className="bg-white dark:bg-dark p-6 w-[30rem] rounded-xl overflow-auto shadow-lg">
+        <motion.div 
+            initial={{ scale: 1.2, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="bg-white dark:bg-dark p-6 w-[30rem] rounded-xl overflow-auto shadow-lg">
             <div className="flex w-full items-center mb-4 relative">
                 <h2 className="text-xl font-bold dark:text-dark-text w-full text-center">{title}</h2>
                 <IoCloseOutline
@@ -125,7 +131,7 @@ const DisplayFollowListModal = ({
                 ))
             )}
             </div>
-        </div>
+        </motion.div>
         </div>
     );
 };

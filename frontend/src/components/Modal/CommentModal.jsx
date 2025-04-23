@@ -164,28 +164,28 @@ function CommentModal({post, profile, loading, onClose }) {
                                 handleReact={handleReact}
                                 reactUsers={reactUsers}/>
 
-                            <div className="flex items-center border rounded-md overflow-hidden">
-                            <TextareaAutosize
-                                minRows={1}
-                                maxRows={3}
-                                className="flex-1 p-2 resize-none outline-none"
-                                placeholder="Type your comment..."
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSubmit();
-                                }
-                                }}
-                            />
-                            <button
-                                onClick={handleSubmit}
-                                className="p-2 flex items-center justify-center cursor-pointer group active:scale-110"
-                                title="Send"
-                            >
-                                <IoMdSend size={18} className="text-dark dark:text-white group-hover:text-theme" />
-                            </button>
+                            <div className="flex items-center focus-within:border rounded-md overflow-hidden">
+                                <TextareaAutosize
+                                    minRows={1}
+                                    maxRows={3}
+                                    className="flex-1 p-2 resize-none outline-none"
+                                    placeholder="Type your comment..."
+                                    value={content}
+                                    onChange={(e) => setContent(e.target.value)}
+                                    onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSubmit();
+                                    }
+                                    }}
+                                />
+                                <button
+                                    onClick={handleSubmit}
+                                    className="p-2 flex items-center justify-center cursor-pointer group active:scale-110"
+                                    title="Send"
+                                >
+                                    <IoMdSend size={18} className="text-dark dark:text-white group-hover:text-theme" />
+                                </button>
                             </div>
                         </div>
                     </div>
