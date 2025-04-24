@@ -26,16 +26,15 @@ export const loginUser = async (email, password) => {
 
 export const registerUser = async (formData) => {
     try {
-      const response = await axios.post(`${API_URL}/register`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      return response.data;
+        const response = await axios.post(`${API_URL}/register`, formData, {
+            headers: {
+            "Content-Type": "multipart/form-data",
+            },
+        });
+        return response.data;
     } catch (error) {
         throw error.response?.data || { error: "Failed to register" };    }
-  };
-  
+};
 
 export const getProfile = async (id = null) => {
     try {
