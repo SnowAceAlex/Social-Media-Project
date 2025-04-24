@@ -17,6 +17,9 @@ const storage = new CloudinaryStorage({
     if (type === "avatar" && targetId) {
       folder = `users/${targetId}/avatar`;
     } 
+    else if (type === "cover" && targetId) {
+      folder = `users/${targetId}/cover`;
+    }
     //post/postId/images
     else if (type === "post" && targetId) {
       folder = `posts/${targetId}/images`;
