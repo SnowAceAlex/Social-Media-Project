@@ -37,4 +37,5 @@ router.get("/:id/followers", authenticate, getFollowers);
 router.get("/:id/followings", authenticate, getFollowing);
 router.get("/is-following/:id", authenticate, isFollowing);
 router.get("/followCount/:id", authenticate, getFollowerFollowingCount);
+
 export default router;
