@@ -1,6 +1,6 @@
 // useEditProfileService.js
 import { useState } from "react";
-import { editProfile } from "../services/editProfileService";
+import { editProfile, updateCover } from "../services/editProfileService";
 
 export const useEditProfileService = (onSuccess, onError) => {
     const [loading, setLoading] = useState(false);
@@ -25,5 +25,15 @@ export const useEditProfileService = (onSuccess, onError) => {
         }
     };
 
-    return { handleSaveProfile, loading };
+    const handleUpdateCover = async ({ cover_url, cover_public_id }) => {
+        try {
+            const updatedUser = await updateCover({ cover_url, cover_public_id });
+            return updatedUser;
+        } catch (error) {
+            console.error('Error updating cover:', error);
+            if (onError) onError(error.message);
+        }
+    };
+
+    return { handleSaveProfile,handleUpdateCover, loading };
 };
