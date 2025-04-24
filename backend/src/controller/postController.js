@@ -1,4 +1,5 @@
 import { pool } from "../config/pool.js";
+import { createNotification } from "../utils/notification.js";
 
 const extractHashtags = (caption) => {
   const regex = /#(\w+)/g;
@@ -6,20 +7,6 @@ const extractHashtags = (caption) => {
   return matches
     ? [...new Set(matches.map((tag) => tag.slice(1).toLowerCase()))]
     : [];
-};
-
-// Helper function to create a notification
-const createNotification = async (userId, type, fromUserId, postId = null) => {
-  try {
-    await pool.query(
-      `INSERT INTO notifications (user_id, type, from_user_id, post_id)
-       VALUES ($1, $2, $3, $4)`,
-      [userId, type, fromUserId, postId]
-    );
-  } catch (error) {
-    console.error("Error creating notification:", error);
-    throw error;
-  }
 };
 
 // Create a new post
@@ -481,123 +468,6 @@ export const getPostsByHashtag = async (req, res) => {
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error fetching posts by hashtag:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Follow a user and create a notification
-export const followUser = async (req, res) => {
-  const { user_id_to_follow } = req.body;
-  const userId = req.user.id;
-
-  if (userId === parseInt(user_id_to_follow)) {
-    return res.status(400).json({ error: "You cannot follow yourself" });
-  }
-
-  try {
-    const followResult = await pool.query(
-      `INSERT INTO follow (follower_id, following_id)
-       VALUES ($1, $2)
-       ON CONFLICT (follower_id, following_id) DO NOTHING
-       RETURNING *`,
-      [userId, user_id_to_follow]
-    );
-
-    if (followResult.rowCount === 0) {
-      return res.status(400).json({ error: "Already following this user" });
-    }
-
-    await createNotification(user_id_to_follow, "follow", userId);
-
-    res.status(200).json({ message: "User followed successfully" });
-  } catch (error) {
-    console.error("Error following user:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Unfollow a user
-export const unfollowUser = async (req, res) => {
-  const { user_id_to_unfollow } = req.body;
-  const userId = req.user.id;
-
-  if (userId === parseInt(user_id_to_unfollow)) {
-    return res.status(400).json({ error: "You cannot unfollow yourself" });
-  }
-
-  try {
-    const result = await pool.query(
-      `DELETE FROM follow WHERE follower_id = $1 AND following_id = $2 RETURNING *`,
-      [userId, user_id_to_unfollow]
-    );
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "You are not following this user" });
-    }
-
-    res.status(200).json({ message: "User unfollowed successfully" });
-  } catch (error) {
-    console.error("Error unfollowing user:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Get notifications for a user
-export const getNotifications = async (req, res) => {
-  const userId = req.user.id;
-  const page = parseInt(req.query.page) || 1;
-  const limit = 10;
-  const offset = (page - 1) * limit;
-
-  try {
-    const result = await pool.query(
-      `SELECT notifications.*, users.username, users.profile_pic_url
-       FROM notifications
-       JOIN users ON notifications.from_user_id = users.id
-       WHERE notifications.user_id = $1
-       ORDER BY notifications.created_at DESC
-       LIMIT $2 OFFSET $3`,
-      [userId, limit, offset]
-    );
-
-    await pool.query(
-      `UPDATE notifications SET is_read = TRUE
-       WHERE user_id = $1 AND id IN (${result.rows.map((_, i) => `$${i + 2}`).join(", ")})`,
-      [userId, ...result.rows.map((n) => n.id)]
-    );
-
-    res.status(200).json({
-      page,
-      notifications: result.rows,
-      hasMore: result.rows.length === limit,
-    });
-  } catch (error) {
-    console.error("Error fetching notifications:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Delete a notification
-export const deleteNotification = async (req, res) => {
-  const notificationId = parseInt(req.params.notificationId);
-  const userId = req.user.id;
-
-  try {
-    const check = await pool.query(
-      `SELECT * FROM notifications WHERE id = $1 AND user_id = $2`,
-      [notificationId, userId]
-    );
-
-    if (check.rows.length === 0) {
-      return res
-        .status(403)
-        .json({ error: "Unauthorized or notification not found" });
-    }
-
-    await pool.query(`DELETE FROM notifications WHERE id = $1`, [notificationId]);
-    res.status(200).json({ message: "Notification deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting notification:", error);
     res.status(500).json({ error: error.message });
   }
 };
