@@ -5,10 +5,11 @@ import upload from "../middleware/multer.js"; // Import upload config
 import { deleteCloudinaryImage } from "./uploadController.js";
 import fs from "fs";
 import cloudinary from "../utils/cloudinary.js";
+import { createNotification } from "../utils/notification.js";
 
 // Register user
 export const registerUser = async (req, res) => {
-  let userId = null; 
+  let userId = null;
   const {
     username,
     email,
@@ -23,12 +24,15 @@ export const registerUser = async (req, res) => {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
-  if(!dateOfBirth) {
+  if (!dateOfBirth) {
     return res.status(400).json({ error: "Date of birth is required" });
   }
 
   try {
-    const emailCheck = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
+    const emailCheck = await pool.query(
+      "SELECT id FROM users WHERE email = $1",
+      [email]
+    );
     if (emailCheck.rows.length > 0) {
       return res.status(400).json({ error: "Email already exists" });
     }
@@ -44,7 +48,7 @@ export const registerUser = async (req, res) => {
     );
 
     const user = tempInsert.rows[0];
-    userId = user.id; 
+    userId = user.id;
 
     let uploadedUrl = null;
     let publicId = null;
@@ -81,7 +85,6 @@ export const registerUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 // Login user
 export const loginUser = async (req, res) => {
@@ -197,7 +200,7 @@ export const getAllUsersProfile = async (req, res) => {
 
 //Get Users By Username
 export const searchUsersByUsername = async (req, res) => {
-  const { username } = req.query; 
+  const { username } = req.query;
 
   if (!username) {
     return res.status(400).json({ error: "Username is required for search" });
@@ -205,10 +208,10 @@ export const searchUsersByUsername = async (req, res) => {
 
   try {
     const result = await pool.query(
-        `SELECT id, username, full_name, profile_pic_url
+      `SELECT id, username, full_name, profile_pic_url
         FROM users
         WHERE username ILIKE $1`,
-      [`%${username}%`] 
+      [`%${username}%`]
     );
 
     res.status(200).json(result.rows);
@@ -217,7 +220,6 @@ export const searchUsersByUsername = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 // Update user profile
 export const updateUserProfile = async (req, res) => {
@@ -241,7 +243,7 @@ export const updateUserProfile = async (req, res) => {
     );
     const currentPublicId = rows[0]?.profile_pic_public_id;
 
-        let finalProfilePicUrl = profile_pic_url;
+    let finalProfilePicUrl = profile_pic_url;
     let finalProfilePicPublicId = profile_pic_public_id;
 
     // 2. Nếu có file upload từ multer (sau khi đăng ký avatar)
@@ -261,7 +263,7 @@ export const updateUserProfile = async (req, res) => {
 
     // 3. Update profile
     const result = await pool.query(
-        `UPDATE users 
+      `UPDATE users 
         SET 
             username = COALESCE($1, username), 
             full_name = COALESCE($2, full_name), 
@@ -331,6 +333,9 @@ export const followUser = async (req, res) => {
       "INSERT INTO followers (follower_id, following_id) VALUES ($1, $2) RETURNING *",
       [followerId, followingId]
     );
+
+    // Create notification for the followed user
+    await createNotification(followingId, "follow", followerId);
 
     res.status(200).json({
       message: "Followed successfully",

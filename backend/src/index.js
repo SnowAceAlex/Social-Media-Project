@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 import cors from "cors"; // Import cors
 import userRoute from "./routes/userRoute.js";
 import postRoute from "./routes/postRoute.js";
-import followRoute from "./routes/followRoute.js";
 import notificationRoute from "./routes/notificationRoute.js";
 import uploadRoute from "./routes/uploadRoute.js";
 import { pool } from "./config/pool.js";
@@ -36,7 +35,6 @@ app.use(cookieParser()); // Use cookie-parser middleware
 app.use("/users", userRoute);
 app.use("/posts", postRoute); // Ensure authentication for post routes
 app.use("/upload", uploadRoute); // Use upload route
-app.use("/follow", followRoute); // Use follow route
 app.use("/notifications", notificationRoute); // Use notification route
 
 app.listen(PORT, async () => {
