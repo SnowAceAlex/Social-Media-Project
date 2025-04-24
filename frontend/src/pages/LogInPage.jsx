@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import Carousel from '../components/Carousel';
 import LogInForm from '../components/Form/LogInForm';
 import SignUpForm from '../components/Form/SignUpForm';
-import AlertToast from '../components/Modal/AlertModel';
+import AlertToast from '../components/Modal/FunctionalityModal.jsx/AlertModel';
 
 function LogInPage() {
     const [showRegister, setShowRegister] = useState(false);
