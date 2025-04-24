@@ -211,7 +211,7 @@ export const loginUser = async (req, res) => {
 export const getUserProfile = async (req, res) => {
   try {
     const user = await pool.query(
-      "SELECT id, username, email, full_name, bio, profile_pic_url, date_of_birth, created_at FROM users WHERE id = $1",
+      "SELECT id, username, email, full_name, bio, profile_pic_url, date_of_birth, cover_url, created_at FROM users WHERE id = $1",
       [req.params.id]
     );
     if (user.rows.length === 0) {
@@ -352,6 +352,54 @@ export const updateUserProfile = async (req, res) => {
   } catch (error) {
     console.error("❌ Error updating user profile:", error);
     res.status(500).json({ error: error.message });
+  }
+};
+
+// controllers/userController.js
+export const updateUserCover = async (req, res) => {
+  const userId = req.user.id;
+  const { cover_url, cover_public_id } = req.body;
+  console.log(req.body);
+
+  if (!cover_url) {
+    return res.status(400).json({ message: "cover_url is required" });
+  }
+
+  try {
+    // 1. Lấy cover_public_id cũ
+    const existing = await pool.query(
+      `SELECT cover_public_id FROM users WHERE id = $1`,
+      [userId]
+    );
+
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const oldPublicId = existing.rows[0].cover_public_id;
+
+    // 2. Xoá ảnh cũ nếu có
+    if (oldPublicId && cover_public_id && oldPublicId !== cover_public_id) {
+      await deleteCloudinaryImage(oldPublicId);
+    }
+
+    // 3. Cập nhật ảnh mới
+    const result = await pool.query(
+      `UPDATE users 
+       SET cover_url = $1, cover_public_id = $2
+       WHERE id = $3 
+       RETURNING id, username, cover_url, cover_public_id`,
+      [cover_url, cover_public_id, userId]
+    );
+
+    res.status(200).json({
+      message: "Cover updated successfully",
+      user: result.rows[0],
+    });
+
+  } catch (error) {
+    console.error("❌ Error updating cover_url:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
