@@ -16,3 +16,9 @@ CREATE TABLE reactions (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 );
+
+CREATE TABLE post_images (
+  id SERIAL PRIMARY KEY,
+  post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
+  image_url TEXT NOT NULL
+);
