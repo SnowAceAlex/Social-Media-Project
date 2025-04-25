@@ -1,5 +1,6 @@
 import { pool } from "../config/pool.js";
 import cloudinary from "../utils/cloudinary.js";
+import { createNotification } from "../utils/notification.js";
 
 const extractHashtags = (caption) => {
   const regex = /#(\w+)/g;
@@ -140,6 +141,17 @@ export const reactToPost = async (req, res) => {
       [userId, post_id, reaction_type]
     );
 
+    // logic to create a notification
+    const postResult = await pool.query(
+      `SELECT user_id FROM posts WHERE id = $1`,
+      [post_id]
+    );
+
+    const postOwnerId = postResult.rows[0]?.user_id;
+    if (postOwnerId && postOwnerId !== userId) {
+      await createNotification(postOwnerId, reaction_type, userId, post_id);
+    }
+
     res
       .status(200)
       .json({ message: "Reaction recorded", reaction: result.rows[0] });
@@ -251,6 +263,18 @@ export const commentPost = async (req, res) => {
        RETURNING id, user_id, post_id, content, created_at`,
       [userId, post_id, content]
     );
+
+    // logic to create a notification
+    const postResult = await pool.query(
+      `SELECT user_id FROM posts WHERE id = $1`,
+      [post_id]
+    );
+
+    const postOwnerId = postResult.rows[0]?.user_id;
+    if (postOwnerId && postOwnerId !== userId) {
+      await createNotification(postOwnerId, "comment", userId, post_id);
+    }
+
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error("Error commenting on post:", error);
