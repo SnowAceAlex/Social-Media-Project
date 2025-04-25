@@ -171,7 +171,9 @@ function ProfilePage() {
                       </span>
                     </span>
                   </span>
-                  <span className="text-[1rem] text-gray-500 dark:text-dark-text-subtle font-[400]">{profile.bio}</span>
+                  <span className="text-[1rem] text-gray-500 dark:text-dark-text-subtle font-[400]">
+                    {profile.bio}
+                  </span>
                 </>
               )}
             </span>
@@ -192,7 +194,7 @@ function ProfilePage() {
       {/* CREATE POST */}
       {
         selfProfile && 
-        <div className="h-16 w-[30rem] md:w-[25rem] lg:w-[35rem] rounded-2xl p-2  mb-6
+        <div className="h-16 w-[30rem] md:w-[25rem] lg:w-[35rem] rounded-2xl p-2 mt-6 mb-6
                     bg-light-card border border-light-button-hover
                     dark:bg-dark-card dark:border-dark-card-border">
         <div className="h-full flex items-center gap-4">

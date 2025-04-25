@@ -17,6 +17,7 @@ import { useReactions } from "../../hook/useReaction";
 import { motion } from "framer-motion";
 import ReactUserModal from "./ReactUserModal";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
+import PostCaption from "../PostCaption";
 
 function CommentModal({ post, profile, loading, onClose }) {
     const [showCommentOptions, setShowCommentOptions] = useState(false);
@@ -76,220 +77,219 @@ function CommentModal({ post, profile, loading, onClose }) {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className={`bg-white dark:bg-dark-card
+            className={`bg-white dark:bg-dark
                         ${
                             (post.images && post.images.length > 0) ? 
                             "w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]" :
                             "w-[30rem] md:w-[35rem]"
                         }
-                        max-h-[90vh] overflow-hidden shadow-md relative`}
+                        max-h-[95vh] overflow-auto shadow-md relative`}
         >
             {/* Responsive Content */}
-            <div
-            className="flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-auto px-4 py-6 md:h-[90vh] md:p-0"
-            >
+            <div className="flex flex-col md:flex-row gap-6 px-4 py-6 md:h-[95vh] md:p-0">
             {/* Caption block - order first on mobile, second on desktop */}
-            <div className="order-1 md:order-2 w-full md:flex-3">
-                {/* Header (mobile only) */}
-                <div className="relative flex items-center justify-center pb-4 md:p-4 border-b border-light-border dark:border-dark-border">
-                <span className="text-xl font-semibold text-center">
-                    Post of {profile?.username}
-                </span>
-                <IoCloseOutline
-                    size={28}
-                    onClick={onClose}
-                    title="Close"
-                    className="p-1 bg-light-button hover:bg-light-button-hover md:hidden
-                                dark:bg-dark-button dark:hover:bg-dark-button-hover dark:text-dark-text
-                                rounded-full cursor-pointer absolute right-0 top-0"
-                />
-                </div>
-
-                {/* Avatar */}
-                <div className={`w-full flex items-center gap-4 mt-2 md:mb-2
-                                ${
-                                    (post.images && post.images.length > 0) ? 
-                                    "" : "pl-6"
-                                }`}>
-                <Avatar_Username
-                    profile={profile}
-                    loading={loading}
-                    createdAt={post.created_at}
-                />
-                </div>
-            </div>
-
-            {/* Image block - order second on mobile, first on desktop */}
-            {post.images?.length > 0 && (
-                <div
-                className="order-2 md:order-1 w-full md:flex-4 aspect-[3/3] min-h-[10rem] md:aspect-auto
-                            flex items-center justify-center relative overflow-hidden">
-                <div
-                    className="flex w-full h-full transition-transform duration-500 ease-in-out"
-                    style={{
-                    transform: `translateX(-${currentImgIndex * 100}%)`,
-                    width: `${post.images.length * 100}%`,
-                    }}
-                >
-                    {post.images.map((img, index) => (
-                    <img
-                        key={index}
-                        src={img}
-                        alt={`Post image ${index + 1}`}
-                        className="w-full h-full object-cover flex-shrink-0"
+                <div className="order-1 md:order-2 w-full md:flex-3">
+                    {/* Header (mobile only) */}
+                    <div className="relative flex items-center justify-center pb-4 md:p-4 border-b border-light-border dark:border-dark-border">
+                    <span className="text-xl font-semibold text-center">
+                        Post of {profile?.username}
+                    </span>
+                    <IoCloseOutline
+                        size={28}
+                        onClick={onClose}
+                        title="Close"
+                        className="p-1 bg-light-button hover:bg-light-button-hover md:hidden
+                                    dark:bg-dark-button dark:hover:bg-dark-button-hover dark:text-dark-text
+                                    rounded-full cursor-pointer absolute right-0 top-0"
                     />
-                    ))}
+                    </div>
+
+                    {/* Avatar */}
+                    <div className={`w-full flex items-center gap-4 mt-2 md:mb-2
+                                    ${
+                                        (post.images && post.images.length > 0) ? 
+                                        "" : "pl-6"
+                                    }`}>
+                    <Avatar_Username
+                        profile={profile}
+                        loading={loading}
+                        createdAt={post.created_at}
+                    />
+                    </div>
                 </div>
 
-                {/* Indicators */}
-                <div className="absolute bottom-2 w-full flex justify-center gap-2">
-                    { post.images.length > 1 && post.images.map((_, index) => (
+                {/* Image block - order second on mobile, first on desktop */}
+                {post.images?.length > 0 && (
                     <div
-                        key={index}
-                        onClick={() => setCurrentImgIndex(index)}
-                        className={`w-2 h-2 rounded-full cursor-pointer transition-all duration-200
-                                            ${
-                                                index === currentImgIndex
-                                                ? "bg-white scale-110"
-                                                : "bg-gray-400/50"
-                                            }`}
-                    />
-                    ))}
-                </div>
-
-                {/* Prev / Next buttons */}
-                {post.images.length > 1 && currentImgIndex > 0 && (
-                    <button
-                    onClick={() => setCurrentImgIndex((prev) => prev - 1)}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-dark-button/50 cursor-pointer text-white rounded-full hover:bg-opacity-70"
-                    title="Previous"
+                    className="order-2 md:order-1 w-full md:flex-4 md:aspect-auto
+                                flex items-center justify-center relative overflow-hidden">
+                    <div
+                        className="flex transition-transform duration-500 ease-in-out w-full"
+                        style={{
+                        transform: `translateX(-${currentImgIndex * 100}%)`,
+                        width: `${post.images.length * 100}%`,
+                        }}
                     >
-                    <HiChevronLeft size={24} />
-                    </button>
-                )}
-                {post.images.length > 1 &&
-                    currentImgIndex < post.images.length - 1 && (
-                    <button
-                        onClick={() => setCurrentImgIndex((prev) => prev + 1)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-dark-button/50 cursor-pointer text-white rounded-full hover:bg-opacity-70"
-                        title="Next"
-                    >
-                        <HiChevronRight size={24} />
-                    </button>
-                    )}
-                </div>
-            )}
-            {/*CONTENT*/}
-            <div
-                className={`order-3 md:absolute flex flex-col
-                            ${
-                                (post.images && post.images.length > 0) ?
-                                "md:top-36 md:right-10 lg:right-8 xl:right-4 md:ml-3 md:w-[18rem] lg:w-[23rem] xl:w-[28rem] md:h-[36rem]" 
-                                : "md:top-36 md:right-6 md:ml-3 md:w-[32rem] md:h-[36rem]"
-                            }`}
-            >
-                {/* Comment list scrollable */}
-                <div className="flex-1 overflow-auto pr-1">
-                <span className="text-base leading-relaxed block pb-6 mb-4 border-b border-light-border dark:border-dark-border">
-                    {post?.caption}
-                </span>
+                        {post.images.map((img, index) => (
+                        <img
+                            key={index}
+                            src={img}
+                            alt={`Post image ${index + 1}`}
+                            className="w-full h-auto md:h-full object-contain md:object-cover flex-shrink-0"
+                        />
+                        ))}
+                    </div>
 
-                <div className="flex flex-col gap-2 mb-6">
-                    {loadingComments ? (
-                    <div>Loading comments...</div>
-                    ) : (
-                    comments.map((user) => (
+                    {/* Indicators */}
+                    <div className="absolute bottom-2 w-full flex justify-center gap-2">
+                        { post.images.length > 1 && post.images.map((_, index) => (
                         <div
-                        key={user.id}
-                        className="p-2 rounded dark:text-white flex gap-4 text-md group"
+                            key={index}
+                            onClick={() => setCurrentImgIndex(index)}
+                            className={`w-2 h-2 rounded-full cursor-pointer transition-all duration-200
+                                                ${
+                                                    index === currentImgIndex
+                                                    ? "bg-white scale-110"
+                                                    : "bg-gray-400/50"
+                                                }`}
+                        />
+                        ))}
+                    </div>
+
+                    {/* Prev / Next buttons */}
+                    {post.images.length > 1 && currentImgIndex > 0 && (
+                        <button
+                        onClick={() => setCurrentImgIndex((prev) => prev - 1)}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-dark-button/50 cursor-pointer text-white rounded-full hover:bg-opacity-70"
+                        title="Previous"
                         >
-                        {user.profile_pic_url && (
-                            <Link to={`/profile/${user.user_id}`}>
-                            <div className="w-10 h-10 rounded-full overflow-hidden">
-                                <img
-                                src={user.profile_pic_url}
-                                title={user.username}
-                                alt={user.username}
-                                className="w-full h-full object-cover"
-                                />
-                            </div>
-                            </Link>
-                        )}
-                        <div className="flex gap-1 flex-col">
-                            <span>
-                            <Link
-                                to={`/profile/${user.user_id}`}
-                                className="font-semibold cursor-pointer text-nowrap mr-2"
-                                title={user.username}
-                            >
-                                {user.username}
-                            </Link>
-                            {user.content}
-                            </span>
-                            <div className=" dark:text-dark-input-disabled-text text-light-input-disabled-text text-[0.8rem] flex gap-4 items-center">
-                            {user.created_at &&
-                                formatDistanceToNow(new Date(user.created_at), {
-                                addSuffix: true,
-                                })}
-                            {currentUser?.user?.id === user.user_id && (
-                                <BsThreeDots
-                                size={18}
-                                className="hidden cursor-pointer group-hover:block"
-                                title="More options"
-                                onClick={() => {
-                                    setShowCommentOptions(true),
-                                    setCommentToDelete(user.id);
-                                }}
-                                />
-                            )}
-                            </div>
-                        </div>
-                        </div>
-                    ))
+                        <HiChevronLeft size={24} />
+                        </button>
                     )}
-                </div>
-                </div>
+                    {post.images.length > 1 &&
+                        currentImgIndex < post.images.length - 1 && (
+                        <button
+                            onClick={() => setCurrentImgIndex((prev) => prev + 1)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-dark-button/50 cursor-pointer text-white rounded-full hover:bg-opacity-70"
+                            title="Next"
+                        >
+                            <HiChevronRight size={24} />
+                        </button>
+                        )}
+                    </div>
+                )}
+                {/*CONTENT*/}
+                <div
+                    className={`order-3 md:absolute flex flex-col
+                                ${
+                                    (post.images && post.images.length > 0) ?
+                                    "md:top-36 md:right-4 lg:right-8 xl:right-6 md:ml-3 md:w-[20rem] lg:w-[23rem] xl:w-[28rem] md:h-[38.5rem]" 
+                                    : "md:top-36 md:right-6 md:ml-3 md:w-[32rem] md:h-[38.5rem]"
+                                }`}
+                >
+                    {/* Comment list scrollable */}
+                    <div className="flex-1 overflow-auto pr-1">
+                    <span className="text-base leading-relaxed block pb-6 mb-4 pr-4 border-b border-light-border dark:border-dark-border">
+                        <PostCaption caption={post.caption}/>
+                    </span>
 
-                {/* Fixed input area always visible */}
-                <div className="md:sticky bottom-0 bg-white dark:bg-dark-card">
-                <PostReaction
-                    commentCount={commentCount}
-                    setShowUserReactModal={setShowUserReactModal}
-                    sortedReactions={sortedReactions}
-                    reactions={reactions}
-                    myReaction={myReaction}
-                    handleReact={handleReact}
-                    reactUsers={reactUsers}
-                />
+                    <div className="flex flex-col gap-2 mb-6">
+                        {loadingComments ? (
+                        <div>Loading comments...</div>
+                        ) : (
+                        comments.map((user) => (
+                            <div
+                            key={user.id}
+                            className="p-2 rounded dark:text-white flex gap-4 text-md group"
+                            >
+                            {user.profile_pic_url && (
+                                <Link to={`/profile/${user.user_id}`}>
+                                <div className="w-10 h-10 rounded-full overflow-hidden">
+                                    <img
+                                    src={user.profile_pic_url}
+                                    title={user.username}
+                                    alt={user.username}
+                                    className="w-full h-full object-cover"
+                                    />
+                                </div>
+                                </Link>
+                            )}
+                            <div className="flex gap-1 flex-col">
+                                <span>
+                                <Link
+                                    to={`/profile/${user.user_id}`}
+                                    className="font-semibold cursor-pointer text-nowrap mr-2"
+                                    title={user.username}
+                                >
+                                    {user.username}
+                                </Link>
+                                {user.content}
+                                </span>
+                                <div className=" dark:text-dark-input-disabled-text text-light-input-disabled-text text-[0.8rem] flex gap-4 items-center">
+                                {user.created_at &&
+                                    formatDistanceToNow(new Date(user.created_at), {
+                                    addSuffix: true,
+                                    })}
+                                {currentUser?.user?.id === user.user_id && (
+                                    <BsThreeDots
+                                    size={18}
+                                    className="hidden cursor-pointer group-hover:block"
+                                    title="More options"
+                                    onClick={() => {
+                                        setShowCommentOptions(true),
+                                        setCommentToDelete(user.id);
+                                    }}
+                                    />
+                                )}
+                                </div>
+                            </div>
+                            </div>
+                        ))
+                        )}
+                    </div>
+                    </div>
 
-                <div className="flex items-center border border-transparent focus-within:border-black rounded-md overflow-hidden">
-                    <TextareaAutosize
-                    minRows={1}
-                    maxRows={3}
-                    className="flex-1 p-2 resize-none outline-none"
-                    placeholder="Type your comment..."
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSubmit();
-                        }
-                    }}
+                    {/* Fixed input area always visible */}
+                    <div className="md:sticky bottom-0 bg-white dark:bg-dark">
+                    <PostReaction
+                        commentCount={commentCount}
+                        setShowUserReactModal={setShowUserReactModal}
+                        sortedReactions={sortedReactions}
+                        reactions={reactions}
+                        myReaction={myReaction}
+                        handleReact={handleReact}
+                        reactUsers={reactUsers}
                     />
-                    <button
-                    onClick={handleSubmit}
-                    className="p-2 flex items-center justify-center cursor-pointer group active:scale-110"
-                    title="Send"
-                    >
-                    <IoMdSend
-                        size={18}
-                        className="text-dark dark:text-white group-hover:text-theme"
-                    />
-                    </button>
+
+                    <div className="flex items-center border border-transparent focus-within:border-black 
+                                    dark:focus-within:border-dark-button-hover rounded-md overflow-hidden">
+                        <TextareaAutosize
+                        minRows={1}
+                        maxRows={3}
+                        className="flex-1 p-2 resize-none outline-none"
+                        placeholder="Type your comment..."
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSubmit();
+                            }
+                        }}
+                        />
+                        <button
+                        onClick={handleSubmit}
+                        className="p-2 flex items-center justify-center cursor-pointer group active:scale-110"
+                        title="Send"
+                        >
+                        <IoMdSend
+                            size={18}
+                            className="text-dark dark:text-white group-hover:text-theme"
+                        />
+                        </button>
+                    </div>
+                    </div>
                 </div>
-                </div>
-            </div>
             </div>
         </motion.div>
         {showCommentOptions && (

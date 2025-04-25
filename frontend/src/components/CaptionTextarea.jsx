@@ -64,7 +64,7 @@ const CaptionTextarea = ({
                 onKeyUp={() => setCursorPosition(textareaRef.current?.selectionStart)}
                 placeholder={placeholder}
                 maxRows={7}
-                className="w-full resize-none bg-transparent text-2xl
+                className="w-full resize-none bg-transparent text-lg
                 placeholder-gray-400 dark:placeholder-dark-text-subtle
                 focus:outline-none focus:ring-0 border-none
                 overflow-auto transition-all pr-6"
