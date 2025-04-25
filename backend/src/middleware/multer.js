@@ -10,6 +10,8 @@ const storage = new CloudinaryStorage({
     const type = req.query.type;
     //TARGET_ID: userId, postId
     const targetId = req.query.targetId;
+    //POST_ID
+    const postId = req.query.postId;
 
     let folder = "misc"; // fallback nếu không đủ thông tin
     
@@ -20,9 +22,9 @@ const storage = new CloudinaryStorage({
     else if (type === "cover" && targetId) {
       folder = `users/${targetId}/cover`;
     }
-    //post/postId/images
-    else if (type === "post" && targetId) {
-      folder = `posts/${targetId}/images`;
+    //users/userId/posts/postId/images
+    else if (type === "post" && targetId && postId) {
+      folder = `users/${targetId}/posts/${postId}/images`;
     }
 
     const fileExt = path.extname(file.originalname); // .jpg, .png

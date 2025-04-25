@@ -18,10 +18,12 @@ import {
   getPostsByHashtag,
 } from "../controller/postController.js";
 import { authenticate } from "../middleware/authenticateUser.js";
+import { handleUpload } from "../controller/uploadController.js";
+import upload from "../middleware/multer.js";
 
 const router = Router();
 
-router.post("/", authenticate, createPost); // Create a new post
+router.post("/", authenticate, upload.array("images", 5), createPost); // Create a new post
 router.get("/", getAllPosts); // Get all posts
 
 // Reactions

@@ -18,10 +18,10 @@ export const useUploadService = () => {
         }
     };
 
-    const uploadMultiple = async (files, type, targetId) => {
+    const uploadMultiple = async (files, type, postId, targetId) => {
         try {
         setUploading(true);
-        const result = await uploadMultipleImages(files, type, targetId);
+        const result = await uploadMultipleImages(files, type, postId, targetId);
         return result;
         } catch (err) {
         setError(err.message);

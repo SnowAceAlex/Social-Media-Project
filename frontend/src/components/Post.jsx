@@ -12,6 +12,7 @@ import ConfirmModal from "./Modal/ConfirmModal";
 import EditPostModal from "./Modal/EditPostModal";
 import { useReactions } from "../hook/useReaction";
 import ReactUserModal from "./Modal/ReactUserModal";
+import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 
 function Post({post = null, profile = null, loading = false}) {
     const [showCommentModal, setShowCommentModal] = useState(false);
@@ -48,6 +49,11 @@ function Post({post = null, profile = null, loading = false}) {
             console.error("Failed to delete post:", err);
         }
     };
+    const [currentImgIndex, setCurrentImgIndex] = useState(0);
+    const [direction, setDirection] = useState(0);
+    useEffect(() => {
+        setCurrentImgIndex(0);
+    }, [post.id]);      
 
     return <div className="h-fit w-full px-4 pt-4 flex flex-col dark:text-dark-text">
             <div className="w-full h-[10%] flex items-center gap-4 pl-2 mb-2 relative">
@@ -64,6 +70,61 @@ function Post({post = null, profile = null, loading = false}) {
                 }
             </div>
             <PostCaption caption={post.caption}/>
+            {post.images?.length > 0 && (
+            <div className="w-full relative mt-4 flex items-center justify-center overflow-hidden rounded-lg max-h-[600px]">
+                {/* Slide wrapper */}
+                <div
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{
+                    transform: `translateX(-${currentImgIndex * 100}%)`,
+                    width: `${post.images.length * 100}%`,
+                }}
+                >
+                {post.images.map((img, index) => (
+                    <img
+                    key={index}
+                    src={img}
+                    alt={`Post image ${index + 1}`}
+                    className="w-full object-contain max-h-[600px] flex-shrink-0"
+                    />
+                ))}
+                </div>
+
+                {/* Indicators */}
+                <div className="absolute bottom-2 w-full flex justify-center gap-2">
+                {post.images.map((_, index) => (
+                    <div
+                    key={index}
+                    onClick={() => setCurrentImgIndex(index)}
+                    className={`w-2 h-2 rounded-full cursor-pointer transition-all duration-200
+                        ${index === currentImgIndex ? "bg-white scale-110" : "bg-gray-400/50"}`}
+                    />
+                ))}
+                </div>
+
+                {/* Prev / Next buttons */}
+                {post.images.length > 1 && currentImgIndex > 0 && (
+                <button
+                    onClick={() => setCurrentImgIndex((prev) => prev - 1)}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-dark-button/50 cursor-pointer text-white rounded-full hover:bg-opacity-70"
+                    title="Previous"
+                >
+                    <HiChevronLeft size={24} />
+                </button>
+                )}
+                {post.images.length > 1 && currentImgIndex < post.images.length - 1 && (
+                <button
+                    onClick={() => setCurrentImgIndex((prev) => prev + 1)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-dark-button/50 cursor-pointer text-white rounded-full hover:bg-opacity-70"
+                    title="Next"
+                >
+                    <HiChevronRight size={24} />
+                </button>
+                )}
+            </div>
+            )}
+
+
             <PostReaction 
                 commentCount={commentCount}
                 setShowCommentModal={setShowCommentModal}

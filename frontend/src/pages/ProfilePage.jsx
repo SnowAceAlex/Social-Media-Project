@@ -61,7 +61,7 @@ function ProfilePage() {
 
   return (
     <div className="md:ml-9 lg:ml-0 flex flex-col items-center pb-18">
-      <div className="w-full h-96 xl:mb-20 relative">
+      <div className="w-full h-96 xl:mb-20 relative mb-28">
         <div className="w-full h-4/5 md:rounded-b-4xl bg-cover bg-center relative group"
               style={{
                 backgroundImage: profile?.cover_url
@@ -73,7 +73,7 @@ function ProfilePage() {
             selfProfile &&
           <div
               onClick={() => { setShowUploadCoverModal(true)}}
-              className="absolute top-10 right-20 md:right-30 xl:right-60 px-2 py-2
+              className="absolute top-10 right-20 md:right-30 xl:right-60 px-2 py-2 z-[99]
                         bg-light-button dark:bg-dark-button dark:text-dark-text text-sm
                         hover:bg-light-button-hover dark:hover:bg-dark-card-border
                         shadow-xl rounded-lg cursor-pointer border-2 border-light-input-border dark:border-dark-border
@@ -119,7 +119,7 @@ function ProfilePage() {
           }
         </div>
 
-        <div className="absolute -bottom-5 left-2 md:left-8 flex items-end gap-4 z-0">
+        <div className="absolute -bottom-5 left-2 md:left-8 flex items-end gap-4">
             {/* Avatar */}
             <div className="w-36 aspect-square rounded-full border-4 border-white overflow-hidden bg-gray-300 dark:border-dark">
               {loading ? (

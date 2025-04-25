@@ -9,9 +9,22 @@ const API = axios.create({
 
 // ------------------ POST SERVICES ------------------
 
-export const createPostService = async (caption) => {
+export const createPostService = async (caption, files) => {
     try {
-        const res = await API.post("/", { caption });
+        const formData = new FormData();
+        formData.append("caption", caption);
+        files.forEach((file) => {
+          formData.append("images", file); // "images" phải khớp với multer field name
+        });
+        console.log(formData)
+    
+        const res = await API.post("/", formData, {
+            headers: {
+            "Content-Type": "multipart/form-data",
+            },
+            withCredentials: true,
+        });
+    
         return res.data;
     } catch (err) {
         const msg = err.response?.data?.error || "Failed to create post";

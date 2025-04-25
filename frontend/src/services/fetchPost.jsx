@@ -13,6 +13,7 @@ export const fetchPost = async (page = 1, userId = null) => {
         const res = await axios.get(`http://localhost:5000/posts?${queryParams.toString()}`,{
             withCredentials: true,
         });
+        console.log(res.data);
         return res.data; 
     } catch (err) {
         console.error("Error fetching posts:", err);

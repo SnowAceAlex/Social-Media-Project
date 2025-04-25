@@ -312,7 +312,6 @@ export const updateUserCover = async (req, res) => {
       `SELECT cover_public_id FROM users WHERE id = $1`,
       [userId]
     );
-
     if (existing.rows.length === 0) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -320,7 +319,7 @@ export const updateUserCover = async (req, res) => {
     const oldPublicId = existing.rows[0].cover_public_id;
 
     // 2. Xoá ảnh cũ nếu có
-    if (oldPublicId && cover_public_id && oldPublicId !== cover_public_id) {
+    if (oldPublicId) {
       await deleteCloudinaryImage(oldPublicId);
     }
 

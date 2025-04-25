@@ -7,24 +7,30 @@ import { useCreatePostService } from '../../hook/useCreatePostService';
 import Avatar_Username from '../Avatar_Username';
 import { getCurrentUser } from '../../helpers/getCurrentUser';
 import { motion } from 'framer-motion'; 
+import { useUploadService } from '../../hook/useUploadService';
 
-const CreatePostModal = ({ onClose, showGlobalToast }) => {
+const CreatePostModal = ({ onClose, showGlobalToast, setShowLoading}) => {
     const {currentUser} = getCurrentUser();
 
     const { profile, loading, error } = useProfile(currentUser?.user?.id);
-    
     const [caption, setCaption] = useState("");
-    
-    const { handleCreatePost } = useCreatePostService(
-        () => {
-            showGlobalToast("Post created!", "success");
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const {uploadMultiple} = useUploadService();
+    const { handleCreatePost } = useCreatePostService();
+
+    const handleSubmitPost = async () => {
+        try{
+            setShowLoading(true);
+            await handleCreatePost(caption, selectedFiles);
+        }catch (err){
+            console.error("Upload failed:", err);
+            showGlobalToast("Upload failed", "error");
+        } finally{
             window.location.reload();
-            onClose();
-        },
-        (errMsg) => {
-            showGlobalToast("Failed to create post", "error");
+            setShowLoading(false);
+            showGlobalToast("Post created!", "success");
         }
-    );
+    }
 
     //HANDLE HASHTAGS
     const extractHashtags = (text) => {
@@ -76,7 +82,7 @@ const CreatePostModal = ({ onClose, showGlobalToast }) => {
                     </div>
 
                     {/* Upload block - order second on mobile, first on desktop */}
-                    <UploadBlock/>
+                    <UploadBlock onFilesSelected={setSelectedFiles}/>
                     <button
                         className="w-fit h-fit text-lg py-2 px-4 order-3 ml-auto
                             md:absolute md:bottom-4 md:right-4 cursor-pointer
@@ -85,7 +91,7 @@ const CreatePostModal = ({ onClose, showGlobalToast }) => {
                             hover:scale-105 hover:shadow-2xl hover:font-semibold
                             transition-all duration-300 ease-in-out"
                         title='Create your post'
-                        onClick={() => handleCreatePost(caption)}
+                        onClick={handleSubmitPost}
                         >
                         Create
                     </button>

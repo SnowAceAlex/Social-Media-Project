@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { LiaPhotoVideoSolid } from 'react-icons/lia';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 
-export default function UploadBlock({}) {
+export default function UploadBlock({onFilesSelected}) {
         const fileInputRef = useRef(null);
         const [images, setImages] = useState([]);
         const [currentIndex, setCurrentIndex] = useState(0);
@@ -16,6 +16,9 @@ export default function UploadBlock({}) {
             const imageUrls = files.map(file => URL.createObjectURL(file));
             setImages(imageUrls);
             setCurrentIndex(0);
+            if (onFilesSelected) {
+                onFilesSelected(files);
+            }
         };
     
         const handleNext = () => {

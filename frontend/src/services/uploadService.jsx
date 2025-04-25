@@ -17,15 +17,16 @@ export const uploadSingleImage = async (file, type, targetId) => {
 };
 
 // Upload nhiều ảnh
-export const uploadMultipleImages = async (files, type, targetId) => {
+export const uploadMultipleImages = async (files, type, postId, targetId) => {
     const formData = new FormData();
     for (let file of files) {
         formData.append("images", file);
     }
     formData.append("type", type);
+    formData.append("postId", postId);
     formData.append("targetId", targetId);
 
-    const res = await axios.post(`${API_URL}/multiple`, formData, {
+    const res = await axios.post(`${API_URL}/multiple?type=${type}&postId=${postId}&targetId=${targetId}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
     });
 
