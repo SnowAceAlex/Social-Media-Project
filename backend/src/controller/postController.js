@@ -469,19 +469,26 @@ export const editPost = async (req, res) => {
 // Get the latest post from a specific user
 export const getLatestPostByUser = async (req, res) => {
   const userId = req.params.userId;
+
   try {
     const result = await pool.query(
-      `SELECT posts.*, users.username, users.profile_pic_url, post_images.image_url
-        FROM posts
-        JOIN users ON posts.user_id = users.id
-        LEFT JOIN post_images ON posts.id = post_images.post_id
-        WHERE posts.user_id = $1
-        ORDER BY posts.created_at DESC
-        LIMIT 1`,
+      `SELECT 
+        posts.*, 
+        users.username, 
+        users.profile_pic_url,
+        COALESCE(json_agg(post_images.image_url) 
+          FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images
+      FROM posts
+      JOIN users ON posts.user_id = users.id
+      LEFT JOIN post_images ON posts.id = post_images.post_id
+      WHERE posts.user_id = $1
+      GROUP BY posts.id, users.username, users.profile_pic_url
+      ORDER BY posts.created_at DESC
+      LIMIT 1`,
       [userId]
     );
 
-    return res.status(200).json({
+    res.status(200).json({
       data: result.rows.length > 0 ? result.rows[0] : null,
     });
   } catch (error) {

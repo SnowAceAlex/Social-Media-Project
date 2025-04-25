@@ -92,7 +92,7 @@ function Post({post = null, profile = null, loading = false}) {
 
                 {/* Indicators */}
                 <div className="absolute bottom-2 w-full flex justify-center gap-2">
-                {post.images.map((_, index) => (
+                {post.images.length > 1 && post.images.map((_, index) => (
                     <div
                     key={index}
                     onClick={() => setCurrentImgIndex(index)}
