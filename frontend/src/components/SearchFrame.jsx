@@ -7,7 +7,7 @@ import SearchLoading from './Skeleton/SearchLoading';
 import SearchCard from './SearchCard';
 
 function SearchFrame({ showSearchFrame, searchValue, setSearchValue}) {
-    const {results, loading} = useUserSearch(searchValue);
+    const {results, loading, type} = useUserSearch(searchValue);
     const isDesktop = useMediaQuery('(min-width: 768px)');
 
     return (
@@ -78,8 +78,12 @@ function SearchFrame({ showSearchFrame, searchValue, setSearchValue}) {
                             <SearchLoading/>
                         </motion.div>
                     ) : results.length > 0 ? (
-                        results.map(user => (
+                        type==='user' 
+                        ? results.map(user => (
                             <SearchCard key={user.id} user={user}/>
+                        ))
+                        : results.map(tag => (
+                            <SearchCard key={tag.id} hashtag={tag} />
                         ))
                     ) : (
                         searchValue && (
