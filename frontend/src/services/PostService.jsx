@@ -63,5 +63,11 @@ export const deleteCommentService = async (commentId) => {
 // ------------------ HASHTAGS SERVICES ------------------ 
 export const getPostsByHashTags = async (hashtag) => {
     const res = await API.get(`/hashtag/${hashtag}`);
-    return res.data
+    return res.data;
+}
+
+// ------------------ GET POST WITH IMAGES ------------------
+export const getImagesAndPost = async (userId) => {
+    const res = await API.get(`/getpostswithimages/${userId}`);
+    return res.data;
 }
