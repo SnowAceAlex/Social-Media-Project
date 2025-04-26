@@ -49,8 +49,13 @@ const EditPostModal = ({ post, profile, loading, onClose }) => {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="bg-white dark:bg-dark w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]
-                                max-h-[95vh] overflow-auto shadow-md relative scrollbar-hidden"
+            className={`bg-white dark:bg-dark
+                ${
+                    (post.images && post.images.length > 0) ? 
+                    "w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]" :
+                    "w-[30rem] md:w-[35rem]"
+                }
+                max-h-[95vh] overflow-auto shadow-md relative`}
         >
             <div className="flex flex-col md:flex-row gap-6 px-4 py-6 md:h-[90vh] md:p-0 overflow-hidden">
             <div className="order-1 md:order-2 w-full md:flex-3">
@@ -68,14 +73,18 @@ const EditPostModal = ({ post, profile, loading, onClose }) => {
                 />
                 </div>
 
-                <div className="w-full flex items-center gap-4 mt-2 mb-2 ml-2">
+                <div className={`w-full flex items-center gap-4 md:mb-2
+                                    ${
+                                        (post.images && post.images.length > 0) ? 
+                                        "" : "pl-6 py-4"
+                                    }`}>
                 <Avatar_Username
                     profile={profile}
                     loading={loading}
                     createdAt={post.created_at}
                 />
                 </div>
-                <div className="ml-2">
+                <div className={`${(post.images && post.images.length > 0) ? "ml-2" : "ml-6"}`}>
                     <CaptionTextarea value={caption} onChange={setCaption} />                    
                 </div>
             </div>

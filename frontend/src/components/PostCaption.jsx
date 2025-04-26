@@ -39,8 +39,7 @@ const PostCaption = ({ caption }) => {
         <div className="pl-2 space-y-2">
             <div
                 ref={captionRef}
-                className={`whitespace-pre-wrap transition-all ${isExpanded ? '' : 'overflow-hidden'}`}
-                style={{
+                className={`whitespace-pre-wrap transition-all break-words ${isExpanded ? '' : 'overflow-hidden'}`}                style={{
                     lineHeight: '1.5rem',
                     maxHeight: isExpanded ? 'none' : maxHeight,
                 }}>
