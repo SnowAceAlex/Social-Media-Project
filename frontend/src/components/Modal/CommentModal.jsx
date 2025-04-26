@@ -105,10 +105,10 @@ function CommentModal({ post, profile, loading, onClose }) {
                     </div>
 
                     {/* Avatar */}
-                    <div className={`w-full flex items-center gap-4 mt-2 md:mb-2
+                    <div className={`w-full flex items-center gap-4 md:mb-2
                                     ${
                                         (post.images && post.images.length > 0) ? 
-                                        "" : "pl-6"
+                                        "" : "pl-6 py-4"
                                     }`}>
                     <Avatar_Username
                         profile={profile}

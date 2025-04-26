@@ -10,6 +10,7 @@ import Layout from "./pages/Layout";
 import ProfilePage from "./pages/ProfilePage";
 import PrivateRoute from "./components/PrivateRoute";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import HashtagPage from "./pages/HashtagPage";
 
 function App() {
   return (
@@ -34,6 +35,11 @@ function App() {
             <Route path="/profile/:id" element={
               <PrivateRoute>
                 <ProfilePage />
+              </PrivateRoute>
+            } />
+            <Route path="/hashtag/:hashtag/" element={
+              <PrivateRoute>
+                <HashtagPage/>
               </PrivateRoute>
             } />
           </Route>
