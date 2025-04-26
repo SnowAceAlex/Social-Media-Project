@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from "react-router-dom";
+import { formatCaption } from '../utils/formatCaption';
 
 const PostCaption = ({ caption }) => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -6,7 +8,6 @@ const PostCaption = ({ caption }) => {
 
     // Chiều cao tối đa của text box khi chưa mở rộng
     const maxHeight = '7.5rem';
-
     const captionRef = useRef(null);
 
     // Hàm kiểm tra xem văn bản có bị cắt hay không
@@ -21,20 +22,6 @@ const PostCaption = ({ caption }) => {
         checkOverflow();
     }, [caption]);
 
-    function formatCaption(text) {
-        return text.split('\n').map((line, index) => (
-            <p key={index}>
-                {line.split(' ').map((word, i) =>
-                    /^#\w+/.test(word) ? (
-                        <span key={i} className="text-blue-500 cursor-pointer">{word}</span>
-                    ) : (
-                        word + ' '
-                    )
-                )}
-            </p>
-        ));
-    }
-
     return (
         <div className="pl-2 space-y-2">
             <div
@@ -48,7 +35,7 @@ const PostCaption = ({ caption }) => {
 
             {!isExpanded && isOverflowing && (
                 <button
-                    className="text-blue-500 cursor-pointer"
+                    className="text-blue-500 dark:text-blue-400 cursor-pointer"
                     onClick={() => setIsExpanded(true)}
                 >
                     More...
@@ -57,7 +44,7 @@ const PostCaption = ({ caption }) => {
 
             {isExpanded && (
                 <button
-                    className="text-blue-500 cursor-pointer"
+                    className="text-blue-500 dark:text-blue-400 cursor-pointer"
                     onClick={() => setIsExpanded(false)}
                 >
                     Show less
