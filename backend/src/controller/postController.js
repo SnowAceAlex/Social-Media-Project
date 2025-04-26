@@ -24,7 +24,7 @@ export const createPost = async (req, res) => {
 
   try {
     const result = await pool.query(
-        `INSERT INTO posts (user_id, caption)
+      `INSERT INTO posts (user_id, caption)
         VALUES ($1, $2)
         RETURNING id, caption, created_at`,
       [userId, caption]
@@ -35,16 +35,16 @@ export const createPost = async (req, res) => {
     const postId = post.id;
     let uploadedImages = [];
     if (mediaFiles && mediaFiles.length > 0) {
-      const uploadPromises = mediaFiles.map(file =>
+      const uploadPromises = mediaFiles.map((file) =>
         cloudinary.uploader.upload(file.path, {
           folder: `users/${userId}/posts/${postId}/images`,
-          public_id: `${Date.now()}-${file.originalname.split('.')[0]}`
+          public_id: `${Date.now()}-${file.originalname.split(".")[0]}`,
         })
       );
-    uploadedImages = await Promise.all(uploadPromises);
+      uploadedImages = await Promise.all(uploadPromises);
 
-    //SAVE TO TABLE
-    const insertImagePromises = uploadedImages.map(img =>
+      //SAVE TO TABLE
+      const insertImagePromises = uploadedImages.map((img) =>
         pool.query(
           `INSERT INTO post_images (post_id, image_url) VALUES ($1, $2)`,
           [postId, img.secure_url]
@@ -379,7 +379,7 @@ export const deletePost = async (req, res) => {
 export const getSinglePost = async (req, res) => {
   const postId = parseInt(req.params.postId);
   const userId = req.user.id;
-  console.log("Post ID:", postId);   
+  console.log("Post ID:", postId);
   try {
     // Fetch the post details
     const postResult = await pool.query(
@@ -400,8 +400,7 @@ export const getSinglePost = async (req, res) => {
       `SELECT image_url FROM post_images WHERE post_id = $1`,
       [postId]
     );
-    const images = imageResult.rows.map(row => row.image_url);
-
+    const images = imageResult.rows.map((row) => row.image_url);
 
     // Fetch likes for the post
     const reactionsResult = await pool.query(
@@ -426,7 +425,7 @@ export const getSinglePost = async (req, res) => {
     res.status(200).json({
       post: {
         ...post,
-        images, 
+        images,
       },
       likes: likesResult.rows,
       comments: commentsResult.rows,
@@ -439,12 +438,14 @@ export const getSinglePost = async (req, res) => {
 };
 
 // Edit post caption (only by owner)
+// Edit post caption (only by owner)
 export const editPost = async (req, res) => {
   const { caption } = req.body;
   const postId = parseInt(req.params.postId);
   const userId = req.user.id;
 
   try {
+    // Check if the post exists and belongs to the user
     const check = await pool.query(
       `SELECT * FROM posts WHERE id = $1 AND user_id = $2`,
       [postId, userId]
@@ -454,12 +455,39 @@ export const editPost = async (req, res) => {
       return res.status(403).json({ error: "Unauthorized or post not found" });
     }
 
-    const result = await pool.query(
-      `UPDATE posts SET caption = $1 WHERE id = $2 RETURNING *`,
-      [caption, postId]
-    );
+    // Update the caption
+    await pool.query(`UPDATE posts SET caption = $1 WHERE id = $2`, [
+      caption,
+      postId,
+    ]);
 
-    res.status(200).json(result.rows[0]);
+    // Remove existing hashtag links
+    await pool.query(`DELETE FROM post_hashtags WHERE post_id = $1`, [postId]);
+
+    // Extract and re-insert hashtags
+    const hashtags = extractHashtags(caption);
+    for (const tag of hashtags) {
+      const tagResult = await pool.query(
+        `INSERT INTO hashtags (name)
+         VALUES ($1)
+         ON CONFLICT (name) DO NOTHING
+         RETURNING id`,
+        [tag]
+      );
+
+      const hashtagId =
+        tagResult.rows[0]?.id ||
+        (await pool.query(`SELECT id FROM hashtags WHERE name = $1`, [tag]))
+          .rows[0].id;
+
+      await pool.query(
+        `INSERT INTO post_hashtags (post_id, hashtag_id) VALUES ($1, $2)
+         ON CONFLICT DO NOTHING`,
+        [postId, hashtagId]
+      );
+    }
+
+    res.status(200).json({ message: "Post updated successfully" });
   } catch (error) {
     console.error("Error editing post:", error);
     res.status(500).json({ error: error.message });
@@ -557,7 +585,6 @@ export const searchHashtags = async (req, res) => {
   if (!keyword || keyword.trim() === "") {
     return res.status(400).json({ error: "Keyword is required" });
   }
-
   try {
     const result = await pool.query(
       `SELECT 
@@ -581,6 +608,32 @@ export const searchHashtags = async (req, res) => {
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error searching hashtags:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+  
+// Get posts by a specific user with images
+export const getUserPostsWithImages = async (req, res) => {
+   const userId = parseInt(req.params.userId);
+   try {
+    const result = await pool.query(
+      `SELECT 
+        posts.*, 
+        COALESCE(json_agg(post_images.image_url) 
+          FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images
+      FROM posts
+      LEFT JOIN post_images ON posts.id = post_images.post_id
+      WHERE posts.user_id = $1
+      GROUP BY posts.id
+      ORDER BY posts.created_at DESC`,
+      [userId]
+    );
+
+    res.status(200).json({
+      posts: result.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching user posts with images:", error);
     res.status(500).json({ error: error.message });
   }
 };
