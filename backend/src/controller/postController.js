@@ -367,6 +367,26 @@ export const deletePost = async (req, res) => {
       return res.status(403).json({ error: "Unauthorized or post not found" });
     }
 
+    // Check if
+    const imageCheck = await pool.query(
+      `SELECT * FROM post_images WHERE post_id = $1`,
+      [postId]
+    );
+
+    if (imageCheck.rows.length > 0) {
+      // 1. Xoá hình của post trên cloudinary:
+      const folderPath = `users/${userId}/posts/${postId}`;
+      await cloudinary.api.delete_resources_by_prefix(folderPath, {
+        resource_type: "image", // Specify resource type
+      });
+
+      await cloudinary.api.delete_folder(folderPath);
+
+      // 2. Xóa các bản ghi hình ảnh trong bảng post_images
+      await pool.query(`DELETE FROM post_images WHERE post_id = $1`, [postId]);
+    }
+
+    // Delete the post from the database
     await pool.query(`DELETE FROM posts WHERE id = $1`, [postId]);
     res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
@@ -552,7 +572,7 @@ export const getPostsByHashtag = async (req, res) => {
       [tag.toLowerCase()]
     );
 
-    const formData = result.rows.map(row => ({
+    const formData = result.rows.map((row) => ({
       post: {
         id: row.id,
         caption: row.caption,
@@ -568,7 +588,7 @@ export const getPostsByHashtag = async (req, res) => {
         full_name: row.full_name,
         email: row.email,
         profile_pic_url: row.profile_pic_url,
-      }
+      },
     }));
 
     res.status(200).json(formData);
@@ -611,11 +631,11 @@ export const searchHashtags = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-  
+
 // Get posts by a specific user with images
 export const getUserPostsWithImages = async (req, res) => {
-   const userId = parseInt(req.params.userId);
-   try {
+  const userId = parseInt(req.params.userId);
+  try {
     const result = await pool.query(
       `SELECT 
         posts.*, 
