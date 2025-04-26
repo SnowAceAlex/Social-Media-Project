@@ -16,6 +16,7 @@ import {
   getReactionsByPost,
   getMyReaction,
   getPostsByHashtag,
+  getUserPostsWithImages,
 } from "../controller/postController.js";
 import { authenticate } from "../middleware/authenticateUser.js";
 import { handleUpload } from "../controller/uploadController.js";
@@ -47,5 +48,8 @@ router.get("/:userId/latestPost", getLatestPostByUser); // Get latest post by us
 
 //Hashtag
 router.get("/hashtag/:tag", getPostsByHashtag);
+
+// Get posts with images by user ID
+router.get("/getpostswithimages/:userId", authenticate, getUserPostsWithImages); // Get posts with images by user ID
 
 export default router;
