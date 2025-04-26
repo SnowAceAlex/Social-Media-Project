@@ -59,3 +59,9 @@ export const deleteCommentService = async (commentId) => {
     const res = await API.delete(`/comments/${commentId}`);
     return res.data;
 }
+
+// ------------------ HASHTAGS SERVICES ------------------ 
+export const getPostsByHashTags = async (hashtag) => {
+    const res = await API.get(`/hashtag/${hashtag}`);
+    return res.data
+}
