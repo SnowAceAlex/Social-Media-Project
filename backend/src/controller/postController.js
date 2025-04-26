@@ -497,25 +497,90 @@ export const getLatestPostByUser = async (req, res) => {
   }
 };
 
-// Get posts by hashtag
 export const getPostsByHashtag = async (req, res) => {
   const { tag } = req.params;
 
   try {
     const result = await pool.query(
-      `SELECT posts.*, users.username, users.profile_pic_url
+      `SELECT 
+         posts.*, 
+         users.username, 
+         users.full_name, 
+         users.email, 
+         users.profile_pic_url,
+         COALESCE(
+           json_agg(post_images.image_url) 
+           FILTER (WHERE post_images.image_url IS NOT NULL), 
+           '[]'
+         ) AS images
        FROM posts
        JOIN post_hashtags ON posts.id = post_hashtags.post_id
        JOIN hashtags ON post_hashtags.hashtag_id = hashtags.id
        JOIN users ON posts.user_id = users.id
-       WHERE hashtags.name = $1
+       LEFT JOIN post_images ON posts.id = post_images.post_id
+       WHERE LOWER(hashtags.name) = $1
+       GROUP BY posts.id, users.username, users.full_name, users.email, users.profile_pic_url
        ORDER BY posts.created_at DESC`,
       [tag.toLowerCase()]
     );
 
-    res.status(200).json(result.rows);
+    const formData = result.rows.map(row => ({
+      post: {
+        id: row.id,
+        caption: row.caption,
+        created_at: row.created_at,
+        images: row.images,
+        profile_pic_url: row.profile_pic_url,
+        user_id: row.user_id,
+        username: row.username,
+      },
+      profile: {
+        id: row.user_id,
+        username: row.username,
+        full_name: row.full_name,
+        email: row.email,
+        profile_pic_url: row.profile_pic_url,
+      }
+    }));
+
+    res.status(200).json(formData);
   } catch (error) {
     console.error("Error fetching posts by hashtag:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Search for hashtags
+export const searchHashtags = async (req, res) => {
+  const { keyword } = req.query;
+
+  if (!keyword || keyword.trim() === "") {
+    return res.status(400).json({ error: "Keyword is required" });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT 
+        h.id AS id,
+        h.name AS name,
+        COUNT(ph.post_id) AS post_count
+      FROM 
+        hashtags h
+      LEFT JOIN 
+        post_hashtags ph ON h.id = ph.hashtag_id
+      WHERE 
+        h.name ILIKE $1
+      GROUP BY 
+        h.id, h.name
+      ORDER BY 
+        h.name ASC
+      LIMIT 20`,
+      [`%${keyword}%`]
+    );
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error searching hashtags:", error);
     res.status(500).json({ error: error.message });
   }
 };
