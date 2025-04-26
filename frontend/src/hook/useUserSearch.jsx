@@ -1,10 +1,11 @@
 // hooks/useUserSearch.js
 import { useState, useEffect } from 'react';
-import { searchUsersService } from '../services/searchService';
+import { searchHashtagsService, searchUsersService } from '../services/searchService';
 
 const useUserSearch = (searchValue) => {
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [type, setType] = useState("user");
 
     useEffect(() => {
         if (!searchValue.trim()) {
@@ -17,8 +18,16 @@ const useUserSearch = (searchValue) => {
 
         const debounce = setTimeout(async () => {
             try {
-                const data = await searchUsersService(searchValue);
-                setResults(data);
+                if (searchValue.startsWith('#')) {
+                    const keyword = searchValue.slice(1);
+                    const data = await searchHashtagsService(keyword);
+                    setResults(data);
+                    setType('hashtag');
+                }else{
+                    const data = await searchUsersService(searchValue);
+                    setResults(data);
+                    setType('user');
+                }
             } catch (error) {
                 console.error("Search error:", error);
                 setResults([]);
@@ -30,7 +39,7 @@ const useUserSearch = (searchValue) => {
         return () => clearTimeout(debounce);
     }, [searchValue]);
 
-    return { results, loading };
+    return { results, loading, type };
 };
 
 export default useUserSearch;
