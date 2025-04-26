@@ -9,7 +9,7 @@ function Avatar_Username({ profile = null, createdAt = null, loading = false }) 
     return (
         <div className="flex gap-4 items-center dark:text-dark-text">
             <Link to={profileLink} className="flex gap-4 items-center">
-                <div className="w-14 aspect-square rounded-full border-4 border-white overflow-hidden bg-gray-300 dark:border-dark">
+                <div className="w-13 aspect-square rounded-full overflow-hidden bg-gray-300">
                     {loading ? (
                         <div className="w-full h-full bg-gray-300 animate-pulse"></div>
                     ) : (

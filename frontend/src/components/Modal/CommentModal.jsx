@@ -124,7 +124,7 @@ function CommentModal({ post, profile, loading, onClose }) {
                     className="order-2 md:order-1 w-full md:flex-4 md:aspect-auto
                                 flex items-center justify-center relative overflow-hidden">
                     <div
-                        className="flex transition-transform duration-500 ease-in-out w-full"
+                        className="flex transition-transform duration-500 ease-in-out items-center w-full"
                         style={{
                         transform: `translateX(-${currentImgIndex * 100}%)`,
                         width: `${post.images.length * 100}%`,

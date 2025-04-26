@@ -12,20 +12,20 @@ function PostOptionModal({onClose, onEdit, onDelete}) {
                 className="bg-white dark:bg-dark-card w-[20rem] rounded-xl overflow-auto flex flex-col">
                     <div
                         className="h-14 flex items-center justify-center px-4 border-b-[1px] cursor-pointer
-                                    border-light-border dark:border-gray-500/50 hover:bg-light-button-hover 
+                                    border-light-border dark:border-gray-500/30 hover:bg-light-button-hover 
                                     dark:hover:bg-dark-hover dark:text-white"
                         onClick={onEdit}>
                         Edit post
                     </div>
                     <div
                         className="h-14 flex items-center justify-center px-4 border-b-[1px] cursor-pointer
-                                    border-light-border dark:border-gray-500/50 hover:bg-light-button-hover 
+                                    border-light-border dark:border-gray-500/30 hover:bg-light-button-hover 
                                     dark:hover:bg-dark-hover dark:text-white"
                         onClick={onDelete}>
                         Delete post
                     </div>
                     <div
-                        className="h-14 flex items-center justify-center px-4 cursor-pointer
+                        className="h-14 flex items-center justify-center px-4 cursor-pointer]
                                 border-light-border hover:bg-light-button-hover 
                                 dark:hover:bg-dark-hover dark:text-white"
                         onClick={onClose}>
