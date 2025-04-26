@@ -1,4 +1,6 @@
 import { pool } from "../config/pool.js";
+import cloudinary from "../utils/cloudinary.js";
+import { createNotification } from "../utils/notification.js";
 
 const extractHashtags = (caption) => {
   const regex = /#(\w+)/g;
@@ -10,7 +12,9 @@ const extractHashtags = (caption) => {
 
 // Create a new post
 export const createPost = async (req, res) => {
-  const { caption, media_url } = req.body;
+  const { caption } = req.body;
+  const mediaFiles = req.files;
+  console.log(caption, mediaFiles);
 
   if (!req.user) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -20,15 +24,36 @@ export const createPost = async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO posts (user_id, caption, media_url) 
-       VALUES ($1, $2, $3) 
-       RETURNING id, user_id, caption, media_url, created_at`,
-      [userId, caption, media_url]
+        `INSERT INTO posts (user_id, caption)
+        VALUES ($1, $2)
+        RETURNING id, caption, created_at`,
+      [userId, caption]
     );
 
+    //UPLOAD ON CLOUDINARY
     const post = result.rows[0];
-    const hashtags = extractHashtags(caption);
+    const postId = post.id;
+    let uploadedImages = [];
+    if (mediaFiles && mediaFiles.length > 0) {
+      const uploadPromises = mediaFiles.map(file =>
+        cloudinary.uploader.upload(file.path, {
+          folder: `users/${userId}/posts/${postId}/images`,
+          public_id: `${Date.now()}-${file.originalname.split('.')[0]}`
+        })
+      );
+    uploadedImages = await Promise.all(uploadPromises);
 
+    //SAVE TO TABLE
+    const insertImagePromises = uploadedImages.map(img =>
+        pool.query(
+          `INSERT INTO post_images (post_id, image_url) VALUES ($1, $2)`,
+          [postId, img.secure_url]
+        )
+      );
+      await Promise.all(insertImagePromises);
+    }
+
+    const hashtags = extractHashtags(caption);
     for (const tag of hashtags) {
       const tagResult = await pool.query(
         `INSERT INTO hashtags (name)
@@ -67,10 +92,16 @@ export const getAllPosts = async (req, res) => {
 
   try {
     const baseQuery = `
-      SELECT posts.*, users.username, users.profile_pic_url
+      SELECT 
+        posts.*, 
+        users.username, 
+        users.profile_pic_url,
+        COALESCE(json_agg(post_images.image_url) FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images
       FROM posts
       JOIN users ON posts.user_id = users.id
+      LEFT JOIN post_images ON posts.id = post_images.post_id
       ${userId ? "WHERE posts.user_id = $3" : ""}
+      GROUP BY posts.id, users.username, users.profile_pic_url
       ORDER BY posts.created_at DESC
       LIMIT $1 OFFSET $2
     `;
@@ -109,6 +140,17 @@ export const reactToPost = async (req, res) => {
        RETURNING *`,
       [userId, post_id, reaction_type]
     );
+
+    // logic to create a notification
+    const postResult = await pool.query(
+      `SELECT user_id FROM posts WHERE id = $1`,
+      [post_id]
+    );
+
+    const postOwnerId = postResult.rows[0]?.user_id;
+    if (postOwnerId && postOwnerId !== userId) {
+      await createNotification(postOwnerId, reaction_type, userId, post_id);
+    }
 
     res
       .status(200)
@@ -221,6 +263,18 @@ export const commentPost = async (req, res) => {
        RETURNING id, user_id, post_id, content, created_at`,
       [userId, post_id, content]
     );
+
+    // logic to create a notification
+    const postResult = await pool.query(
+      `SELECT user_id FROM posts WHERE id = $1`,
+      [post_id]
+    );
+
+    const postOwnerId = postResult.rows[0]?.user_id;
+    if (postOwnerId && postOwnerId !== userId) {
+      await createNotification(postOwnerId, "comment", userId, post_id);
+    }
+
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error("Error commenting on post:", error);
@@ -324,9 +378,8 @@ export const deletePost = async (req, res) => {
 // Get single post with likes and comments
 export const getSinglePost = async (req, res) => {
   const postId = parseInt(req.params.postId);
-
   const userId = req.user.id;
-
+  console.log("Post ID:", postId);   
   try {
     // Fetch the post details
     const postResult = await pool.query(
@@ -340,6 +393,15 @@ export const getSinglePost = async (req, res) => {
     if (postResult.rows.length === 0) {
       return res.status(404).json({ error: "Post not found" });
     }
+
+    const post = postResult.rows[0];
+    // Fetch images of the post
+    const imageResult = await pool.query(
+      `SELECT image_url FROM post_images WHERE post_id = $1`,
+      [postId]
+    );
+    const images = imageResult.rows.map(row => row.image_url);
+
 
     // Fetch likes for the post
     const reactionsResult = await pool.query(
@@ -359,10 +421,13 @@ export const getSinglePost = async (req, res) => {
        ORDER BY comments.created_at ASC`,
       [postId]
     );
-
+    console.log(images);
     // Include userId in the response
     res.status(200).json({
-      post: postResult.rows[0],
+      post: {
+        ...post,
+        images, 
+      },
       likes: likesResult.rows,
       comments: commentsResult.rows,
       userId: userId, // Include the userId of the authenticated user
@@ -407,16 +472,23 @@ export const getLatestPostByUser = async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT posts.*, users.username, users.profile_pic_url
-        FROM posts
-        JOIN users ON posts.user_id = users.id
-        WHERE posts.user_id = $1
-        ORDER BY posts.created_at DESC
-        LIMIT 1`,
+      `SELECT 
+        posts.*, 
+        users.username, 
+        users.profile_pic_url,
+        COALESCE(json_agg(post_images.image_url) 
+          FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images
+      FROM posts
+      JOIN users ON posts.user_id = users.id
+      LEFT JOIN post_images ON posts.id = post_images.post_id
+      WHERE posts.user_id = $1
+      GROUP BY posts.id, users.username, users.profile_pic_url
+      ORDER BY posts.created_at DESC
+      LIMIT 1`,
       [userId]
     );
 
-    return res.status(200).json({
+    res.status(200).json({
       data: result.rows.length > 0 ? result.rows[0] : null,
     });
   } catch (error) {

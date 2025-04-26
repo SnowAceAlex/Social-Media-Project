@@ -5,11 +5,14 @@ import { useEditProfileService } from "../../hook/useEditProfileService";
 import { getCurrentUser } from "../../helpers/getCurrentUser";
 import { motion } from 'framer-motion'; 
 import { useOutletContext } from "react-router-dom";
+import { useUploadService } from "../../hook/useUploadService";
 
-const EditProfileModal = ({ onClose, showGlobalToast }) => {
+const EditProfileModal = ({ onClose, showGlobalToast, setShowLoading }) => {
   const {currentUser} = getCurrentUser();
   const { profile, loading, error } = useProfile(currentUser?.user?.id);
   const [imageInputType, setImageInputType] = useState("file");
+  const {uploadSingle} = useUploadService();
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -41,21 +44,43 @@ const EditProfileModal = ({ onClose, showGlobalToast }) => {
     }));
   };
 
-  const { handleSaveProfile } = useEditProfileService (
-    () => {
+  const { handleSaveProfile } = useEditProfileService (() => {
       showGlobalToast("Profile updated!", "success");
-      window.location.reload(); 
-      onClose(); // đóng modal
+      onClose(); 
     },
     (errMessage) => {
       showGlobalToast("Failed to update profile", "error");
     }
   );
   
-  const handleSave = () => {
-    console.log("Saving profile with data:", formData);
-    handleSaveProfile(formData);
-  };
+  const handleSave = async () => {
+    try {
+      setShowLoading(true); 
+      let finalUrl = formData.imageUrl;
+      let finalPublicId = null;
+  
+      if (imageInputType === "file" && selectedFile) {
+        const uploaded = await uploadSingle(selectedFile, "avatar", currentUser?.user?.id);
+        finalUrl = uploaded.url;
+        finalPublicId = uploaded.publicId;
+      }
+  
+      const dataToSave = {
+        ...formData,
+        profile_pic_url: finalUrl,
+        profile_pic_public_id: finalPublicId,
+      };
+  
+      handleSaveProfile(dataToSave);
+    } catch (err) {
+      showGlobalToast("Upload failed", "error");
+      console.error("❌ Error uploading avatar:", err);
+    } finally{
+      setShowLoading(false);
+    }
+  };  
+
+  
 
   return (
     <div
@@ -67,33 +92,46 @@ const EditProfileModal = ({ onClose, showGlobalToast }) => {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="bg-white dark:bg-dark p-6 
+        className="bg-white dark:bg-dark
                             w-[30rem]
-                            max-h-[90vh] rounded-xl overflow-auto
+                            max-h-[90vh] rounded-xl overflow-hidden
                             "
       >
-        <div className="flex w-full justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Edit your profile</h2>
-          <IoCloseOutline
-            size={28}
-            onClick={onClose}
-            title="Close"
-            className="p-1 bg-light-button hover:bg-light-button-hover
-                                    dark:bg-dark-button dark:hover:bg-dark-button-hover dark:text-dark-text
-                                    rounded-full cursor-pointer"
-          />
-        </div>
+        <div className="overflow-y-auto p-6 max-h-[90vh]">
+        <div className="sticky top-0 z-10 flex flex-col gap-2 pb-4 bg-white dark:bg-dark">
+          <div className="flex w-full justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Edit your profile</h2>
+            <IoCloseOutline
+              size={28}
+              onClick={onClose}
+              title="Close"
+              className="p-1 bg-light-button hover:bg-light-button-hover
+                        dark:bg-dark-button dark:hover:bg-dark-button-hover dark:text-dark-text
+                        rounded-full cursor-pointer"
+            />
+          </div>
 
-        {loading ? (
-          <div className="text-center py-8 text-gray-500">Loading...</div>
-        ) : (
-          <div className="flex flex-col gap-4">
+          {loading ? (
             <div
               className="w-full h-[6rem] rounded-3xl px-4
-                                        flex items-center gap-4
-                                        bg-light-card border border-light-border
-                                        shadow-sm
-                                        dark:bg-dark-card dark:border-dark-border dark:shadow-[0_1px_2px_rgba(255,255,255,0.05)]"
+                        flex items-center gap-4
+                        bg-light-card border border-light-border
+                        shadow-sm animate-pulse
+                        dark:bg-dark-card dark:border-dark-border dark:shadow-[0_1px_2px_rgba(255,255,255,0.05)]"
+            >
+              <div className="h-[70%] aspect-square bg-gray-300 rounded-full dark:bg-dark-border" />
+              <div className="flex flex-col gap-2 w-full">
+                <div className="w-1/3 h-4 bg-gray-300 rounded dark:bg-dark-border" />
+                <div className="w-1/2 h-3 bg-gray-200 rounded dark:bg-dark-border" />
+              </div>
+            </div>
+          ) : (
+            <div
+              className=" w-full h-[6rem] rounded-3xl px-4
+                        flex items-center gap-4
+                        bg-light-card border border-light-border
+                        shadow-sm
+                        dark:bg-dark-card dark:border-dark-border dark:shadow-[0_1px_2px_rgba(255,255,255,0.05)]"
             >
               <img
                 src={formData.imageUrl || profile.profile_pic_url}
@@ -107,6 +145,14 @@ const EditProfileModal = ({ onClose, showGlobalToast }) => {
                 </span>
               </span>
             </div>
+          )}
+        </div>
+
+        {loading ? (
+          <div className="text-center py-8 text-gray-500"></div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            
             {/* Username */}
             <div className="flex flex-col gap-2">
               <label htmlFor="username" className="text-sm font-medium">
@@ -219,6 +265,17 @@ const EditProfileModal = ({ onClose, showGlobalToast }) => {
                 <input
                   type="file"
                   className="border rounded p-2 border-light-input-border dark:bg-dark-input dark:border-dark-border"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        setFormData((prev) => ({ ...prev, imageUrl: reader.result })); // hiển thị ảnh preview
+                      };
+                      reader.readAsDataURL(file);
+                      setSelectedFile(file); // dùng cho upload thật
+                    }  
+                  }}
                 />
               ) : (
                 <input
@@ -253,6 +310,7 @@ const EditProfileModal = ({ onClose, showGlobalToast }) => {
             </div>
           </div>
         )}
+        </div>
       </motion.div>
     </div>
   );

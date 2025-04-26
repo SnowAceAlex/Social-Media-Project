@@ -26,32 +26,14 @@ export const loginUser = async (email, password) => {
 
 export const registerUser = async (formData) => {
     try {
-        let response;
-        if (formData.imgFile) {
-            const fd = new FormData();
-            Object.keys(formData).forEach((key) => {
-                if (formData[key]) fd.append(key, formData[key]);
-            });
-
-            response = await axios.post(`${API_URL}/register`, fd, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-        } else {
-            const { imgFile, ...jsonData } = formData;
-
-            response = await axios.post(`${API_URL}/register`, jsonData, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-        }
-
+        const response = await axios.post(`${API_URL}/register`, formData, {
+            headers: {
+            "Content-Type": "multipart/form-data",
+            },
+        });
         return response.data;
     } catch (error) {
-        throw new Error(error.response?.data?.message || "Fail to register");
-    }
+        throw error.response?.data || { error: "Failed to register" };    }
 };
 
 export const getProfile = async (id = null) => {

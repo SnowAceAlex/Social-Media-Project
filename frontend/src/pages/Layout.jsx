@@ -6,7 +6,8 @@ import HeaderBotMB from '../components/Mobile/HeaderBot';
 import EditProfileModal from '../components/Modal/EditProfileModal';
 import CreatePostModal from '../components/Modal/CreatePostModal';
 import DisplayFollowListModal from '../components/Modal/ShowFollowListModal';
-import AlertToast from '../components/Modal/AlertModel';
+import LoadingModal from '../components/Modal/FunctionalityModal.jsx/LoadingModal';
+import AlertToast from '../components/Modal/FunctionalityModal.jsx/AlertModel';
 
 function Layout() {
     const [showEditModal, setShowEditModal] = useState(false);
@@ -32,6 +33,8 @@ function Layout() {
         setShowToast(true);
     };
 
+    const [showLoading, setShowLoading] = useState(false);
+
     return (
         <div className="w-full relative">
             {/* Header (for mobile) */}
@@ -48,21 +51,26 @@ function Layout() {
                     <div className="h-[42rem]"></div>
                     <div className="h-[42rem] "></div>
                     <div className="h-[42rem] "></div> */}
-                    <Outlet context={{ setShowEditModal, setShowCreatePostModal, showGlobalToast}}/>
+                    <Outlet context={{ setShowEditModal, setShowCreatePostModal, showGlobalToast, setShowLoading}}/>
                 </div>
             </div>
 
             {/* Header bottom (for mobile) */}
             <HeaderBotMB/>
 
-            {showEditModal && <EditProfileModal onClose={() => setShowEditModal(false)} showGlobalToast={showGlobalToast} />}
-            {showCreatePostModal && <CreatePostModal onClose={() => setShowCreatePostModal(false)} showGlobalToast={showGlobalToast} />}
+            {showEditModal && <EditProfileModal onClose={() => setShowEditModal(false)} showGlobalToast={showGlobalToast} setShowLoading={setShowLoading} />}
+            {showCreatePostModal && <CreatePostModal onClose={() => setShowCreatePostModal(false)} showGlobalToast={showGlobalToast}  setShowLoading={setShowLoading}/>}
             
             <AlertToast
                 show={showToast}
                 message={toastMessage}
                 type={toastType}
                 onClose={() => setShowToast(false)}
+            />
+            
+            <LoadingModal
+                show={showLoading}
+                onClose={() => setShowLoading(false)}
             />
         </div>
     )

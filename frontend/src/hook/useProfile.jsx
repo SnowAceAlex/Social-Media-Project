@@ -6,6 +6,10 @@ const useProfile = (id) => {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
 
+    const updateProfileLocally = (newProfile) => {
+        setProfile(prev => ({ ...prev, ...newProfile }));
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true); // Bắt đầu loading
@@ -23,7 +27,7 @@ const useProfile = (id) => {
         fetchData();
     }, [id]);
 
-    return { profile, error, loading };
+    return {updateProfileLocally, profile, error, loading };
 };
 
 export default useProfile;

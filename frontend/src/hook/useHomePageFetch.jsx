@@ -29,7 +29,10 @@ const useHomepagePost = (userId) => {
                     })
                 );
 
-                const filtered = latestPostsWithProfiles.filter(item => item !== null);
+                const filtered = latestPostsWithProfiles
+                .filter(item => item !== null)
+                .sort((a, b) => new Date(b.post.created_at) - new Date(a.post.created_at));
+
                 setPost(filtered);
             } catch (err) {
                 setError(err);

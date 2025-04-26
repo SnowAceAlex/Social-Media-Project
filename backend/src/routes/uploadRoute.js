@@ -1,32 +1,17 @@
 import express from "express";
 import upload from "../middleware/multer.js";
+import {
+  uploadSingleImage,
+  uploadMultipleImages,
+  handleUpload,
+} from "../controller/uploadController.js";
 
 const router = express.Router();
 
-router.post("/", upload.single("image"), function (req, res) {
-  try {
-    // nếu user không upload file:
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "No file uploaded",
-      });
-    }    
+// Upload 1 ảnh
+router.post("/single", handleUpload(upload.single("image"), uploadSingleImage));
 
-    // req.file sẽ chứa thông tin ảnh vừa upload lên Cloudinary
-    const file = req.file;
-    res.status(200).json({
-      success: true,
-      message: "Image uploaded successfully",
-      data: req.file.path,
-    });
-  } catch (error) {
-    console.log("Upload error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error uploading image",
-    });
-  }
-});
+// Upload nhiều ảnh
+router.post("/multiple", handleUpload(upload.array("images", 5), uploadMultipleImages));
 
 export default router;
