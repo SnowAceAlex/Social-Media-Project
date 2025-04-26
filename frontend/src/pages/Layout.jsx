@@ -55,8 +55,8 @@ function Layout() {
             {/* Header bottom (for mobile) */}
             <HeaderBotMB/>
 
-            {showEditModal && <EditProfileModal onClose={() => setShowEditModal(false)} />}
-            {showCreatePostModal && <CreatePostModal onClose={() => setShowCreatePostModal(false)} />}
+            {showEditModal && <EditProfileModal onClose={() => setShowEditModal(false)} showGlobalToast={showGlobalToast} />}
+            {showCreatePostModal && <CreatePostModal onClose={() => setShowCreatePostModal(false)} showGlobalToast={showGlobalToast} />}
             
             <AlertToast
                 show={showToast}

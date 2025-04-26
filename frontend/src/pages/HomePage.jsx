@@ -31,7 +31,9 @@ function HomePage() {
                 </div>
             </div>
             {/* Sidebar phải */}
-            <div className="lg:flex-1 hidden lg:block border"></div>
+            <div className="lg:flex-1 hidden lg:block border">
+                    
+            </div>
         </div>
     );
 }

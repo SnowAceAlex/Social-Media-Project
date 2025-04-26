@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getMyReaction, getReactions, reactToPost, removeReaction } from "../services/reactionService";
+import { getMyReaction, getReactions, getReactionsByPost, reactToPost, removeReaction } from "../services/reactionService";
 
 export const useReactions = (postId) => {
     const [reactions, setReactions] = useState({
@@ -10,6 +10,7 @@ export const useReactions = (postId) => {
         angry: 0,
     });
     const [myReaction, setMyReaction] = useState(null);
+    const [reactUsers, setReactUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -27,16 +28,18 @@ export const useReactions = (postId) => {
         return emojiMap[type];
     });
 
-    // GET REACTIONS AND MY REACTION
+    // GET REACTIONS, MY REACTION, AND USERS WHO REACTED
     const fetchReactions = useCallback(async () => {
         try {
             setLoading(true);
-            const [reactionData, userReact] = await Promise.all([ 
+            const [reactionData, userReact, userList] = await Promise.all([ 
                 getReactions(postId),
                 getMyReaction(postId),
+                getReactionsByPost(postId),
             ]);
             setReactions(reactionData);
             setMyReaction(userReact);
+            setReactUsers(userList);
         } catch (err) {
             setError(err.message || "Failed to fetch reactions");
         } finally {
@@ -70,6 +73,7 @@ export const useReactions = (postId) => {
         myReaction,
         sortedReactions,
         reactions,
+        reactUsers,
         loading,
         error,
         react: handleReact,

@@ -6,22 +6,30 @@ import UploadBlock from '../UploadBlock';
 import { useCreatePostService } from '../../hook/useCreatePostService';
 import Avatar_Username from '../Avatar_Username';
 import { getCurrentUser } from '../../helpers/getCurrentUser';
+import { motion } from 'framer-motion'; 
 
-const CreatePostModal = ({ onClose }) => {
+const CreatePostModal = ({ onClose, showGlobalToast }) => {
     const {currentUser} = getCurrentUser();
+
     const { profile, loading, error } = useProfile(currentUser?.user?.id);
     
     const [caption, setCaption] = useState("");
     
     const { handleCreatePost } = useCreatePostService(
         () => {
-            alert("Post created!");
+            showGlobalToast("Post created!", "success");
+            window.location.reload();
             onClose();
         },
         (errMsg) => {
-            alert("Failed to create post: " + errMsg);
+            showGlobalToast("Failed to create post", "error");
         }
     );
+
+    //HANDLE HASHTAGS
+    const extractHashtags = (text) => {
+        return (text.match(/#\w+/g) || []).map(tag => tag.slice(1).toLowerCase());
+    };
 
     return (
         <div className="fixed top-0 left-0 w-full h-full z-[99] bg-black/50
@@ -34,10 +42,15 @@ const CreatePostModal = ({ onClose }) => {
                                 rounded-full cursor-pointer hidden md:flex
                                 absolute right-6 top-4 z-10"
             />
-            <div className="bg-white dark:bg-dark-card w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]
+            <motion.div
+                initial={{ scale: 1.2, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="bg-white dark:bg-dark-card w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]
                             max-h-[90vh] overflow-hidden shadow-md relative">
                 {/* Responsive Content */}
-                <div className="flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-auto px-4 py-6 md:h-[90vh]
+                <div className="flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-hidden px-4 py-6 md:h-[90vh]
                                 md:p-0">
                     {/* Caption block - order first on mobile, second on desktop */}
                     <div className="order-1 md:order-2 w-full md:flex-3">
@@ -55,7 +68,7 @@ const CreatePostModal = ({ onClose }) => {
                         </div>
 
                         {/* Avatar */}
-                        <div className="w-full h-[10%] flex items-center gap-4 mt-6 mb-6">
+                        <div className="w-full h-[10%] flex items-center gap-4">
                             <Avatar_Username profile={profile} loading={loading}/>
                         </div>
 
@@ -77,7 +90,7 @@ const CreatePostModal = ({ onClose }) => {
                         Create
                     </button>
                 </div>
-            </div>
+            </motion.div>
         </div>
     )
 }

@@ -21,17 +21,17 @@ function ConfirmModal({ title, content, confirm, to, onConfirm, onCancel }) {
                         <Link
                             to={to}
                             onClick={onConfirm}
-                            className="h-12 flex items-center justify-center text-red-500 font-semibold dark:hover:bg-dark-hover"
+                            className="cursor-pointer h-12 flex items-center justify-center text-red-500 font-semibold dark:hover:bg-dark-hover"
                         >
                             {confirm}
                         </Link>
                     ) : (
                         <button
                             onClick={onConfirm}
-                            className="h-12 px-6 py-3 text-red-500 font-semibold dark:hover:bg-dark-hover"
+                            className="cursor-pointer h-12 px-6 py-3 text-red-500 font-semibold dark:hover:bg-dark-hover"
                         >
                             {confirm}
-                        </button>
+                        </button>   
                     )}
                     <button
                         onClick={onCancel}

@@ -11,7 +11,8 @@ function HeaderBotMB() {
             <MdHomeFilled 
                 title="Home"
                 size={33} 
-                className='cursor-pointer'/>
+                className='cursor-pointer border'/>
+            
         </div>
     )
 }
