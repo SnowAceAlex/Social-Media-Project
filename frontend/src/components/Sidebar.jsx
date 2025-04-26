@@ -109,16 +109,16 @@ function Sidebar({ searchValue, setSearchValue }) {
                         transition-all duration-200 ease-in-out dark:hover:bg-dark-hover
                         ${pathname.startsWith('/profile/me') ? 'font-bold bg-light-hover dark:bg-dark-hover' : 'font-[400]'}`} 
                     >
-                    <div className={`rounded-full overflow-hidden bg-gray-300 box-border
-                                    ${pathname.startsWith('/profile/me') ? "w-9 h-9 border-[2px] border-dark-border dark:border-light-border" : "w-8 h-8"}`}>
+                    <div className={`rounded-full overflow-hidden bg-gray-300 box-border flex items-center justify-center
+                                    ${pathname.startsWith('/profile/me') ? "w-9 h-9 min-w-9 aspect-square border-[2px] border-dark-border dark:border-light-border" : "w-8 h-8"}`}>
                         {loading ? (
                         <div className='w-full h-full bg-gray-300 animate-pulse rounded-full' />
                         ) : (
-                        <div className="w-full h-full rounded-full overflow-hidden">
+                        <div className="">
                             <img
                                 src={currentUser?.user?.profile_pic_url}
                                 alt="avatar"
-                                className={`w-full h-full object-cover"}`}
+                                className={`w-full h-full aspect-square object-contain"}`}
                             />
                         </div>
                         )}

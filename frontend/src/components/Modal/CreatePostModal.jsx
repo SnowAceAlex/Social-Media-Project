@@ -74,7 +74,7 @@ const CreatePostModal = ({ onClose, showGlobalToast, setShowLoading}) => {
                         </div>
 
                         {/* Avatar */}
-                        <div className="w-full h-[10%] flex items-center gap-4">
+                        <div className="w-full h-[10%] flex items-center gap-4 my-4">
                             <Avatar_Username profile={profile} loading={loading}/>
                         </div>
 

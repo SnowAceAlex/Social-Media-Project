@@ -10,6 +10,7 @@ import DisplayFollowListModal from "../components/Modal/ShowFollowListModal";
 import { useEditProfileService } from "../hook/useEditProfileService";
 import UploadCoverModal from "../components/Modal/UploadCoverModal";
 import { uploadSingleImage } from "../services/uploadService";
+import Media from "../components/Media";
 
 function ProfilePage() {
   const {id} = useParams();
@@ -227,12 +228,12 @@ function ProfilePage() {
         </div>
       </div>
       }
-      <div className="min-h-16 w-[30rem] md:w-[32rem] lg:w-[45rem]">
+      <div className="min-h-16 w-[30rem] md:w-[32rem] lg:w-[45rem]
+                      flex flex-col items-center">
         {/* HEADER */}
-        <div className="sticky top-15 md:top-0 z-10 bg-white dark:bg-dark h-16 w-full flex justify-around
-                        border-b-1 border-light-border
+        <div className="sticky top-15 md:top-0 z-10 bg-white dark:bg-dark h-16 w-[130%] flex justify-around text-sm">
+            <div className="relative w-[80%] h-ful flex justify-around border-b-1 border-light-border
                         dark:border-dark-border">
-            <div className="relative w-full h-full flex justify-around">
               {/* UNDERLINE */}
               <div
                 className={`absolute bottom-0 left-0 h-[2px] w-1/2 bg-black dark:bg-light transition-transform duration-300 ease-in-out
@@ -259,6 +260,11 @@ function ProfilePage() {
         {
           activeTab === "post" && !loading && profile && (
             <PostList profile={profile} loadingProfile={loading} userId={profile.id} />
+          )
+        }
+        {
+          activeTab === "media" && !loading && profile && (
+            <Media userId={profile.id} profile={profile}/>
           )
         }
       </div>

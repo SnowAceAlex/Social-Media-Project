@@ -87,7 +87,7 @@ function SearchFrame({ showSearchFrame, searchValue, setSearchValue}) {
                         ))
                     ) : (
                         searchValue && (
-                            <p className="text-sm text-gray-500 mt-4">No users found.</p>
+                            <p className="text-sm text-gray-500 mt-4">No information found.</p>
                         )
                     )}
                 </div>

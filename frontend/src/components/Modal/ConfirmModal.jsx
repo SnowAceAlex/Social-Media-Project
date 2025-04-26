@@ -16,7 +16,7 @@ function ConfirmModal({ title, content, confirm, to, onConfirm, onCancel }) {
                     <h2 className="text-xl mb-4">{title}</h2>
                     <p>{content}</p>
                 </div>
-                <div className="flex flex-col justify-around w-full border-t border-light-border dark:border-gray-500/50">
+                <div className="flex flex-col justify-around w-full border-t border-light-border dark:border-gray-500/30">
                     {to ? (
                         <Link
                             to={to}
@@ -35,7 +35,7 @@ function ConfirmModal({ title, content, confirm, to, onConfirm, onCancel }) {
                     )}
                     <button
                         onClick={onCancel}
-                        className="cursor-pointer border-t border-light-border dark:border-gray-500/50 h-12 px-4 py-2 dark:hover:bg-dark-hover"
+                        className="cursor-pointer border-t border-light-border dark:border-gray-500/30 h-12 px-4 py-2 dark:hover:bg-dark-hover"
                     >
                         Cancel
                     </button>

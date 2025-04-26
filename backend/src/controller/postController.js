@@ -639,13 +639,22 @@ export const getUserPostsWithImages = async (req, res) => {
     const result = await pool.query(
       `SELECT 
         posts.*, 
-        COALESCE(json_agg(post_images.image_url) 
-          FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images
+        COALESCE(
+          json_agg(DISTINCT post_images.image_url) 
+          FILTER (WHERE post_images.image_url IS NOT NULL), 
+          '[]'
+        ) AS images,
+        COUNT(DISTINCT reactions.user_id) AS react_count,
+        COUNT(DISTINCT comments.id) AS comment_count
       FROM posts
       LEFT JOIN post_images ON posts.id = post_images.post_id
+      LEFT JOIN reactions ON posts.id = reactions.post_id
+      LEFT JOIN comments ON posts.id = comments.post_id
       WHERE posts.user_id = $1
       GROUP BY posts.id
-      ORDER BY posts.created_at DESC`,
+      HAVING COUNT(post_images.image_url) > 0
+      ORDER BY posts.created_at DESC
+      `,
       [userId]
     );
 
