@@ -6,7 +6,7 @@ import SearchCard from "../SearchCard";
 import SearchLoading from "../Skeleton/SearchLoading";
 
 function SearchFrameMB({ searchValue, setSearchValue }) {
-    const { results, loading } = useUserSearch(searchValue);
+    const {results, loading, type} = useUserSearch(searchValue);
 
     return (
         <div className="relative w-full">
