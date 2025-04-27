@@ -4,8 +4,9 @@ import { BiSolidComment } from "react-icons/bi";
 import { FaHeart } from "react-icons/fa6";
 import CommentModal from './Modal/CommentModal';
 import { HiSquare2Stack } from "react-icons/hi2";
+import { CiCamera } from "react-icons/ci";
 
-function Media({userId, profile}) {
+function Media({userId, profile, currentUser}) {
     const [showCommentModal, setShowCommentModal] = useState(false);
     const {postsWithImages, fetchPostsWithImages, loading, error} = usePostService();
     const [selectedPost, setSelectedPost] = useState(null);
@@ -24,13 +25,32 @@ function Media({userId, profile}) {
             </div>)
 
     return (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-0.5 w-[120%] p-2 mt-4">
+        <div
+            className={`gap-0.5 w-[120%] mt-4 p-2 grid ${
+            postsWithImages.length === 0 
+                ? "flex items-center justify-center"
+                : "grid-cols-2 lg:grid-cols-3 "
+            }`}
+        >
             {postsWithImages.length === 0 ? (
-                <div className="col-span-3 text-center text-gray-500">No posts found.</div>
+                <div className="text-gray-500 dark:text-gray-400 py-8 flex items-center justify-center flex-col gap-6
+                                w-full">
+                    <div className="p-4 rounded-full text-gray-500 dark:text-gray-400 border-2 border-gray-500 dark:border-gray-400 flex justify-center items-center">
+                        <CiCamera size={40} />
+                    </div>
+    
+                    {           
+                        currentUser === userId ? 
+                        "No media yet — start sharing your moments!" : 
+                        "Looks like they haven’t posted any media."
+                    }
+                </div>
             ) : (
                 postsWithImages.map((post) => (
-                    <div key={post.id} className="w-full overflow-hidden relative group cursor-pointer h-96"
-                        onClick={() => {setShowCommentModal(true), setSelectedPost(post);}}>
+                    <div key={post.id} 
+                        className={`w-full overflow-hidden relative group cursor-pointer h-96
+                                ${postsWithImages.length === 1 ? "col-start-1 lg:col-start-2" : ""}`}
+                        onClick={() => {setShowCommentModal(true), setSelectedPost(post)}}>
                         {post.images.length > 0 && (
                             <img
                                 src={post.images[0]}
