@@ -264,7 +264,7 @@ function ProfilePage() {
         }
         {
           activeTab === "media" && !loading && profile && (
-            <Media userId={profile.id} profile={profile}/>
+            <Media userId={profile.id} profile={profile} currentUser={currentUser?.user?.id}/>
           )
         }
       </div>

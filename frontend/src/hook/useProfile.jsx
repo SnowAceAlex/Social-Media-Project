@@ -12,6 +12,7 @@ const useProfile = (id) => {
 
     useEffect(() => {
         const fetchData = async () => {
+            if(!id) return;
             setLoading(true); // Bắt đầu loading
             try {
                 const data = await getProfile(id);
