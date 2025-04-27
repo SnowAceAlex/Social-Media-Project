@@ -11,41 +11,46 @@ import ProfilePage from "./pages/ProfilePage";
 import PrivateRoute from "./components/PrivateRoute";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import HashtagPage from "./pages/HashtagPage";
+import { NotificationProvider } from "./contexts/NotificationContext";
+import { SocketProvider } from "./contexts/SocketContext";
 
 function App() {
   return (
-    <ThemeProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/login" element={<LogInPage />} />
+  <ThemeProvider>
+    <SocketProvider> {/* Wrap socket kết nối trước */}
+      <NotificationProvider> {/* Wrap notification state */}
+        <Router>
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/login" element={<LogInPage />} />
 
-          {/* Protected Routes /home and /profile if user hasn't logined yet*/}
-          <Route element={<Layout />}>
-            <Route path="/home" element={
-              <PrivateRoute>
-                <HomePage />
-              </PrivateRoute>
-            } />
-            <Route path="/profile/me" element={
-              <PrivateRoute>
-                <ProfilePage />
-              </PrivateRoute>
-            } />
-            <Route path="/profile/:id" element={
-              <PrivateRoute>
-                <ProfilePage />
-              </PrivateRoute>
-            } />
-            <Route path="/hashtag/:hashtag/" element={
-              <PrivateRoute>
-                <HashtagPage/>
-              </PrivateRoute>
-            } />
-          </Route>
-        </Routes>
-      </Router>
-    </ThemeProvider>
+            <Route element={<Layout />}>
+              <Route path="/home" element={
+                <PrivateRoute>
+                  <HomePage />
+                </PrivateRoute>
+              } />
+              <Route path="/profile/me" element={
+                <PrivateRoute>
+                  <ProfilePage />
+                </PrivateRoute>
+              } />
+              <Route path="/profile/:id" element={
+                <PrivateRoute>
+                  <ProfilePage />
+                </PrivateRoute>
+              } />
+              <Route path="/hashtag/:hashtag/" element={
+                <PrivateRoute>
+                  <HashtagPage/>
+                </PrivateRoute>
+              } />
+            </Route>
+          </Routes>
+        </Router>
+      </NotificationProvider>
+    </SocketProvider>
+  </ThemeProvider>
   );
 }
 
