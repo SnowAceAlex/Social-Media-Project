@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { loginUser } from "../services/authService";
 import { useNavigate } from "react-router-dom";
+import { useSocket } from "../contexts/SocketContext";
 
 export const useLogin = () => {
     const [email, setEmail] = useState("");
@@ -8,6 +9,7 @@ export const useLogin = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
+    const {login} = useSocket();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -17,6 +19,8 @@ export const useLogin = () => {
         try {
             const userData = await loginUser(email, password);
             console.log("Login successfully:", userData);
+              // Khi client gửi userId
+            login(userData.user)
 
             sessionStorage.setItem("currentUser", JSON.stringify(userData));
             localStorage.setItem("token", userData.token);
