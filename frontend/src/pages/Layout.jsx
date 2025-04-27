@@ -8,6 +8,7 @@ import CreatePostModal from '../components/Modal/CreatePostModal';
 import DisplayFollowListModal from '../components/Modal/ShowFollowListModal';
 import LoadingModal from '../components/Modal/FunctionalityModal.jsx/LoadingModal';
 import AlertToast from '../components/Modal/FunctionalityModal.jsx/AlertModel';
+import NotificationPopup from '../components/Modal/FunctionalityModal.jsx/NotificationPopup';
 
 function Layout() {
     const [showEditModal, setShowEditModal] = useState(false);
@@ -61,6 +62,8 @@ function Layout() {
             {showEditModal && <EditProfileModal onClose={() => setShowEditModal(false)} showGlobalToast={showGlobalToast} setShowLoading={setShowLoading} />}
             {showCreatePostModal && <CreatePostModal onClose={() => setShowCreatePostModal(false)} showGlobalToast={showGlobalToast}  setShowLoading={setShowLoading}/>}
             
+            <NotificationPopup/>
+
             <AlertToast
                 show={showToast}
                 message={toastMessage}
