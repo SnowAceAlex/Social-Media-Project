@@ -9,6 +9,11 @@ const API = axios.create({
 
 // ------------------ POST SERVICES ------------------
 
+export const getSinglePostService = async (postId) => {
+    const res = await API.get(`/${postId}`);
+    return res.data;
+};
+
 export const createPostService = async (caption, files) => {
     try {
         const formData = new FormData();
