@@ -22,7 +22,6 @@ import PostCaption from "../PostCaption";
 function CommentModal({ post, profile, loading, onClose }) {
     const [showCommentOptions, setShowCommentOptions] = useState(false);
     const [commentToDelete, setCommentToDelete] = useState(null);
-    const { showGlobalToast } = useOutletContext();
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showUserReactModal, setShowUserReactModal] = useState(false);
     const { currentUser } = getCurrentUser();
@@ -310,9 +309,7 @@ function CommentModal({ post, profile, loading, onClose }) {
                 try {
                 await deleteComment(commentToDelete);
                 await refreshCommentCount();
-                showGlobalToast("Comment deleted successfully", "success");
                 } catch (error) {
-                showGlobalToast("Failed to delete comment", "error");
                 } finally {
                 setShowConfirmModal(false);
                 setCommentToDelete(null);

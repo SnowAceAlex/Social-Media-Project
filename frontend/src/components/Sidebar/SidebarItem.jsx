@@ -2,14 +2,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
 const SidebarItem = ({ icon: Icon, label, isCollapsed, to, onClick, isActive }) => {
-    const classes = `flex items-center justify-start w-full h-fit gap-4
+    const baseClasses = `
+        flex items-center justify-start w-full h-fit gap-4
         rounded-xl hover:bg-light-hover cursor-pointer
         transition-all duration-200 ease-in-out
-        dark:hover:bg-dark-hover
-        ${label === "Search" && isCollapsed ? 
-            "border-2 border-dark-border dark:border-light-input-disabled-text py-2 px-3" : 
-            "py-2 px-4"}
-        ${isActive ? 'font-bold bg-light-hover dark:bg-dark-hover' : 'font-[400]'}`;
+        dark:hover:bg-dark-hover py-2 px-4
+    `;
+
+    const activeClasses = isActive
+    ? label === "Search"
+        ? "border-[1px] border-dark-border dark:border-light-input-disabled-text"
+        : label === "Notification"
+            ? "border-[1px] border-dark-border dark:border-light-input-disabled-text"
+            : "font-bold bg-light-hover dark:bg-dark-hover"
+    : "font-[400]";
+
+    const classes = `${baseClasses} ${activeClasses}`;
 
     const content = (
         <>

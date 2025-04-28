@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { IoIosClose } from "react-icons/io";
 import { motion, AnimatePresence } from 'framer-motion';
-import useMediaQuery from '../hook/useMediaQuery';
-import useUserSearch from '../hook/useUserSearch';
-import SearchLoading from './Skeleton/SearchLoading';
-import SearchCard from './SearchCard';
+import useMediaQuery from '../../hook/useMediaQuery';
+import useUserSearch from '../../hook/useUserSearch';
+import SearchLoading from '../Skeleton/SearchLoading';
+import SearchCard from '../SearchCard';
 
 function SearchFrame({ showSearchFrame, searchValue, setSearchValue}) {
     const {results, loading, type} = useUserSearch(searchValue);
