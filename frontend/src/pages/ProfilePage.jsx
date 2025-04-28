@@ -61,7 +61,7 @@ function ProfilePage() {
   }, []);
 
   return (
-    <div className="md:ml-9 lg:ml-0 flex flex-col items-center pb-18">
+    <div className="md:ml-9 lg:ml-0 flex flex-col items-center pb-18 overflow-x-hidden">
       <div className="w-full h-96 xl:mb-20 relative mb-28">
         <div className="w-full h-4/5 md:rounded-b-4xl bg-cover bg-center relative group"
               style={{
@@ -231,7 +231,7 @@ function ProfilePage() {
       <div className="min-h-16 w-[30rem] md:w-[32rem] lg:w-[45rem]
                       flex flex-col items-center">
         {/* HEADER */}
-        <div className="sticky top-15 md:top-0 z-10 bg-white dark:bg-dark h-16 w-[130%] flex justify-around text-sm">
+        <div className="sticky top-15 md:top-0 z-10 bg-white dark:bg-dark h-16 w-full md:w-[130%] flex justify-around text-sm">
             <div className="relative w-[80%] h-ful flex justify-around border-b-1 border-light-border
                         dark:border-dark-border">
               {/* UNDERLINE */}
