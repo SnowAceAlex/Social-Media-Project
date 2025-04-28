@@ -1,15 +1,11 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useNotifications } from "../../../contexts/NotificationContext";
-import useProfile from "../../../hook/useProfile";
 import { useContext, useEffect } from "react";
 import { useTheme } from "../../../contexts/ThemeContext";
 
 export default function NotificationPopup() {
     const { notifications, removeNotification } = useNotifications();
     const latestNotification = notifications[0] || null;
-    const { profile } = useProfile(
-        latestNotification?.type === "follow" ? latestNotification.fromUserId : null
-    );
     const { isDark } = useTheme();
     const imageSrc = isDark ? "/assets/notification_2.gif" : "/assets/notification_1.gif";
 
@@ -40,7 +36,7 @@ export default function NotificationPopup() {
                             {
                             latestNotification.type === "follow" && (
                                 <span className="flex gap-2 text-nowrap">
-                                    <span className="font-bold">{profile?.username}</span> 
+                                    <span className="font-bold">{latestNotification.username}</span> 
                                     just followed you!
                                 </span>                                
                             ) 
@@ -48,7 +44,7 @@ export default function NotificationPopup() {
                             {
                             latestNotification.type === "comment" && (
                                 <span className="flex gap-2 text-nowrap">
-                                    <span className="font-bold">{profile?.username}</span> 
+                                    <span className="font-bold">{latestNotification.username}</span> 
                                     just commented on your post!
                                 </span>                                
                             ) 
