@@ -447,10 +447,10 @@ export const getSinglePost = async (req, res) => {
         ...post,
         images,
       },
-      likes: likesResult.rows,
+      likes: reactionsResult.rows,
       comments: commentsResult.rows,
-      userId: userId, // Include the userId of the authenticated user
-    });
+      userId: userId,
+    });    
   } catch (error) {
     console.error("Error fetching post details:", error);
     res.status(500).json({ error: error.message });

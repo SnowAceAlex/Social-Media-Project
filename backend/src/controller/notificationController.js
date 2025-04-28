@@ -19,14 +19,16 @@ export const getNotifications = async (req, res) => {
       [userId, limit, offset]
     );
 
-    await pool.query(
-      `UPDATE notifications SET is_read = TRUE
-         WHERE user_id = $1 AND id IN (${result.rows
-           .map((_, i) => `$${i + 2}`)
-           .join(", ")})`,
-      [userId, ...result.rows.map((n) => n.id)]
-    );
-
+    if (result.rows.length > 0) {
+      await pool.query(
+        `UPDATE notifications SET is_read = TRUE
+          WHERE user_id = $1 AND id IN (${result.rows
+            .map((_, i) => `$${i + 2}`)
+            .join(", ")})`,
+        [userId, ...result.rows.map((n) => n.id)]
+      );
+    }
+    
     res.status(200).json({
       page,
       notifications: result.rows,
