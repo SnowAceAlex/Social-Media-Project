@@ -57,11 +57,17 @@ function SearchFrameMB({ searchValue, setSearchValue }) {
                                 <SearchLoading />
                             </>
                         ) : results.length > 0 ? (
-                            results.map((user) => (
-                                <SearchCard key={user.id} user={user} />
+                            type==='user' 
+                            ? results.map(user => (
+                                <SearchCard key={user.id} user={user}/>
+                            ))
+                            : results.map(tag => (
+                                <SearchCard key={tag.id} hashtag={tag} />
                             ))
                         ) : (
-                            <p className="p-4 text-sm text-gray-500">No users found.</p>
+                            searchValue && (
+                                <p className="text-sm text-gray-500 mt-4">No information found.</p>
+                            )
                         )}
                     </motion.div>
                 )}
