@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { GoHomeFill } from "react-icons/go";
+import { IoIosNotifications } from "react-icons/io";
 
 const SidebarItem = ({ icon: Icon, label, isCollapsed, to, onClick, isActive }) => {
     const baseClasses = `
@@ -21,7 +23,15 @@ const SidebarItem = ({ icon: Icon, label, isCollapsed, to, onClick, isActive }) 
 
     const content = (
         <>
-            <Icon size={30} />
+            {
+                label === "Home" && isActive ? (
+                    <GoHomeFill size={30} />
+                ) : label === "Notification" && isActive ? (
+                    <IoIosNotifications size={30} />
+                ) : (
+                    <Icon size={30} />
+                )
+            }
             <AnimatePresence>
                 {!isCollapsed && (
                     <motion.p

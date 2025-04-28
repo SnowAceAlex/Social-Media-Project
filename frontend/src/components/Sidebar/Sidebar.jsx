@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MdHomeFilled } from "react-icons/md";
+import { GoHome } from "react-icons/go";
 import { IoIosSearch, IoIosNotificationsOutline, IoIosMenu } from "react-icons/io";
 import { LuInstagram, LuSunMedium } from "react-icons/lu";
 import { IoMenu, IoLogOutOutline } from "react-icons/io5";
@@ -95,7 +95,7 @@ function Sidebar({ searchValue, setSearchValue }) {
 
             <div className="flex flex-col gap-2 flex-grow items-center">
                 <SidebarItem
-                    icon={MdHomeFilled}
+                    icon={GoHome}
                     label="Home"
                     to="/home"
                     isCollapsed={isExpanded}
