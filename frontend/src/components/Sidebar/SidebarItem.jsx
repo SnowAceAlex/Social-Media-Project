@@ -1,9 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { GoHomeFill } from "react-icons/go";
-import { IoIosNotifications } from "react-icons/io";
+import { IoIosNotifications, IoIosNotificationsOutline} from "react-icons/io";
 
-const SidebarItem = ({ icon: Icon, label, isCollapsed, to, onClick, isActive }) => {
+
+const SidebarItem = ({ icon: Icon, label, isCollapsed, to, onClick, isActive, hasNewNotification }) => {
     const baseClasses = `
         flex items-center justify-start w-full h-fit gap-4
         rounded-xl hover:bg-light-hover cursor-pointer
@@ -26,12 +27,22 @@ const SidebarItem = ({ icon: Icon, label, isCollapsed, to, onClick, isActive }) 
             {
                 label === "Home" && isActive ? (
                     <GoHomeFill size={30} />
-                ) : label === "Notification" && isActive ? (
-                    <IoIosNotifications size={30} />
+                ) : label === "Notification" ? (
+                    <div className="relative">
+                        {isActive ? (
+                            <IoIosNotifications size={30} />
+                        ) : (
+                            <IoIosNotificationsOutline size={30} />
+                        )}
+                        {hasNewNotification && (
+                            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full" />
+                        )}
+                    </div>
                 ) : (
                     <Icon size={30} />
                 )
             }
+
             <AnimatePresence>
                 {!isCollapsed && (
                     <motion.p
