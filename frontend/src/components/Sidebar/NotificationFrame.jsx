@@ -47,7 +47,7 @@ function NotificationFrame({ showNotificationFrame }) {
         setLoadingPost(true);
         try {
             const [profileData, postRes] = await Promise.all([
-                getProfile(notification.from_user_id),
+                getProfile(notification.user_id),
                 getSinglePostService(notification.post_id)
             ]);
     
