@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar/Sidebar';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import HeaderMB from '../components/Mobile/Header';
 import HeaderBotMB from '../components/Mobile/HeaderBot';
 import EditProfileModal from '../components/Modal/EditProfileModal';
@@ -9,11 +9,14 @@ import DisplayFollowListModal from '../components/Modal/ShowFollowListModal';
 import LoadingModal from '../components/Modal/FunctionalityModal.jsx/LoadingModal';
 import AlertToast from '../components/Modal/FunctionalityModal.jsx/AlertModel';
 import NotificationPopup from '../components/Modal/FunctionalityModal.jsx/NotificationPopup';
+import HeaderNotification from '../components/Mobile/HeaderNotification';
 
 function Layout() {
     const [showEditModal, setShowEditModal] = useState(false);
     const [showCreatePostModal, setShowCreatePostModal] = useState(false);
     const [searchValue, setSearchValue] = useState('');
+    const location = useLocation();
+    const isNotificationPage = location.pathname === "/notification";
 
     useEffect(() => {
         document.body.style.overflow = showEditModal ? 'hidden' : 'auto';
@@ -37,15 +40,20 @@ function Layout() {
     const [showLoading, setShowLoading] = useState(false);
 
     return (
-        <div className="w-full relative">
+        <div className="w-full relative min-h-screen bg-white dark:bg-dark">
             {/* Header (for mobile) */}
-            <HeaderMB searchValue={searchValue} setSearchValue={setSearchValue}/>
-
+            {
+                isNotificationPage ? (
+                    <HeaderNotification/>
+                ) : (
+                    <HeaderMB searchValue={searchValue} setSearchValue={setSearchValue}/>
+                )
+            }
             <div className="md:flex dark:bg-dark">
                 {/* Sidebar */}
                 <Sidebar searchValue={searchValue} setSearchValue={setSearchValue}/>
                 {/* Main */}
-                <div className="flex-1 md:ml-[16.67%] mt-16 mb-14 md:mt-0 md:mb-0 min-h-screen
+                <div className="flex-1 md:ml-[16.67%] mt-16 mb-14 md:mt-0 md:mb-0
                                 flex flex-col dark:bg-dark
                                 ">
                     {/* <div className="h-28 "></div>
