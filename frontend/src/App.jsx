@@ -13,6 +13,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import HashtagPage from "./pages/HashtagPage";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { SocketProvider } from "./contexts/SocketContext";
+import NotificationPage from "./pages/NotificationPage";
 
 function App() {
   return (
@@ -43,6 +44,11 @@ function App() {
               <Route path="/hashtag/:hashtag/" element={
                 <PrivateRoute>
                   <HashtagPage/>
+                </PrivateRoute>
+              } />
+              <Route path="/notification" element={
+                <PrivateRoute>
+                  <NotificationPage/>
                 </PrivateRoute>
               } />
             </Route>
