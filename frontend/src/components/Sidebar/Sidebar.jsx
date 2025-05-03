@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MdHomeFilled } from "react-icons/md";
+import { GoHome } from "react-icons/go";
 import { IoIosSearch, IoIosNotificationsOutline, IoIosMenu } from "react-icons/io";
 import { LuInstagram, LuSunMedium } from "react-icons/lu";
 import { IoMenu, IoLogOutOutline } from "react-icons/io5";
@@ -15,6 +15,7 @@ import NotificationFrame from './NotificationFrame';
 import { useTheme } from '../../contexts/ThemeContext';
 import { getCurrentUser } from '../../helpers/getCurrentUser';
 import { useSocket } from '../../contexts/SocketContext';
+import { useNotifications } from '../../contexts/NotificationContext';
 
 function Sidebar({ searchValue, setSearchValue }) {
     const [showMore, setShowMore] = useState(false);
@@ -22,6 +23,7 @@ function Sidebar({ searchValue, setSearchValue }) {
     const [activeFrame, setActiveFrame] = useState(null); // "search" | "notification" | null
     const [activeItem, setActiveItem] = useState('');
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    const { markNotificationsAsSeen, hasNewNotification } = useNotifications();
 
     const moreRef = useRef(null);
     const { toggleTheme } = useTheme();
@@ -45,6 +47,9 @@ function Sidebar({ searchValue, setSearchValue }) {
                 frameName === "notification" ? "Notification" :
                 ''
             );
+            if (frameName === "notification") {
+                markNotificationsAsSeen();
+            }
         }
     };
 
@@ -95,7 +100,7 @@ function Sidebar({ searchValue, setSearchValue }) {
 
             <div className="flex flex-col gap-2 flex-grow items-center">
                 <SidebarItem
-                    icon={MdHomeFilled}
+                    icon={GoHome}
                     label="Home"
                     to="/home"
                     isCollapsed={isExpanded}
@@ -135,6 +140,7 @@ function Sidebar({ searchValue, setSearchValue }) {
                     onClick={() => handleToggleFrame("notification")}
                     isCollapsed={isExpanded}
                     isActive={activeItem === 'Notification'}
+                    hasNewNotification={hasNewNotification}
                 />
             </div>
 

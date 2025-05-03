@@ -17,6 +17,10 @@ export const NotificationProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState(null);
+    const [hasNewNotification, setHasNewNotification] = useState(false);
+    const markNotificationsAsSeen = () => {
+        setHasNewNotification(false);
+    };
     
     const fetchNotificationHistory = useCallback(async (currentPage = 1, isLoadMore = false) => {
         try {
@@ -44,8 +48,8 @@ export const NotificationProvider = ({ children }) => {
         socket.on("new_notification", (data) => {
         console.log("New notification received:", data);
             setNotifications((prev) => [data, ...prev]);
+            setHasNewNotification(true);
         });
-
         return () => {
         socket.off("new_notification");
         };
@@ -60,6 +64,7 @@ export const NotificationProvider = ({ children }) => {
     
         // Xóa khỏi notifications popup
         setNotifications((prev) => prev.filter((n) => n.id !== id));
+
     };    
 
     const loadMore = async () => {
@@ -84,7 +89,9 @@ export const NotificationProvider = ({ children }) => {
             loadMore,
             loadingMore,
             fetchNotificationHistory,
-            removeNotification
+            removeNotification,
+            hasNewNotification,                 
+            markNotificationsAsSeen  
         }}>
             {children}
         </NotificationContext.Provider>

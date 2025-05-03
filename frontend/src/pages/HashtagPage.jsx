@@ -11,7 +11,7 @@ function HashtagPage() {
     return (
         <div className="md:ml-9 lg:ml-0 flex flex-col items-center pb-18">
             <div className='flex flex-col w-[30rem] md:w-[32rem] lg:w-[45rem]'>
-                <span className='sticky top-0 bg-white dark:bg-dark z-[50] text-xl dark:text-white p-6 mt-6 font-bold 
+                <span className='sticky top-16 md:top-0 bg-white dark:bg-dark z-[30] text-xl dark:text-white p-6 mt-6 font-bold 
                                 border-b-[1px] border-light-border dark:border-dark-border'>
                     {"#" + hashtag}
                 </span>

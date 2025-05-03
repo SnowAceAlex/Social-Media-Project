@@ -1,16 +1,13 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import useMediaQuery from '../../hook/useMediaQuery';
-import SearchLoading from '../Skeleton/SearchLoading';
 import { formatDistanceToNow } from 'date-fns';
-import { useNotifications } from '../../contexts/NotificationContext';
 import { Link } from 'react-router-dom';
-import CommentModal from '../Modal/CommentModal';
-import { getProfile } from '../../services/authService';
-import { getSinglePostService } from '../../services/PostService';
+import SearchLoading from '../components/Skeleton/SearchLoading';
+import { useNotifications } from '../contexts/NotificationContext';
+import { getProfile } from '../services/authService';
+import { getSinglePostService } from '../services/PostService';
+import CommentModal from '../components/Modal/CommentModal';
 
-function NotificationFrame({ showNotificationFrame }) {
-    const isDesktop = useMediaQuery('(min-width: 768px)');
+function NotificationPage() {
     const {fetchNotificationHistory, notificationHistory, loading, error, hasMore, loadMore, loadingMore } = useNotifications();
     const observer = useRef();
     const [showCommentModal, setShowCommentModal] = useState(false);
@@ -19,10 +16,8 @@ function NotificationFrame({ showNotificationFrame }) {
     const [loadingPost, setLoadingPost] = useState(false);
 
     useEffect(() => {
-        if (showNotificationFrame) {
             fetchNotificationHistory(1); 
-        }
-    }, [showNotificationFrame, fetchNotificationHistory]);
+    }, [fetchNotificationHistory]);
 
     const lastNotificationRef = useCallback(node => {
         if (loading) return;
@@ -47,7 +42,7 @@ function NotificationFrame({ showNotificationFrame }) {
         setLoadingPost(true);
         try {
             const [profileData, postRes] = await Promise.all([
-                getProfile(notification.user_id),
+                getProfile(notification.from_user_id),
                 getSinglePostService(notification.post_id)
             ]);
     
@@ -79,30 +74,16 @@ function NotificationFrame({ showNotificationFrame }) {
         }
     };
 
-    return (
-        <div>
-            <AnimatePresence>
-                {showNotificationFrame && isDesktop && (
-                    <motion.div
-                        key="notification-frame"
-                        initial={{ x: -200, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: -200, opacity: 0 }}
-                        transition={{
-                            duration: 0.3,
-                            ease: "easeOut",
-                            exit: { duration: 0.2, ease: "easeIn" }
-                        }}
-                        className="fixed top-0 left-20 h-screen w-96 rounded-4xl
-                                bg-light dark:bg-dark z-40 border-r-1 border-light-border
-                                dark:border-dark-border py-6 overflow-y-auto scrollbar-hidden"
-                                >
-                        <h1 className="text-2xl font-bold mb-6 ml-8 dark:text-dark-text">
-                            Notification
-                        </h1>
 
-                        {/* NOTIFICATION LIST */}
-                        {Array.isArray(notificationHistory) && notificationHistory.map((notification, index) => (
+    return (
+        <div className="md:ml-9 lg:ml-0 flex flex-col items-center pb-18 -mt-12 md:mt-0 px-6">
+            <div className='flex flex-col w-full md:w-[32rem] lg:w-[45rem]'>
+                <span className='sticky top-16 md:top-0 bg-white dark:bg-dark z-[30] text-2xl dark:text-white p-6 mt-6 font-bold 
+                                border-b-[1px] border-light-border dark:border-dark-border hidden md:block mb-4'>
+                    Notification
+                </span>
+                 {/* NOTIFICATION LIST */}
+                {Array.isArray(notificationHistory) && notificationHistory.map((notification, index) => (
                             <div
                                 key={notification.id}
                                 ref={notificationHistory.length === index + 1 ? lastNotificationRef : null}
@@ -150,9 +131,7 @@ function NotificationFrame({ showNotificationFrame }) {
                         {error && (
                             <p className="text-center text-red-500 mt-4">Error loading notifications</p>
                         )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            </div>
             {
                 showCommentModal && (
                     <CommentModal 
@@ -163,7 +142,7 @@ function NotificationFrame({ showNotificationFrame }) {
                 )
             }
         </div>
-    );
+    )
 }
 
-export default NotificationFrame;
+export default NotificationPage
