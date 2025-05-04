@@ -21,7 +21,7 @@ function App() {
   useEffect(()=>{
     const timer = setTimeout(()=>{
       setLoading(false);
-    }, 2000)
+    }, 1500)
     return () => clearTimeout(timer); 
   },[]);
 
@@ -30,7 +30,7 @@ function App() {
   {
     isLoading ? (
       <div className="flex items-center justify-center h-screen bg-white">    
-        <img src="/InstaLogo.png" className="w-36 animate-pulse"/>
+        <img src="/InstaLogo.png" className="w-32"/>
       </div>
     ) : (
       <ThemeProvider>
