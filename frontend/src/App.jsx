@@ -14,49 +14,68 @@ import HashtagPage from "./pages/HashtagPage";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { SocketProvider } from "./contexts/SocketContext";
 import NotificationPage from "./pages/NotificationPage";
+import { useEffect, useState } from "react";
 
 function App() {
-  return (
-  <ThemeProvider>
-    <SocketProvider> {/* Wrap socket kết nối trước */}
-      <NotificationProvider> {/* Wrap notification state */}
-        <Router>
-          <Routes>
-            <Route path="/" element={<Navigate to="/login" />} />
-            <Route path="/login" element={<LogInPage />} />
+  const [isLoading, setLoading] = useState(true);
+  useEffect(()=>{
+    const timer = setTimeout(()=>{
+      setLoading(false);
+    }, 2000)
+    return () => clearTimeout(timer); 
+  },[]);
 
-            <Route element={<Layout />}>
-              <Route path="/home" element={
-                <PrivateRoute>
-                  <HomePage />
-                </PrivateRoute>
-              } />
-              <Route path="/profile/me" element={
-                <PrivateRoute>
-                  <ProfilePage />
-                </PrivateRoute>
-              } />
-              <Route path="/profile/:id" element={
-                <PrivateRoute>
-                  <ProfilePage />
-                </PrivateRoute>
-              } />
-              <Route path="/hashtag/:hashtag/" element={
-                <PrivateRoute>
-                  <HashtagPage/>
-                </PrivateRoute>
-              } />
-              <Route path="/notification" element={
-                <PrivateRoute>
-                  <NotificationPage/>
-                </PrivateRoute>
-              } />
-            </Route>
-          </Routes>
-        </Router>
-      </NotificationProvider>
-    </SocketProvider>
-  </ThemeProvider>
+  return (
+  <>
+  {
+    isLoading ? (
+      <div className="flex items-center justify-center h-screen bg-white">    
+        <img src="/InstaLogo.png" className="w-36 animate-pulse"/>
+      </div>
+    ) : (
+      <ThemeProvider>
+        <SocketProvider>
+          <NotificationProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<Navigate to="/login" />} />
+                <Route path="/login" element={<LogInPage />} />
+
+                <Route element={<Layout />}>
+                  <Route path="/home" element={
+                    <PrivateRoute>
+                      <HomePage />
+                    </PrivateRoute>
+                  } />
+                  <Route path="/profile/me" element={
+                    <PrivateRoute>
+                      <ProfilePage />
+                    </PrivateRoute>
+                  } />
+                  <Route path="/profile/:id" element={
+                    <PrivateRoute>
+                      <ProfilePage />
+                    </PrivateRoute>
+                  } />
+                  <Route path="/hashtag/:hashtag/" element={
+                    <PrivateRoute>
+                      <HashtagPage/>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/notification" element={
+                    <PrivateRoute>
+                      <NotificationPage/>
+                    </PrivateRoute>
+                  } />
+                </Route>
+              </Routes>
+            </Router>
+          </NotificationProvider>
+        </SocketProvider>
+      </ThemeProvider>
+    )
+  }
+  </>
   );
 }
 
