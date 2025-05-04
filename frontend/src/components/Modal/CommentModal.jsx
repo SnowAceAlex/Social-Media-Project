@@ -79,7 +79,7 @@ function CommentModal({ post, profile, loading, onClose }) {
             className={`bg-white dark:bg-dark
                         ${
                             (post.images && post.images.length > 0) ? 
-                            "w-[30rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]" :
+                            "w-[35rem] sm:w-[40rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]" :
                             "w-[30rem] md:w-[35rem]"
                         }
                         max-h-[95vh] overflow-auto shadow-md relative`}
@@ -120,7 +120,7 @@ function CommentModal({ post, profile, loading, onClose }) {
                 {/* Image block - order second on mobile, first on desktop */}
                 {post.images?.length > 0 && (
                     <div
-                    className="order-2 md:order-1 w-full md:flex-4 md:aspect-auto
+                    className="order-2 md:order-1 w-full md:flex-4 md:aspect-auto bg-dark
                                 flex items-center justify-center relative overflow-hidden">
                     <div
                         className="flex transition-transform duration-500 ease-in-out items-center w-full"
@@ -182,8 +182,8 @@ function CommentModal({ post, profile, loading, onClose }) {
                     className={`order-3 md:absolute flex flex-col
                                 ${
                                     (post.images && post.images.length > 0) ?
-                                    "md:top-36 md:right-4 lg:right-8 xl:right-6 md:ml-3 md:w-[20rem] lg:w-[23rem] xl:w-[28rem] md:h-[38.5rem]" 
-                                    : "md:top-36 md:right-6 md:ml-3 md:w-[32rem] md:h-[38.5rem]"
+                                    "md:top-36 md:right-4 lg:right-8 xl:right-6 md:ml-3 md:w-[20rem] lg:w-[23rem] xl:w-[28rem] md:h-[43rem]" 
+                                    : "md:top-36 md:right-6 md:ml-3 md:w-[32rem] md:h-[43rem]"
                                 }`}
                 >
                     {/* Comment list scrollable */}

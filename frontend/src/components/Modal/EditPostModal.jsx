@@ -76,7 +76,7 @@ const EditPostModal = ({ post, profile, loading, onClose }) => {
                 <div className={`w-full flex items-center gap-4 md:mb-2
                                     ${
                                         (post.images && post.images.length > 0) ? 
-                                        "" : "pl-6 py-4"
+                                        "pl-2 py-4" : "pl-6 py-4"
                                     }`}>
                 <Avatar_Username
                     profile={profile}
@@ -92,7 +92,7 @@ const EditPostModal = ({ post, profile, loading, onClose }) => {
             {/* Image block - order second on mobile, first on desktop */}
             {post.images?.length > 0 && (
                 <div
-                className="order-2 md:order-1 w-full md:flex-4 md:aspect-auto
+                className="order-2 md:order-1 w-full md:flex-4 md:aspect-auto bg-dark
                         flex items-center justify-center relative overflow-hidden"
                 >
                 <div
