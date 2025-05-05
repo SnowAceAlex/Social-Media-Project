@@ -18,6 +18,9 @@ import {
   getPostsByHashtag,
   searchHashtags,
   getUserPostsWithImages,
+  savePost,
+  unsavePost,
+  getSavedPosts,
 } from "../controller/postController.js";
 import { authenticate } from "../middleware/authenticateUser.js";
 import { handleUpload } from "../controller/uploadController.js";
@@ -53,5 +56,10 @@ router.get("/hashtags/search",authenticate, searchHashtags);
 
 // Get posts with images by user ID
 router.get("/getpostswithimages/:userId", authenticate, getUserPostsWithImages); // Get posts with images by user ID
+
+// Save Post
+router.post("/save", authenticate, savePost); // Save a post
+router.post("/unsave", authenticate, unsavePost); // Unsave a post
+router.get("/saved", authenticate, getSavedPosts); // Get all saved posts
 
 export default router;

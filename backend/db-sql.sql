@@ -89,3 +89,14 @@ CREATE TABLE post_images (
   post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
   image_url TEXT NOT NULL
 );
+
+-- saved posts table
+CREATE TABLE saved_posts (
+    id SERIAL PRIMARY KEY, 
+    user_id INT NOT NULL, 
+    post_id INT NOT NULL, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (post_id) REFERENCES posts(id), 
+    UNIQUE(user_id, post_id) -- Ensure a user cannot save the same post multiple times
+);
