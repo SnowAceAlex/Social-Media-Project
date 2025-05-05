@@ -18,6 +18,8 @@ import {
   getPostsByHashtag,
   searchHashtags,
   getUserPostsWithImages,
+  sharePost,
+  getUsersWhoSharedPost,
 } from "../controller/postController.js";
 import { authenticate } from "../middleware/authenticateUser.js";
 import { handleUpload } from "../controller/uploadController.js";
@@ -49,9 +51,13 @@ router.get("/:userId/latestPost", getLatestPostByUser); // Get latest post by us
 
 //Hashtag
 router.get("/hashtag/:tag", getPostsByHashtag);
-router.get("/hashtags/search",authenticate, searchHashtags);
+router.get("/hashtags/search", authenticate, searchHashtags);
 
 // Get posts with images by user ID
 router.get("/getpostswithimages/:userId", authenticate, getUserPostsWithImages); // Get posts with images by user ID
+
+//Share post
+router.post("/share", authenticate, sharePost); // Share a post
+router.get("/share/:postId", authenticate, getUsersWhoSharedPost); // Get user who shared the post
 
 export default router;
