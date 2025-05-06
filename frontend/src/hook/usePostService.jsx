@@ -1,11 +1,15 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { deletePostById, editPostService, getCommentCountService, getImagesAndPost } from "../services/PostService";
+import { deletePostById, editPostService, getCommentCountService, getImagesAndPost, getSavedPostsService, savePost, unSavePost } from "../services/PostService";
 
-const usePostService = (postId) => {
+const usePostService = (postId, { autoFetchCommentCount = true } = {}) => {    
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [commentCount, setCommentCount] = useState(0);
     const [postsWithImages, setPostsWithImages] = useState([]);
+
+    const [savedPosts, setSavedPosts] = useState([]);
+    const [savedPage, setSavedPage] = useState(1);
+    const [hasMoreSaved, setHasMoreSaved] = useState(true);
 
     const deletePost = async (postId) => {
         setLoading(true);
@@ -64,14 +68,71 @@ const usePostService = (postId) => {
 
     //REFRESH COMMENT COUNT
     useEffect(() => {
-        fetchCommentCount();
-    }, [fetchCommentCount]);
+        if (autoFetchCommentCount && postId) fetchCommentCount();    
+    }, [fetchCommentCount, postId]);
 
-    return {editPost, 
+    //SAVE POST
+    const fetchSavePost =  async (postId) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const result = await savePost(postId);
+            return result;
+        } catch (err) {
+            setError(err?.error || "Error saving post");
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    //UNSAVE POST
+    const fetchUnSavePost = async (postId) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const result = await unSavePost(postId);
+            return result;
+        } catch (err) {
+            setError(err?.error || "Error unsave post");
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    //GET SAVE POST
+    const fetchGetSavedPost = useCallback(async (page = 1) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await getSavedPostsService(page);
+            if (page === 1) {
+                setSavedPosts(res.posts);
+            } else {
+                setSavedPosts((prev) => [...prev, ...res.posts]);
+            }
+            setSavedPage(res.page);
+            setHasMoreSaved(res.hasMore);
+        } catch (err) {
+            setError(err.message || "Error fetching saved posts");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    return {
+        editPost, 
         deletePost, 
         fetchPostsWithImages,
         postsWithImages,
         commentCount, 
+        fetchSavePost,
+        fetchUnSavePost,
+        fetchGetSavedPost,
+        savedPosts,
+        savedPage,
+        hasMoreSaved,
         refreshCommentCount:fetchCommentCount, 
         loading, error };
 };

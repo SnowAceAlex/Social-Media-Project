@@ -76,3 +76,32 @@ export const getImagesAndPost = async (userId) => {
     const res = await API.get(`/getpostswithimages/${userId}`);
     return res.data;
 }
+
+// ------------------ SAVE (BOOKMARK) POST ------------------
+export const savePost = async (postId) => {
+    try {
+        const response = await API.post("/save", { post_id: postId });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { error: "Something went wrong while saving the post." };
+    }
+};
+
+export const unSavePost = async (postId) => {
+    try {
+        const response = await API.post("/unsave", { post_id: postId });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { error: "Something went wrong while unsave the post." };
+    }
+};
+
+export const getSavedPostsService = async (page = 1) => {
+    try {
+        const response = await API.get(`/me/saved?page=${page}`);
+        return response.data;
+    } catch (error) {
+        const msg = error.response?.data?.error || "Failed to fetch saved posts";
+        throw new Error(msg);
+    }
+};
