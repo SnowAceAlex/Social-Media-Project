@@ -15,6 +15,7 @@ import { NotificationProvider } from "./contexts/NotificationContext";
 import { SocketProvider } from "./contexts/SocketContext";
 import NotificationPage from "./pages/NotificationPage";
 import { useEffect, useState } from "react";
+import BookmarksPage from "./pages/BookmarksPage";
 
 function App() {
   const [isLoading, setLoading] = useState(true);
@@ -65,6 +66,11 @@ function App() {
                   <Route path="/notification" element={
                     <PrivateRoute>
                       <NotificationPage/>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/bookmarks" element={
+                    <PrivateRoute>
+                      <BookmarksPage/>
                     </PrivateRoute>
                   } />
                 </Route>
