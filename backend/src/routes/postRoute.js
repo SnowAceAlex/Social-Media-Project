@@ -23,6 +23,7 @@ import {
   getSavedPosts,
   sharePost,
   getUsersWhoSharedPost,
+  getSingleSharedPost,
 } from "../controller/postController.js";
 import { authenticate } from "../middleware/authenticateUser.js";
 import { handleUpload } from "../controller/uploadController.js";
@@ -59,4 +60,13 @@ router.get("/hashtags/search", authenticate, searchHashtags);
 // Get posts with images by user ID
 router.get("/getpostswithimages/:userId", authenticate, getUserPostsWithImages); // Get posts with images by user ID
 
+// Save Post
+router.post("/save", authenticate, savePost); // Save a post
+router.post("/unsave", authenticate, unsavePost); // Unsave a post
+router.get("/me/saved", authenticate, getSavedPosts); // Get all saved posts
+
+// Share Post
+router.post("/share", authenticate, sharePost); // Share a post
+router.get("/shared/:postId", authenticate, getUsersWhoSharedPost); // Get users who shared a post
+router.get("/shared/single/:postId", authenticate, getSingleSharedPost); // Get a single shared post
 export default router;
