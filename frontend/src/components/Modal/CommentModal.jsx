@@ -4,7 +4,6 @@ import UploadBlock from "../UploadBlock";
 import Avatar_Username from "../Avatar_Username";
 import PostReaction from "../PostReaction";
 import TextareaAutosize from "react-textarea-autosize";
-import useComments from "../../hook/useComments";
 import { formatDistanceToNow } from "date-fns";
 import { IoMdSend } from "react-icons/io";
 import { Link, useOutletContext } from "react-router-dom";
@@ -18,6 +17,7 @@ import { motion } from "framer-motion";
 import ReactUserModal from "./ReactUserModal";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import PostCaption from "../PostCaption";
+import useComments from "../../hook/useComments";
 
 function CommentModal({ post, profile, loading, onClose }) {
     const [showCommentOptions, setShowCommentOptions] = useState(false);
@@ -32,8 +32,13 @@ function CommentModal({ post, profile, loading, onClose }) {
         addComment,
         refreshComments,
         deleteComment,
-    } = useComments(post?.id);
-    const { commentCount, refreshCommentCount } = usePostService(post.id);
+    } = useComments(post?.id)
+    const { 
+        commentCount, 
+        refreshCommentCount, 
+        fetchSavePost,
+        fetchUnSavePost
+    } = usePostService(post.id);
 
     //REACTION
     const {
@@ -258,6 +263,8 @@ function CommentModal({ post, profile, loading, onClose }) {
                         myReaction={myReaction}
                         handleReact={handleReact}
                         reactUsers={reactUsers}
+                        fetchSavePost={() => fetchSavePost(post.id)}
+                        fetchUnSavePost={() => fetchUnSavePost(post.id)}
                     />
 
                     <div className="flex items-center border border-transparent focus-within:border-black 

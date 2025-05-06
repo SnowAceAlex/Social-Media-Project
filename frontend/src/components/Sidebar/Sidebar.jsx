@@ -16,6 +16,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { getCurrentUser } from '../../helpers/getCurrentUser';
 import { useSocket } from '../../contexts/SocketContext';
 import { useNotifications } from '../../contexts/NotificationContext';
+import { CiBookmark } from "react-icons/ci";
 
 function Sidebar({ searchValue, setSearchValue }) {
     const [showMore, setShowMore] = useState(false);
@@ -141,6 +142,13 @@ function Sidebar({ searchValue, setSearchValue }) {
                     isCollapsed={isExpanded}
                     isActive={activeItem === 'Notification'}
                     hasNewNotification={hasNewNotification}
+                />
+                <SidebarItem
+                    icon={CiBookmark}
+                    label="Bookmarks"
+                    to="/bookmarks"
+                    isCollapsed={isExpanded}
+                    isActive={pathname.startsWith('/bookmarks')}
                 />
             </div>
 
