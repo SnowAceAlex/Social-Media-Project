@@ -18,7 +18,6 @@ CREATE TABLE posts (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     caption TEXT,
-    media_url TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -90,13 +89,11 @@ CREATE TABLE post_images (
   image_url TEXT NOT NULL
 );
 
--- saved posts table
-CREATE TABLE saved_posts (
-    id SERIAL PRIMARY KEY, 
-    user_id INT NOT NULL, 
-    post_id INT NOT NULL, 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (post_id) REFERENCES posts(id), 
-    UNIQUE(user_id, post_id) -- Ensure a user cannot save the same post multiple times
+-- Shared Posts Table
+CREATE TABLE shared_posts (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,       -- Who shared
+    original_post_id INT REFERENCES posts(id) ON DELETE CASCADE,  -- The original post
+    shared_caption TEXT,                                       -- Optional message or caption
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

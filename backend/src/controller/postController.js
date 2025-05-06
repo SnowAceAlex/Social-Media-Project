@@ -92,17 +92,49 @@ export const getAllPosts = async (req, res) => {
 
   try {
     const baseQuery = `
-      SELECT 
-        posts.*, 
-        users.username, 
-        users.profile_pic_url,
-        COALESCE(json_agg(post_images.image_url) FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images
-      FROM posts
-      JOIN users ON posts.user_id = users.id
-      LEFT JOIN post_images ON posts.id = post_images.post_id
-      ${userId ? "WHERE posts.user_id = $3" : ""}
-      GROUP BY posts.id, users.username, users.profile_pic_url
-      ORDER BY posts.created_at DESC
+      (
+        SELECT 
+          posts.*, 
+          users.username, 
+          users.profile_pic_url,
+          COALESCE(json_agg(post_images.image_url) FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images,
+          NULL AS shared_caption,
+          NULL AS shared_by_user_id,
+          NULL AS shared_by_username,
+          NULL AS shared_by_profile_pic_url,  -- Added field for shared post's user profile picture
+          NULL AS shared_at,
+          posts.created_at AS sort_time
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        LEFT JOIN post_images ON posts.id = post_images.post_id
+        ${userId ? "WHERE posts.user_id = $3" : ""}
+        GROUP BY posts.id, users.username, users.profile_pic_url
+      )
+
+      UNION ALL
+
+      (
+        SELECT 
+          posts.*, 
+          original_user.username, 
+          original_user.profile_pic_url,
+          COALESCE(json_agg(post_images.image_url) FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images,
+          shared_posts.shared_caption,
+          shared_by_user.id AS shared_by_user_id,
+          shared_by_user.username AS shared_by_username,
+          shared_by_user.profile_pic_url AS shared_by_profile_pic_url,  -- Added field for shared post's user profile picture
+          shared_posts.created_at AS shared_at,
+          shared_posts.created_at AS sort_time
+        FROM shared_posts
+        JOIN posts ON shared_posts.original_post_id = posts.id
+        JOIN users AS original_user ON posts.user_id = original_user.id
+        JOIN users AS shared_by_user ON shared_posts.user_id = shared_by_user.id
+        LEFT JOIN post_images ON posts.id = post_images.post_id
+        ${userId ? "WHERE shared_posts.user_id = $3" : ""}
+        GROUP BY posts.id, original_user.username, original_user.profile_pic_url, shared_by_user.id, shared_by_user.username, shared_by_user.profile_pic_url, shared_posts.shared_caption, shared_posts.created_at
+      )
+
+      ORDER BY sort_time DESC
       LIMIT $1 OFFSET $2
     `;
 
@@ -399,7 +431,7 @@ export const deletePost = async (req, res) => {
 export const getSinglePost = async (req, res) => {
   const postId = parseInt(req.params.postId);
   console.log("Post ID:", postId);
-  if (isNaN(postId)) return res.end(); 
+  if (isNaN(postId)) return res.end();
   try {
     // Fetch the post details
     const postResult = await pool.query(
@@ -449,6 +481,7 @@ export const getSinglePost = async (req, res) => {
       },
       likes: reactionsResult.rows,
       comments: commentsResult.rows,
+      userId: userId,
     });
   } catch (error) {
     console.error("Error fetching post details:", error);
@@ -456,7 +489,6 @@ export const getSinglePost = async (req, res) => {
   }
 };
 
-// Edit post caption (only by owner)
 // Edit post caption (only by owner)
 export const editPost = async (req, res) => {
   const { caption } = req.body;
@@ -518,22 +550,56 @@ export const getLatestPostByUser = async (req, res) => {
   const userId = req.params.userId;
 
   try {
-    const result = await pool.query(
-      `SELECT 
-        posts.*, 
-        users.username, 
-        users.profile_pic_url,
-        COALESCE(json_agg(post_images.image_url) 
-          FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images
-      FROM posts
-      JOIN users ON posts.user_id = users.id
-      LEFT JOIN post_images ON posts.id = post_images.post_id
-      WHERE posts.user_id = $1
-      GROUP BY posts.id, users.username, users.profile_pic_url
-      ORDER BY posts.created_at DESC
-      LIMIT 1`,
-      [userId]
-    );
+    const query = `
+      (
+        SELECT 
+          posts.*, 
+          users.username, 
+          users.profile_pic_url,
+          COALESCE(json_agg(post_images.image_url) 
+            FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images,
+          NULL AS shared_caption,
+          NULL AS shared_by_user_id,
+          NULL AS shared_by_username,
+          NULL AS shared_by_profile_pic_url,  -- Added field for shared post's user profile picture
+          NULL AS shared_at,
+          posts.created_at AS sort_time
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        LEFT JOIN post_images ON posts.id = post_images.post_id
+        WHERE posts.user_id = $1
+        GROUP BY posts.id, users.username, users.profile_pic_url
+      )
+
+      UNION ALL
+
+      (
+        SELECT 
+          posts.*, 
+          original_user.username, 
+          original_user.profile_pic_url,
+          COALESCE(json_agg(post_images.image_url) 
+            FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images,
+          shared_posts.shared_caption,
+          shared_by_user.id AS shared_by_user_id,
+          shared_by_user.username AS shared_by_username,
+          shared_by_user.profile_pic_url AS shared_by_profile_pic_url,  -- Added field for shared post's user profile picture
+          shared_posts.created_at AS shared_at,
+          shared_posts.created_at AS sort_time
+        FROM shared_posts
+        JOIN posts ON shared_posts.original_post_id = posts.id
+        JOIN users AS original_user ON posts.user_id = original_user.id
+        JOIN users AS shared_by_user ON shared_posts.user_id = shared_by_user.id
+        LEFT JOIN post_images ON posts.id = post_images.post_id
+        WHERE shared_posts.user_id = $1
+        GROUP BY posts.id, original_user.username, original_user.profile_pic_url, shared_by_user.id, shared_by_user.username, shared_by_user.profile_pic_url, shared_posts.shared_caption, shared_posts.created_at
+      )
+
+      ORDER BY sort_time DESC
+      LIMIT 1
+    `;
+
+    const result = await pool.query(query, [userId]);
 
     res.status(200).json({
       data: result.rows.length > 0 ? result.rows[0] : null,
@@ -666,6 +732,141 @@ export const getUserPostsWithImages = async (req, res) => {
   }
 };
 
+// Share a post
+export const sharePost = async (req, res) => {
+  const { original_post_id, shared_caption } = req.body;
+  const userId = req.user.id;
+
+  // Validate original_post_id
+  if (!original_post_id || isNaN(original_post_id)) {
+    return res
+      .status(400)
+      .json({ error: "Invalid or missing original_post_id" });
+  }
+
+  try {
+    // Check if the original post exists
+    const postCheck = await pool.query(`SELECT * FROM posts WHERE id = $1`, [
+      parseInt(original_post_id),
+    ]);
+
+    if (postCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Original post not found" });
+    }
+
+    // Insert the shared post into the shared_posts table
+    const result = await pool.query(
+      `INSERT INTO shared_posts (user_id, original_post_id, shared_caption) 
+       VALUES ($1, $2, $3) RETURNING *`,
+      [userId, parseInt(original_post_id), shared_caption]
+    );
+
+    res.status(201).json({ sharedPost: result.rows[0] });
+  } catch (error) {
+    console.error("Error sharing post:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all users who shared a specific post
+export const getUsersWhoSharedPost = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT 
+         users.id,
+         users.username,
+         users.profile_pic_url,
+         shared_posts.shared_caption,
+         shared_posts.created_at AS shared_at
+       FROM shared_posts
+       JOIN users ON shared_posts.user_id = users.id
+       WHERE shared_posts.original_post_id = $1
+       ORDER BY shared_posts.created_at DESC`,
+      [postId]
+    );
+
+    res.status(200).json({ shared_by_users: result.rows });
+  } catch (error) {
+    console.error("Error fetching shared users:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+//Get single shared post with likes and comments
+export const getSingleSharedPost = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const query = `
+      (
+        SELECT 
+          posts.*, 
+          users.username, 
+          users.profile_pic_url,
+          COALESCE(json_agg(post_images.image_url) 
+            FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images,
+          NULL AS shared_caption,
+          NULL AS shared_by_user_id,
+          NULL AS shared_by_username,
+          NULL AS shared_by_profile_pic_url,
+          NULL AS shared_at,
+          posts.created_at AS sort_time,
+          COALESCE(json_agg(reactions.reaction_type) FILTER (WHERE reactions.reaction_type IS NOT NULL), '[]') AS reactions,
+          COALESCE(json_agg(comments.content) FILTER (WHERE comments.content IS NOT NULL), '[]') AS comments
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        LEFT JOIN post_images ON posts.id = post_images.post_id
+        LEFT JOIN reactions ON posts.id = reactions.post_id
+        LEFT JOIN comments ON posts.id = comments.post_id
+        WHERE posts.id = $1
+        GROUP BY posts.id, users.username, users.profile_pic_url
+      )
+
+      UNION ALL
+
+      (
+        SELECT 
+          posts.*, 
+          original_user.username, 
+          original_user.profile_pic_url,
+          COALESCE(json_agg(post_images.image_url) 
+            FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images,
+          shared_posts.shared_caption,
+          shared_by_user.id AS shared_by_user_id,
+          shared_by_user.username AS shared_by_username,
+          shared_by_user.profile_pic_url AS shared_by_profile_pic_url,
+          shared_posts.created_at AS shared_at,
+          shared_posts.created_at AS sort_time,
+          COALESCE(json_agg(reactions.reaction_type) FILTER (WHERE reactions.reaction_type IS NOT NULL), '[]') AS reactions,
+          COALESCE(json_agg(comments.content) FILTER (WHERE comments.content IS NOT NULL), '[]') AS comments
+        FROM shared_posts
+        JOIN posts ON shared_posts.original_post_id = posts.id
+        JOIN users AS original_user ON posts.user_id = original_user.id
+        JOIN users AS shared_by_user ON shared_posts.user_id = shared_by_user.id
+        LEFT JOIN post_images ON posts.id = post_images.post_id
+        LEFT JOIN reactions ON posts.id = reactions.post_id
+        LEFT JOIN comments ON posts.id = comments.post_id
+        WHERE shared_posts.original_post_id = $1
+        GROUP BY posts.id, original_user.username, original_user.profile_pic_url, shared_by_user.id, shared_by_user.username, shared_by_user.profile_pic_url, shared_posts.shared_caption, shared_posts.created_at
+      )
+
+      ORDER BY sort_time DESC
+      LIMIT 1
+    `;
+
+    const result = await pool.query(query, [postId]);
+
+    res.status(200).json({
+      data: result.rows.length > 0 ? result.rows[0] : null,
+    });
+  } catch (error) {
+    console.error("Error fetching shared post with likes and comments:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Save a post for the current user
 export const savePost = async (req, res) => {
   const { post_id } = req.body;
@@ -692,7 +893,6 @@ export const savePost = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 // Unsave a post for the current user
 export const unsavePost = async (req, res) => {
@@ -753,7 +953,7 @@ export const getSavedPosts = async (req, res) => {
     );
 
     res.status(200).json({
-      page, 
+      page,
       posts: result.rows,
       hasMore: result.rows.length === limit,
     });
