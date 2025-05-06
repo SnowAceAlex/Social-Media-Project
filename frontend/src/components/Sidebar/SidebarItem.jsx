@@ -2,7 +2,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { GoHomeFill } from "react-icons/go";
 import { IoIosNotifications, IoIosNotificationsOutline} from "react-icons/io";
-
+import { IoBookmark } from "react-icons/io5";
+import { CiBookmark } from "react-icons/ci";
 
 const SidebarItem = ({ icon: Icon, label, isCollapsed, to, onClick, isActive, hasNewNotification }) => {
     const baseClasses = `
@@ -38,6 +39,16 @@ const SidebarItem = ({ icon: Icon, label, isCollapsed, to, onClick, isActive, ha
                             <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full" />
                         )}
                     </div>
+                ) : label === "Bookmarks" ? (
+                    <>
+                    {
+                        isActive ? (
+                            <IoBookmark size={26} />
+                        ) : (
+                            <CiBookmark size={26} />
+                        )
+                    }
+                    </>
                 ) : (
                     <Icon size={30} />
                 )

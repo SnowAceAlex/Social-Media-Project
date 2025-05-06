@@ -17,7 +17,9 @@ function PostReaction({
         reactions, 
         myReaction,
         handleReact, 
-        reactUsers}) {
+        reactUsers,
+        fetchSavePost,
+        fetchUnSavePost}) {
     const [bookmarked, setBookmarked] = useState(false);
     const {
         isHovering: isEmojiHovering,
@@ -50,6 +52,15 @@ function PostReaction({
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [showUserReact]);    
+
+    const handleBookmark =() => {
+        if (!bookmarked) {
+            fetchSavePost();
+        } else {
+            fetchUnSavePost();
+        }
+        setBookmarked(!bookmarked);
+    }
 
     return (
     <div className="h-12 flex justify-between items-center">
@@ -148,7 +159,7 @@ function PostReaction({
             </div>
             <div className="flex items-center gap-1 cursor-pointer hover:text-black
                             dark:text-dark-text-subtle dark:hover:text-dark-text"
-                onClick={() => setBookmarked(!bookmarked)}>
+                onClick={() => handleBookmark()}>
                 {bookmarked ? (
                     <IoBookmark size={20} className="mt-0.5 text-[#E1306C]" title="Book Mark"/>
                 ) : (

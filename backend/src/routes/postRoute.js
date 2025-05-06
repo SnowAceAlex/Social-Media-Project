@@ -60,6 +60,6 @@ router.get("/getpostswithimages/:userId", authenticate, getUserPostsWithImages);
 // Save Post
 router.post("/save", authenticate, savePost); // Save a post
 router.post("/unsave", authenticate, unsavePost); // Unsave a post
-router.get("/saved", authenticate, getSavedPosts); // Get all saved posts
+router.get("/me/saved", authenticate, getSavedPosts); // Get all saved posts
 
 export default router;
