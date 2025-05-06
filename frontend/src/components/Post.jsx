@@ -25,6 +25,8 @@ function Post({post = null, profile = null, loading = false}) {
     const isCurrentUser = currentUser && currentUser.user?.id === post?.user_id;
     const {
         commentCount,
+        fetchSavePost,
+        fetchUnSavePost,
         refreshCommentCount,
         deletePost,
         loading: deleteLoading
@@ -132,6 +134,8 @@ function Post({post = null, profile = null, loading = false}) {
                 myReaction={myReaction}
                 handleReact={handleReact}
                 reactUsers={reactUsers}
+                fetchSavePost={() => fetchSavePost(post.id)}
+                fetchUnSavePost={() => fetchUnSavePost(post.id)}
                 />
             {/* COMMENTS MODAL */}
             {

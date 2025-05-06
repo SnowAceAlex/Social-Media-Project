@@ -18,6 +18,9 @@ import {
   getPostsByHashtag,
   searchHashtags,
   getUserPostsWithImages,
+  savePost,
+  unsavePost,
+  getSavedPosts,
   sharePost,
   getUsersWhoSharedPost,
 } from "../controller/postController.js";
@@ -55,9 +58,5 @@ router.get("/hashtags/search", authenticate, searchHashtags);
 
 // Get posts with images by user ID
 router.get("/getpostswithimages/:userId", authenticate, getUserPostsWithImages); // Get posts with images by user ID
-
-//Share post
-router.post("/share", authenticate, sharePost); // Share a post
-router.get("/share/:postId", authenticate, getUsersWhoSharedPost); // Get user who shared the post
 
 export default router;

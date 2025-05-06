@@ -434,8 +434,8 @@ export const deletePost = async (req, res) => {
 // Get single post with likes and comments
 export const getSinglePost = async (req, res) => {
   const postId = parseInt(req.params.postId);
-  const userId = req.user.id;
   console.log("Post ID:", postId);
+  if (isNaN(postId)) return res.end();
   try {
     // Fetch the post details
     const postResult = await pool.query(
@@ -803,5 +803,101 @@ export const getUsersWhoSharedPost = async (req, res) => {
   } catch (error) {
     console.error("Error fetching shared users:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Save a post for the current user
+export const savePost = async (req, res) => {
+  const { post_id } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO saved_posts (user_id, post_id) 
+       VALUES ($1, $2) 
+       ON CONFLICT (user_id, post_id) DO NOTHING 
+       RETURNING *`,
+      [userId, post_id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(400).json({ error: "Post already saved" });
+    }
+
+    res
+      .status(201)
+      .json({ message: "Post saved successfully", savedPost: result.rows[0] });
+  } catch (error) {
+    console.error("Error saving post:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Unsave a post for the current user
+export const unsavePost = async (req, res) => {
+  const { post_id } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const result = await pool.query(
+      `DELETE FROM saved_posts WHERE user_id = $1 AND post_id = $2 RETURNING *`,
+      [userId, post_id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Saved post not found" });
+    }
+
+    res.status(200).json({ message: "Post unsaved successfully" });
+  } catch (error) {
+    console.error("Error unsaving post:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all saved posts for the current user with pagination
+export const getSavedPosts = async (req, res) => {
+  const userId = req.user.id;
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10; // Number of posts per page
+  const offset = (page - 1) * limit;
+  try {
+    const result = await pool.query(
+      `SELECT 
+          posts.*, 
+          json_build_object(
+              'id', users.id,
+              'username', users.username,
+              'profile_pic_url', users.profile_pic_url
+          ) AS profile,
+          COALESCE(
+            json_agg(DISTINCT post_images.image_url) 
+            FILTER (WHERE post_images.image_url IS NOT NULL), 
+            '[]'
+          ) AS images,
+          COUNT(DISTINCT reactions.user_id) AS react_count,
+          COUNT(DISTINCT comments.id) AS comment_count,
+          MIN(saved_posts.created_at) AS saved_at
+        FROM saved_posts
+        JOIN posts ON saved_posts.post_id = posts.id
+        JOIN users ON posts.user_id = users.id
+        LEFT JOIN post_images ON posts.id = post_images.post_id
+        LEFT JOIN reactions ON posts.id = reactions.post_id
+        LEFT JOIN comments ON posts.id = comments.post_id
+        WHERE saved_posts.user_id = $1
+        GROUP BY posts.id, users.id
+        ORDER BY saved_at DESC
+        LIMIT $2 OFFSET $3`,
+      [userId, limit, offset]
+    );
+
+    res.status(200).json({
+      page,
+      posts: result.rows,
+      hasMore: result.rows.length === limit,
+    });
+  } catch (error) {
+    console.error("Error fetching saved posts:", error);
+    res.status(500).json({ error: error.message });
   }
 };

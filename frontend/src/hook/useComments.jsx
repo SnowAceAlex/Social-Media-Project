@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { deleteCommentService, getComments, postComment } from "../services/PostService";
 
-export default function useComments(postId) {
+const useComments = (postId) => {
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -42,3 +42,5 @@ export default function useComments(postId) {
 
     return { comments, loading, deleteComment, addComment, refreshComments:fetchComments };
 }
+
+export default useComments;
