@@ -398,8 +398,8 @@ export const deletePost = async (req, res) => {
 // Get single post with likes and comments
 export const getSinglePost = async (req, res) => {
   const postId = parseInt(req.params.postId);
-  const userId = req.user.id;
   console.log("Post ID:", postId);
+  if (isNaN(postId)) return res.end(); 
   try {
     // Fetch the post details
     const postResult = await pool.query(
@@ -449,7 +449,6 @@ export const getSinglePost = async (req, res) => {
       },
       likes: reactionsResult.rows,
       comments: commentsResult.rows,
-      userId: userId,
     });
   } catch (error) {
     console.error("Error fetching post details:", error);
@@ -723,35 +722,38 @@ export const getSavedPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10; // Number of posts per page
   const offset = (page - 1) * limit;
-
   try {
     const result = await pool.query(
       `SELECT 
-         posts.*, 
-         users.username, 
-         users.profile_pic_url,
-         COALESCE(
-           json_agg(DISTINCT post_images.image_url) 
-           FILTER (WHERE post_images.image_url IS NOT NULL), 
-           '[]'
-         ) AS images,
-         COUNT(DISTINCT reactions.user_id) AS react_count,
-         COUNT(DISTINCT comments.id) AS comment_count
-       FROM saved_posts
-       JOIN posts ON saved_posts.post_id = posts.id
-       JOIN users ON posts.user_id = users.id
-       LEFT JOIN post_images ON posts.id = post_images.post_id
-       LEFT JOIN reactions ON posts.id = reactions.post_id
-       LEFT JOIN comments ON posts.id = comments.post_id
-       WHERE saved_posts.user_id = $1
-       GROUP BY posts.id, users.username, users.profile_pic_url
-       ORDER BY saved_posts.created_at DESC
-       LIMIT $2 OFFSET $3`,
+          posts.*, 
+          json_build_object(
+              'id', users.id,
+              'username', users.username,
+              'profile_pic_url', users.profile_pic_url
+          ) AS profile,
+          COALESCE(
+            json_agg(DISTINCT post_images.image_url) 
+            FILTER (WHERE post_images.image_url IS NOT NULL), 
+            '[]'
+          ) AS images,
+          COUNT(DISTINCT reactions.user_id) AS react_count,
+          COUNT(DISTINCT comments.id) AS comment_count,
+          MIN(saved_posts.created_at) AS saved_at
+        FROM saved_posts
+        JOIN posts ON saved_posts.post_id = posts.id
+        JOIN users ON posts.user_id = users.id
+        LEFT JOIN post_images ON posts.id = post_images.post_id
+        LEFT JOIN reactions ON posts.id = reactions.post_id
+        LEFT JOIN comments ON posts.id = comments.post_id
+        WHERE saved_posts.user_id = $1
+        GROUP BY posts.id, users.id
+        ORDER BY saved_at DESC
+        LIMIT $2 OFFSET $3`,
       [userId, limit, offset]
     );
 
     res.status(200).json({
-      page,
+      page, 
       posts: result.rows,
       hasMore: result.rows.length === limit,
     });
