@@ -11,7 +11,7 @@ export const SocketProvider = ({ children }) => {
     useEffect(() => {
         const newSocket = io("http://localhost:5000", {
         withCredentials: true,
-        autoConnect: false, 
+        autoConnect: true, 
         });
 
         setSocket(newSocket);
@@ -20,6 +20,26 @@ export const SocketProvider = ({ children }) => {
         console.log("Socket disconnected");
         setCurrentUser(null); 
         });
+
+        newSocket.on("connect", () => {
+            if (!currentUser) {
+                const stored = sessionStorage.getItem("currentUser");
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (parsed?.user?.id) {
+                        console.log("🔁 Auto rejoin room:", parsed.user.id);
+                        newSocket.emit("join", parsed.user.id, (res) => {
+                            if (res?.success) {
+                                setCurrentUser(parsed.user);
+                                console.log("✅ Auto rejoined after reload");
+                            } else {
+                                console.error("❌ Auto rejoin failed");
+                            }
+                        });
+                    }
+                }
+            }
+        })
 
         return () => {
         newSocket.disconnect();
@@ -45,7 +65,6 @@ export const SocketProvider = ({ children }) => {
             socket.emit("join", userData.id, (response) => {
             if (response?.success) {
                 setCurrentUser(userData); 
-                console.log(currentUser);
                 resolve();
             } else {
                 reject(new Error("Join room failed"));
