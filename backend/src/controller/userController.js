@@ -336,7 +336,6 @@ export const updateUserCover = async (req, res) => {
       message: "Cover updated successfully",
       user: result.rows[0],
     });
-
   } catch (error) {
     console.error("❌ Error updating cover_url:", error);
     res.status(500).json({ error: "Internal server error" });
