@@ -19,6 +19,7 @@ function PostReaction({
         handleReact, 
         reactUsers,
         fetchSavePost,
+        setShowShareModal,
         fetchUnSavePost}) {
     const [bookmarked, setBookmarked] = useState(false);
     const {
@@ -153,7 +154,8 @@ function PostReaction({
                 <span>{commentCount || 0}</span>
             </div>
             <div className="flex items-center gap-1 cursor-pointer hover:text-black
-                            dark:text-dark-text-subtle dark:hover:text-dark-text">
+                            dark:text-dark-text-subtle dark:hover:text-dark-text"
+                onClick={() => setShowShareModal(true)}>
                 <CiShare1 size={19} className="mt-1" title="Share"/>
                 <span>18</span>
             </div>
