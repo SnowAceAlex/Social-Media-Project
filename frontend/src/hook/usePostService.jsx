@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { deletePostById, editPostService, getCommentCountService, getImagesAndPost, getSavedPostsService, savePost, unSavePost } from "../services/PostService";
+import { deletePostById, editPostService, getCommentCountService, getImagesAndPost, getSavedPostsService, savePost, sharePostService, unSavePost } from "../services/PostService";
 
 const usePostService = (postId, { autoFetchCommentCount = true } = {}) => {    
     const [loading, setLoading] = useState(false);
@@ -121,6 +121,21 @@ const usePostService = (postId, { autoFetchCommentCount = true } = {}) => {
         }
     }, []);
 
+    //SHARE POST 
+    const fetchSharePost = async (postId, caption) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const result = await sharePostService(postId, caption);
+            return result;
+        } catch (err) {
+            setError(err?.error || "Error sharing post");
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return {
         editPost, 
         deletePost, 
@@ -133,6 +148,7 @@ const usePostService = (postId, { autoFetchCommentCount = true } = {}) => {
         savedPosts,
         savedPage,
         hasMoreSaved,
+        fetchSharePost,
         refreshCommentCount:fetchCommentCount, 
         loading, error };
 };

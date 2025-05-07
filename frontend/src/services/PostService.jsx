@@ -105,3 +105,13 @@ export const getSavedPostsService = async (page = 1) => {
         throw new Error(msg);
     }
 };
+
+// ------------------ SHARE POST ------------------
+export const sharePostService = async (postId, caption) => {
+    try {
+        const response = await API.post("/share", {original_post_id: postId, caption: caption })
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { error: "Something went wrong while share the post." };
+    }
+}
