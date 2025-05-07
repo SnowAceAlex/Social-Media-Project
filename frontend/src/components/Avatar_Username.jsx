@@ -3,13 +3,15 @@ import { LuDot } from "react-icons/lu";
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from "react-router-dom";
 
-function Avatar_Username({ profile = null, createdAt = null, loading = false }) {
+function Avatar_Username({ profile = null, createdAt = null, loading = false, setShowCommentModal = false }) {
     const profileLink = `/profile/${profile?.id}`;
 
     return (
-        <div className="flex gap-4 items-center dark:text-dark-text">
+        <div className={`flex gap-4 items-center dark:text-dark-text w-full
+                        ${setShowCommentModal && "cursor-pointer"}`}
+            onClick={()=>setShowCommentModal(true)}>
             <Link to={profileLink} className="flex gap-4 items-center">
-                <div className="w-13 aspect-square rounded-full overflow-hidden bg-gray-300">
+                <div className="w-10 aspect-square rounded-full overflow-hidden bg-gray-300">
                     {loading ? (
                         <div className="w-full h-full bg-gray-300 animate-pulse"></div>
                     ) : (
