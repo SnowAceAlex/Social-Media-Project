@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { formatCaption } from '../utils/formatCaption';
 
 const PostCaption = ({ caption }) => {
+    if(!caption) return;
     const [isExpanded, setIsExpanded] = useState(false);
     const [isOverflowing, setIsOverflowing] = useState(false);
 
@@ -23,7 +24,7 @@ const PostCaption = ({ caption }) => {
     }, [caption]);
 
     return (
-        <div className="pl-2 space-y-2">
+        <div className="pl-2 space-y-2 mb-4">
             <div
                 ref={captionRef}
                 className={`whitespace-pre-wrap transition-all break-words ${isExpanded ? '' : 'overflow-hidden'}`}                style={{

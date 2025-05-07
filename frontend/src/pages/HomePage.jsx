@@ -21,11 +21,11 @@ function HomePage() {
                     ) : (
                         post.map((item, index) => (
                             <div
-                            key={index}
-                            className="py-2 border-b-[1px] border-light-border dark:border-dark-border"
-                        >
-                        <Post key={item.post.id} post={item.post} profile={item.profile}/>
-                        </div>
+                                key={index}
+                                className="py-2 border-b-[1px] border-light-border dark:border-dark-border"
+                            >
+                            <Post key={item.post.id} post={item.post} profile={item.profile}/>
+                            </div>
                         ))
                     )}
                 </div>
