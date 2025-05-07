@@ -733,6 +733,42 @@ export const getUsersWhoSharedPost = async (req, res) => {
   }
 };
 
+// Get share count for a post
+export const getShareCount = async (req, res) => {
+  const postId = parseInt(req.params.postId);
+
+  // Validate postId
+  if (isNaN(postId)) {
+    return res.status(400).json({ error: "Invalid post ID" });
+  }
+
+  try {
+    // First check if the post exists
+    const postCheck = await pool.query(`SELECT id FROM posts WHERE id = $1`, [
+      postId,
+    ]);
+
+    if (postCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    // Get share count
+    const result = await pool.query(
+      `SELECT COUNT(*) AS share_count
+       FROM posts
+       WHERE shared_post_id = $1`,
+      [postId]
+    );
+
+    res.status(200).json({
+      shareCount: parseInt(result.rows[0].share_count),
+    });
+  } catch (error) {
+    console.error("Error fetching share count:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Save a post for the current user
 export const savePost = async (req, res) => {
   const { post_id } = req.body;
