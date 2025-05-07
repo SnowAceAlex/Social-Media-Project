@@ -13,6 +13,9 @@ import EditPostModal from "./Modal/EditPostModal";
 import { useReactions } from "../hook/useReaction";
 import ReactUserModal from "./Modal/ReactUserModal";
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
+import SharePostModal from "./Modal/SharePostModal";
+import PostImagesCarousel from "./PostComponents/PostImagesCarousel ";
+import SharedPostContent from "./PostComponents/SharedPostContent";
 
 function Post({post = null, profile = null, loading = false}) {
     const [showCommentModal, setShowCommentModal] = useState(false);
@@ -20,6 +23,7 @@ function Post({post = null, profile = null, loading = false}) {
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
     const [showEditPost, setShowEditPost] = useState(false);
     const [showUserReactModal, setShowUserReactModal] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
 
     const {currentUser} = getCurrentUser();
     const isCurrentUser = currentUser && currentUser.user?.id === post?.user_id;
@@ -59,7 +63,9 @@ function Post({post = null, profile = null, loading = false}) {
 
     return <div className="h-fit w-full px-4 pt-4 flex flex-col dark:text-dark-text">
             <div className="w-full h-[10%] flex items-center gap-4 pl-2 mb-2 relative">
-                <Avatar_Username profile={profile} loading={loading} createdAt={post.created_at}/>
+                <Avatar_Username 
+                profile={profile} loading={loading} createdAt={post.created_at}
+                setShowCommentModal={setShowCommentModal}/>
                 {
                     isCurrentUser && (
                         <div className="absolute right-2 top-1/2 -translate-y-1/2" title="More options"
@@ -72,59 +78,11 @@ function Post({post = null, profile = null, loading = false}) {
                 }
             </div>
             <PostCaption caption={post.caption}/>
-            {post.images?.length > 0 && (
-            <div className="w-full relative mt-4 flex items-center justify-center overflow-hidden rounded-lg">
-                {/* Slide wrapper */}
-                <div className="flex transition-transform duration-500 ease-in-out"
-                    style={{
-                    transform: `translateX(-${currentImgIndex * 100}%)`,
-                    width: `${post.images.length * 100}%`,
-                }}>
-                    {post.images.map((img, index) => (
-                        <img
-                        key={index}
-                        src={img}
-                        alt={`Post image ${index + 1}`}
-                        className="w-full object-cover flex-shrink-0"
-                        />
-                    ))}
-                </div>
-
-                    {/* Indicators */}
-                    <div className="absolute bottom-2 w-full flex justify-center gap-2">
-                    {post.images.length > 1 && post.images.map((_, index) => (
-                        <div
-                        key={index}
-                        onClick={() => setCurrentImgIndex(index)}
-                        className={`w-2 h-2 rounded-full cursor-pointer transition-all duration-200
-                            ${index === currentImgIndex ? "bg-white scale-110" : "bg-gray-400/50"}`}
-                        />
-                    ))}
-                    </div>
-
-                    {/* Prev / Next buttons */}
-                    {post.images.length > 1 && currentImgIndex > 0 && (
-                    <button
-                        onClick={() => setCurrentImgIndex((prev) => prev - 1)}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-dark-button/50 cursor-pointer text-white rounded-full hover:bg-opacity-70"
-                        title="Previous"
-                    >
-                        <HiChevronLeft size={24} />
-                    </button>
-                    )}
-                    {post.images.length > 1 && currentImgIndex < post.images.length - 1 && (
-                    <button
-                        onClick={() => setCurrentImgIndex((prev) => prev + 1)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-dark-button/50 cursor-pointer text-white rounded-full hover:bg-opacity-70"
-                        title="Next"
-                    >
-                        <HiChevronRight size={24} />
-                    </button>
-                    )}
-            </div>
+            {post.shared_post_id ? (
+                <SharedPostContent originalPost_id={post.shared_post_id}/>
+            ) : (
+                post.images?.length > 0 && <PostImagesCarousel images={post.images} />
             )}
-
-
             <PostReaction 
                 commentCount={commentCount}
                 setShowCommentModal={setShowCommentModal}
@@ -136,6 +94,7 @@ function Post({post = null, profile = null, loading = false}) {
                 reactUsers={reactUsers}
                 fetchSavePost={() => fetchSavePost(post.id)}
                 fetchUnSavePost={() => fetchUnSavePost(post.id)}
+                setShowShareModal={setShowShareModal}
                 />
             {/* COMMENTS MODAL */}
             {
@@ -196,6 +155,16 @@ function Post({post = null, profile = null, loading = false}) {
                     reactUsers={reactUsers.reactions}
                     onClose={() => setShowUserReactModal(false)}
                     />
+                )
+            }
+            {/* SHARE POST MODAL */}
+            {
+                showShareModal && (
+                    <SharePostModal
+                    post={post}
+                    loading={loading}
+                    profile={profile}
+                    onClose={()=>setShowShareModal(false)}/>
                 )
             }
         </div>

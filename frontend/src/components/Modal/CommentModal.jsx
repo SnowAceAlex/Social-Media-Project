@@ -18,6 +18,8 @@ import ReactUserModal from "./ReactUserModal";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import PostCaption from "../PostCaption";
 import useComments from "../../hook/useComments";
+import SharedPostCard from "../PostComponents/SharedPostCard";
+import SharePostModal from "./SharePostModal";
 
 function CommentModal({ post, profile, loading, onClose }) {
     const [showCommentOptions, setShowCommentOptions] = useState(false);
@@ -26,6 +28,8 @@ function CommentModal({ post, profile, loading, onClose }) {
     const [showUserReactModal, setShowUserReactModal] = useState(false);
     const { currentUser } = getCurrentUser();
     const [content, setContent] = useState("");
+    const [showShareModal, setShowShareModal] = useState(false);
+    
     const {
         comments,
         loading: loadingComments,
@@ -87,7 +91,7 @@ function CommentModal({ post, profile, loading, onClose }) {
                             "w-[35rem] sm:w-[40rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]" :
                             "w-[30rem] md:w-[35rem]"
                         }
-                        max-h-[95vh] overflow-auto shadow-md relative`}
+                        max-h-[95vh] overflow-hidden shadow-md relative`}
         >
             {/* Responsive Content */}
             <div className="flex flex-col md:flex-row gap-6 px-4 py-6 md:h-[95vh] md:p-0">
@@ -187,70 +191,75 @@ function CommentModal({ post, profile, loading, onClose }) {
                     className={`order-3 md:absolute flex flex-col
                                 ${
                                     (post.images && post.images.length > 0) ?
-                                    "md:top-36 md:right-4 lg:right-8 xl:right-6 md:ml-3 md:w-[20rem] lg:w-[23rem] xl:w-[28rem] md:h-[43rem]" 
-                                    : "md:top-36 md:right-6 md:ml-3 md:w-[32rem] md:h-[43rem]"
+                                    "md:top-32 md:right-4 lg:right-8 xl:right-6 md:ml-3 md:w-[20rem] lg:w-[23rem] xl:w-[28rem] md:h-[39rem]" 
+                                    : "md:top-32 md:right-6 md:ml-3 md:w-[32rem] md:h-[39rem]"
                                 }`}
                 >
                     {/* Comment list scrollable */}
-                    <div className="flex-1 overflow-auto pr-1">
-                    <span className="text-base leading-relaxed block pb-6 mb-4 pr-4 border-b border-light-border dark:border-dark-border">
-                        <PostCaption caption={post.caption}/>
-                    </span>
+                    <div className="flex-1 overflow-auto">
+                        <span className="text-base leading-relaxed block mb-4 border-b border-light-border dark:border-dark-border">
+                            <PostCaption caption={post.caption}/>
+                            {
+                                post.shared_post_id && 
+                                    <SharedPostCard 
+                                        originalPost_id={post.shared_post_id}/>
+                            }
+                        </span>
 
-                    <div className="flex flex-col gap-2 mb-6">
-                        {loadingComments ? (
-                        <div>Loading comments...</div>
-                        ) : (
-                        comments.map((user) => (
-                            <div
-                            key={user.id}
-                            className="p-2 rounded dark:text-white flex gap-4 text-md group"
-                            >
-                            {user.profile_pic_url && (
-                                <Link to={`/profile/${user.user_id}`}>
-                                <div className="w-10 h-10 rounded-full overflow-hidden">
-                                    <img
-                                    src={user.profile_pic_url}
-                                    title={user.username}
-                                    alt={user.username}
-                                    className="w-full h-full object-cover"
-                                    />
-                                </div>
-                                </Link>
-                            )}
-                            <div className="flex gap-1 flex-col">
-                                <span>
-                                <Link
-                                    to={`/profile/${user.user_id}`}
-                                    className="font-semibold cursor-pointer text-nowrap mr-2"
-                                    title={user.username}
+                        <div className="flex flex-col gap-2 mb-6">
+                            {loadingComments ? (
+                            <div>Loading comments...</div>
+                            ) : (
+                            comments.map((user) => (
+                                <div
+                                key={user.id}
+                                className="p-2 rounded dark:text-white flex gap-4 text-md group"
                                 >
-                                    {user.username}
-                                </Link>
-                                {user.content}
-                                </span>
-                                <div className=" dark:text-dark-input-disabled-text text-light-input-disabled-text text-[0.8rem] flex gap-4 items-center">
-                                {user.created_at &&
-                                    formatDistanceToNow(new Date(user.created_at), {
-                                    addSuffix: true,
-                                    })}
-                                {currentUser?.user?.id === user.user_id && (
-                                    <BsThreeDots
-                                    size={18}
-                                    className="hidden cursor-pointer group-hover:block"
-                                    title="More options"
-                                    onClick={() => {
-                                        setShowCommentOptions(true),
-                                        setCommentToDelete(user.id);
-                                    }}
-                                    />
+                                {user.profile_pic_url && (
+                                    <Link to={`/profile/${user.user_id}`}>
+                                    <div className="w-10 h-10 rounded-full overflow-hidden">
+                                        <img
+                                        src={user.profile_pic_url}
+                                        title={user.username}
+                                        alt={user.username}
+                                        className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    </Link>
                                 )}
+                                <div className="flex gap-1 flex-col">
+                                    <span>
+                                    <Link
+                                        to={`/profile/${user.user_id}`}
+                                        className="font-semibold cursor-pointer text-nowrap mr-2"
+                                        title={user.username}
+                                    >
+                                        {user.username}
+                                    </Link>
+                                    {user.content}
+                                    </span>
+                                    <div className=" dark:text-dark-input-disabled-text text-light-input-disabled-text text-[0.8rem] flex gap-4 items-center">
+                                    {user.created_at &&
+                                        formatDistanceToNow(new Date(user.created_at), {
+                                        addSuffix: true,
+                                        })}
+                                    {currentUser?.user?.id === user.user_id && (
+                                        <BsThreeDots
+                                        size={18}
+                                        className="hidden cursor-pointer group-hover:block"
+                                        title="More options"
+                                        onClick={() => {
+                                            setShowCommentOptions(true),
+                                            setCommentToDelete(user.id);
+                                        }}
+                                        />
+                                    )}
+                                    </div>
                                 </div>
-                            </div>
-                            </div>
-                        ))
-                        )}
-                    </div>
+                                </div>
+                            ))
+                            )}
+                        </div>
                     </div>
 
                     {/* Fixed input area always visible */}
@@ -265,6 +274,7 @@ function CommentModal({ post, profile, loading, onClose }) {
                         reactUsers={reactUsers}
                         fetchSavePost={() => fetchSavePost(post.id)}
                         fetchUnSavePost={() => fetchUnSavePost(post.id)}
+                        setShowShareModal={setShowShareModal}
                     />
 
                     <div className="flex items-center border border-transparent focus-within:border-black 
@@ -333,6 +343,16 @@ function CommentModal({ post, profile, loading, onClose }) {
             onClose={() => setShowUserReactModal(false)}
             />
         )}
+         {/* SHARE POST MODAL */}
+        {
+                showShareModal && (
+                    <SharePostModal
+                    post={post}
+                    loading={loading}
+                    profile={profile}
+                    onClose={()=>setShowShareModal(false)}/>
+                )
+        }
         </div>
     );
 }
