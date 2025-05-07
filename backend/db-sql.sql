@@ -18,7 +18,10 @@ CREATE TABLE posts (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     caption TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    shared_post_id INTEGER REFERENCES posts(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT check_self_reference CHECK (shared_post_id IS NULL OR shared_post_id <> id)
 );
 
 -- Reactions Table
@@ -89,11 +92,3 @@ CREATE TABLE post_images (
   image_url TEXT NOT NULL
 );
 
--- Shared Posts Table
-CREATE TABLE shared_posts (
-    id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id) ON DELETE CASCADE,       -- Who shared
-    original_post_id INT REFERENCES posts(id) ON DELETE CASCADE,  -- The original post
-    shared_caption TEXT,                                       -- Optional message or caption
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
