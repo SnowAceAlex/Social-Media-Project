@@ -275,6 +275,7 @@ function CommentModal({ post, profile, loading, onClose }) {
                         fetchSavePost={() => fetchSavePost(post.id)}
                         fetchUnSavePost={() => fetchUnSavePost(post.id)}
                         setShowShareModal={setShowShareModal}
+                        isSaved={post.is_saved}
                     />
 
                     <div className="flex items-center border border-transparent focus-within:border-black 
