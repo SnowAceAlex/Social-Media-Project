@@ -20,7 +20,8 @@ function PostReaction({
         reactUsers,
         fetchSavePost,
         setShowShareModal,
-        fetchUnSavePost}) {
+        fetchUnSavePost,
+        isSaved}) {
     const [bookmarked, setBookmarked] = useState(false);
     const {
         isHovering: isEmojiHovering,
@@ -52,7 +53,12 @@ function PostReaction({
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [showUserReact]);    
+    }, [showUserReact]); 
+    console.log(isSaved)
+    useEffect(() => {
+        if(isSaved) setBookmarked(true)
+            else setBookmarked(false)
+    }, [isSaved])
 
     const handleBookmark =() => {
         if (!bookmarked) {

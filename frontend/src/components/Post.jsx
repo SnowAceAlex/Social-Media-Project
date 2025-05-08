@@ -59,8 +59,9 @@ function Post({post = null, profile = null, loading = false}) {
     const [direction, setDirection] = useState(0);
     useEffect(() => {
         setCurrentImgIndex(0);
-    }, [post.id]);      
+    }, [post.id]);     
 
+    console.log(post)
     return <div className="h-fit w-full px-4 pt-4 flex flex-col dark:text-dark-text">
             <div className="w-full h-[10%] flex items-center gap-4 pl-2 mb-2 relative">
                 <Avatar_Username 
@@ -95,6 +96,7 @@ function Post({post = null, profile = null, loading = false}) {
                 fetchSavePost={() => fetchSavePost(post.id)}
                 fetchUnSavePost={() => fetchUnSavePost(post.id)}
                 setShowShareModal={setShowShareModal}
+                isSaved={post.is_saved}
                 />
             {/* COMMENTS MODAL */}
             {
