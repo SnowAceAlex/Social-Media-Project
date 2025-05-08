@@ -32,7 +32,7 @@ import upload from "../middleware/multer.js";
 const router = Router();
 
 router.post("/", authenticate, upload.array("images", 5), createPost); // Create a new post
-router.get("/", getAllPosts); // Get all posts
+router.get("/",authenticate, getAllPosts); // Get all posts
 
 // Reactions
 router.post("/react", authenticate, reactToPost); // React to a post (like, haha, wow, cry, angry)
@@ -54,7 +54,7 @@ router.put("/:postId", authenticate, editPost); // Edit a post
 router.get("/:userId/latestPost", authenticate, getLatestPostByUser); // Get latest post by user
 
 //Hashtag
-router.get("/hashtag/:tag", getPostsByHashtag);
+router.get("/hashtag/:tag", authenticate, getPostsByHashtag);
 router.get("/hashtags/search", authenticate, searchHashtags);
 
 // Get posts with images by user ID
