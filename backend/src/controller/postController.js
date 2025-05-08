@@ -88,7 +88,7 @@ export const getAllPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
   const offset = (page - 1) * limit;
-  const userId = req.query.userId;
+  const userId = req.query.userId; // người dùng hiện tại
 
   try {
     const baseQuery = `
@@ -96,19 +96,25 @@ export const getAllPosts = async (req, res) => {
         posts.*, 
         users.username, 
         users.profile_pic_url,
-        COALESCE(json_agg(post_images.image_url) FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images
+        COALESCE(
+          json_agg(post_images.image_url) 
+          FILTER (WHERE post_images.image_url IS NOT NULL), 
+          '[]'
+        ) AS images,
+        EXISTS (
+          SELECT 1 FROM saved_posts 
+          WHERE saved_posts.post_id = posts.id 
+          AND saved_posts.user_id = $3
+        ) AS is_saved
       FROM posts
       JOIN users ON posts.user_id = users.id
       LEFT JOIN post_images ON posts.id = post_images.post_id
-      ${userId ? "WHERE posts.user_id = $3" : ""}
       GROUP BY posts.id, users.username, users.profile_pic_url
       ORDER BY posts.created_at DESC
       LIMIT $1 OFFSET $2
     `;
 
-    const values = userId ? [limit, offset, userId] : [limit, offset];
-
-    const result = await pool.query(baseQuery, values);
+    const result = await pool.query(baseQuery, [limit, offset, userId]);
 
     res.status(200).json({
       page,
@@ -398,57 +404,98 @@ export const deletePost = async (req, res) => {
 // Get single post with likes and comments
 export const getSinglePost = async (req, res) => {
   const postId = parseInt(req.params.postId);
-  console.log("Post ID:", postId);
-  if (isNaN(postId)) return res.end();
+  const userId = req.query.userId; // từ client gửi lên (người dùng hiện tại)
+
+  if (isNaN(postId)) return res.status(400).json({ error: "Invalid post ID" });
+
   try {
-    // Fetch the post details
-    const postResult = await pool.query(
-      `SELECT posts.*, users.username, users.profile_pic_url
-       FROM posts 
-       JOIN users ON posts.user_id = users.id 
-       WHERE posts.id = $1`,
-      [postId]
+    const result = await pool.query(
+      `
+      SELECT 
+        posts.*,
+        users.username,
+        users.profile_pic_url,
+
+        -- Images
+        COALESCE(
+          json_agg(DISTINCT post_images.image_url) 
+          FILTER (WHERE post_images.image_url IS NOT NULL), 
+          '[]'
+        ) AS images,
+
+        -- Reactions list
+        COALESCE(
+          json_agg(DISTINCT jsonb_build_object(
+            'user_id', reactions.user_id,
+            'reaction_type', reactions.reaction_type,
+            'username', react_users.username,
+            'profile_pic_url', react_users.profile_pic_url
+          )) FILTER (WHERE reactions.user_id IS NOT NULL),
+          '[]'
+        ) AS reactions,
+
+        -- Comments
+        COALESCE(
+          json_agg(DISTINCT jsonb_build_object(
+            'id', comments.id,
+            'user_id', comments.user_id,
+            'content', comments.content,
+            'created_at', comments.created_at,
+            'username', comment_users.username,
+            'profile_pic_url', comment_users.profile_pic_url
+          )) FILTER (WHERE comments.id IS NOT NULL),
+          '[]'
+        ) AS comments,
+
+        -- Saved state
+        EXISTS (
+          SELECT 1 FROM saved_posts 
+          WHERE saved_posts.post_id = posts.id 
+          AND saved_posts.user_id = $2
+        ) AS is_saved,
+
+        -- My reaction type (string or null)
+        (
+          SELECT reaction_type 
+          FROM reactions 
+          WHERE reactions.post_id = posts.id 
+          AND reactions.user_id = $2
+          LIMIT 1
+        ) AS my_reaction
+
+      FROM posts
+      JOIN users ON posts.user_id = users.id
+      LEFT JOIN post_images ON posts.id = post_images.post_id
+      LEFT JOIN reactions ON posts.id = reactions.post_id
+      LEFT JOIN users AS react_users ON reactions.user_id = react_users.id
+      LEFT JOIN comments ON posts.id = comments.post_id
+      LEFT JOIN users AS comment_users ON comments.user_id = comment_users.id
+      WHERE posts.id = $1
+      GROUP BY posts.id, users.username, users.profile_pic_url
+      `,
+      [postId, userId]
     );
 
-    if (postResult.rows.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: "Post not found" });
     }
 
-    const post = postResult.rows[0];
-    // Fetch images of the post
-    const imageResult = await pool.query(
-      `SELECT image_url FROM post_images WHERE post_id = $1`,
-      [postId]
-    );
-    const images = imageResult.rows.map((row) => row.image_url);
+    const post = result.rows[0];
 
-    // Fetch likes for the post
-    const reactionsResult = await pool.query(
-      `SELECT users.id, users.username, users.profile_pic_url, reactions.reaction_type
-       FROM reactions
-       JOIN users ON reactions.user_id = users.id
-       WHERE reactions.post_id = $1`,
-      [postId]
-    );
-
-    // Fetch comments for the post
-    const commentsResult = await pool.query(
-      `SELECT comments.*, users.username, users.profile_pic_url 
-       FROM comments 
-       JOIN users ON comments.user_id = users.id 
-       WHERE post_id = $1 
-       ORDER BY comments.created_at ASC`,
-      [postId]
-    );
-    console.log(images);
-    // Include userId in the response
     res.status(200).json({
       post: {
-        ...post,
-        images,
+        id: post.id,
+        user_id: post.user_id,
+        caption: post.caption,
+        created_at: post.created_at,
+        username: post.username,
+        profile_pic_url: post.profile_pic_url,
+        images: post.images,
+        is_saved: post.is_saved,
+        my_reaction: post.my_reaction,
       },
-      likes: reactionsResult.rows,
-      comments: commentsResult.rows,
+      likes: post.reactions,
+      comments: post.comments,
     });
   } catch (error) {
     console.error("Error fetching post details:", error);
@@ -515,7 +562,9 @@ export const editPost = async (req, res) => {
 // Get the latest post from a specific user
 export const getLatestPostByUser = async (req, res) => {
   const userId = req.params.userId;
+  const currentUserId =  req.user.id;
 
+  console.log(userId + " " + currentUserId)
   try {
     const result = await pool.query(
       `SELECT 
@@ -523,7 +572,12 @@ export const getLatestPostByUser = async (req, res) => {
         users.username, 
         users.profile_pic_url,
         COALESCE(json_agg(post_images.image_url) 
-          FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images
+          FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images,
+        EXISTS (
+          SELECT 1 FROM saved_posts 
+          WHERE saved_posts.post_id = posts.id 
+          AND saved_posts.user_id = $2
+        ) AS is_saved
       FROM posts
       JOIN users ON posts.user_id = users.id
       LEFT JOIN post_images ON posts.id = post_images.post_id
@@ -531,7 +585,7 @@ export const getLatestPostByUser = async (req, res) => {
       GROUP BY posts.id, users.username, users.profile_pic_url
       ORDER BY posts.created_at DESC
       LIMIT 1`,
-      [userId]
+      [userId, currentUserId]
     );
 
     res.status(200).json({

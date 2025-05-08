@@ -50,7 +50,7 @@ router.delete("/comments/:commentId", authenticate, deleteComment); // Delete a 
 router.delete("/:postId", authenticate, deletePost); // Delete a post
 router.get("/:postId", authenticate, getSinglePost); // Get a single post with comments + reactions
 router.put("/:postId", authenticate, editPost); // Edit a post
-router.get("/:userId/latestPost", getLatestPostByUser); // Get latest post by user
+router.get("/:userId/latestPost", authenticate, getLatestPostByUser); // Get latest post by user
 
 //Hashtag
 router.get("/hashtag/:tag", getPostsByHashtag);
