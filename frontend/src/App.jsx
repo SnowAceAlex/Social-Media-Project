@@ -22,19 +22,19 @@ function App() {
   useEffect(()=>{
     const timer = setTimeout(()=>{
       setLoading(false);
-    }, 1500)
+    }, 2000)
     return () => clearTimeout(timer); 
   },[]);
 
   return (
-  <>
+  <ThemeProvider>
   {
     isLoading ? (
-      <div className="flex items-center justify-center h-screen bg-white">    
-        <img src="/InstaLogo.png" className="w-32"/>
+      <div className="flex items-center justify-center h-screen bg-white dark:bg-dark">    
+        <img src="/Insta_logo.gif" className="w-35"/>
       </div>
     ) : (
-      <ThemeProvider>
+      <>
         <SocketProvider>
           <NotificationProvider>
             <Router>
@@ -78,10 +78,10 @@ function App() {
             </Router>
           </NotificationProvider>
         </SocketProvider>
-      </ThemeProvider>
+      </>
     )
   }
-  </>
+  </ThemeProvider>
   );
 }
 

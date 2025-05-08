@@ -38,8 +38,10 @@ function CommentModal({ post, profile, loading, onClose }) {
         deleteComment,
     } = useComments(post?.id)
     const { 
-        commentCount, 
+        commentCount,
+        shareCount, 
         refreshCommentCount, 
+        refreshShareCount, 
         fetchSavePost,
         fetchUnSavePost
     } = usePostService(post.id);
@@ -266,6 +268,7 @@ function CommentModal({ post, profile, loading, onClose }) {
                     <div className="md:sticky bottom-0 bg-white dark:bg-dark">
                     <PostReaction
                         commentCount={commentCount}
+                        shareCount={shareCount}
                         setShowUserReactModal={setShowUserReactModal}
                         sortedReactions={sortedReactions}
                         reactions={reactions}
@@ -338,6 +341,7 @@ function CommentModal({ post, profile, loading, onClose }) {
             }}
             />
         )}
+        {/* USERS REACTION MODAL */}
         {showUserReactModal && (
             <ReactUserModal
             reactUsers={reactUsers.reactions}
@@ -351,7 +355,7 @@ function CommentModal({ post, profile, loading, onClose }) {
                     post={post}
                     loading={loading}
                     profile={profile}
-                    onClose={()=>setShowShareModal(false)}/>
+                    onClose={()=>{setShowShareModal(false), refreshShareCount()}}/>
                 )
         }
         </div>
