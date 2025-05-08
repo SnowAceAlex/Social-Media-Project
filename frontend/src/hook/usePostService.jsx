@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { deletePostById, editPostService, getCommentCountService, getImagesAndPost, getSavedPostsService, savePost, sharePostService, unSavePost } from "../services/PostService";
+import { deletePostById, editPostService, getCommentCountService, getImagesAndPost, getSavedPostsService, getShareCountService, savePost, sharePostService, unSavePost } from "../services/PostService";
 
 const usePostService = (postId, { autoFetchCommentCount = true } = {}) => {    
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [commentCount, setCommentCount] = useState(0);
     const [postsWithImages, setPostsWithImages] = useState([]);
+    const [shareCount, setShareCount] = useState(0);
 
     const [savedPosts, setSavedPosts] = useState([]);
     const [savedPage, setSavedPage] = useState(1);
@@ -53,6 +54,20 @@ const usePostService = (postId, { autoFetchCommentCount = true } = {}) => {
         }
     }, [postId]);
 
+    const fetchShareCount = useCallback(async () => {
+        if (!postId) return;
+        setLoading(true);
+        setError(null);
+        try {
+            const count = await getShareCountService(postId);
+            setShareCount(count);
+        } catch (err) {
+            setError(err?.response?.data?.error || "Error fetching share count");
+        } finally {
+            setLoading(false);
+        }
+    }, [postId]);
+
     const fetchPostsWithImages = useCallback(async (userId) => {
         setLoading(true);
         setError(null);
@@ -70,6 +85,10 @@ const usePostService = (postId, { autoFetchCommentCount = true } = {}) => {
     useEffect(() => {
         if (autoFetchCommentCount && postId) fetchCommentCount();    
     }, [fetchCommentCount, postId]);
+
+    useEffect(() => {
+        if (postId) fetchShareCount();
+    }, [postId, fetchShareCount]);    
 
     //SAVE POST
     const fetchSavePost =  async (postId) => {
@@ -139,6 +158,8 @@ const usePostService = (postId, { autoFetchCommentCount = true } = {}) => {
     return {
         editPost, 
         deletePost, 
+        shareCount,
+        refreshShareCount: fetchShareCount, 
         fetchPostsWithImages,
         postsWithImages,
         commentCount, 

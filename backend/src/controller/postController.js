@@ -88,7 +88,8 @@ export const getAllPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
   const offset = (page - 1) * limit;
-  const userId = req.query.userId; // người dùng hiện tại
+  const userId = req.query.userId;
+  const currentUserId = req.user.id;
 
   try {
     const baseQuery = `
@@ -96,25 +97,21 @@ export const getAllPosts = async (req, res) => {
         posts.*, 
         users.username, 
         users.profile_pic_url,
-        COALESCE(
-          json_agg(post_images.image_url) 
-          FILTER (WHERE post_images.image_url IS NOT NULL), 
-          '[]'
-        ) AS images,
-        EXISTS (
-          SELECT 1 FROM saved_posts 
-          WHERE saved_posts.post_id = posts.id 
-          AND saved_posts.user_id = $3
-        ) AS is_saved
+        COALESCE(json_agg(post_images.image_url) FILTER (WHERE post_images.image_url IS NOT NULL), '[]') AS images,
+        ${userId 
+          && "EXISTS ( SELECT 1 FROM saved_posts WHERE saved_posts.post_id = posts.id AND saved_posts.user_id = $4) AS is_saved"} 
       FROM posts
       JOIN users ON posts.user_id = users.id
       LEFT JOIN post_images ON posts.id = post_images.post_id
+      ${userId ? "WHERE posts.user_id = $3" : ""}
       GROUP BY posts.id, users.username, users.profile_pic_url
       ORDER BY posts.created_at DESC
       LIMIT $1 OFFSET $2
     `;
 
-    const result = await pool.query(baseQuery, [limit, offset, userId]);
+    const values = userId ? [limit, offset, userId, currentUserId] : [limit, offset];
+
+    const result = await pool.query(baseQuery, values);
 
     res.status(200).json({
       page,
@@ -404,7 +401,8 @@ export const deletePost = async (req, res) => {
 // Get single post with likes and comments
 export const getSinglePost = async (req, res) => {
   const postId = parseInt(req.params.postId);
-  const userId = req.query.userId; // từ client gửi lên (người dùng hiện tại)
+  const userId = req.query.userId;
+  const currentUserId = req.user.id;
 
   if (isNaN(postId)) return res.status(400).json({ error: "Invalid post ID" });
 
@@ -451,7 +449,7 @@ export const getSinglePost = async (req, res) => {
         EXISTS (
           SELECT 1 FROM saved_posts 
           WHERE saved_posts.post_id = posts.id 
-          AND saved_posts.user_id = $2
+          AND saved_posts.user_id = $3
         ) AS is_saved,
 
         -- My reaction type (string or null)
@@ -473,7 +471,7 @@ export const getSinglePost = async (req, res) => {
       WHERE posts.id = $1
       GROUP BY posts.id, users.username, users.profile_pic_url
       `,
-      [postId, userId]
+      [postId, userId, currentUserId]
     );
 
     if (result.rows.length === 0) {
@@ -493,6 +491,7 @@ export const getSinglePost = async (req, res) => {
         images: post.images,
         is_saved: post.is_saved,
         my_reaction: post.my_reaction,
+        shared_post_id: post.shared_post_id
       },
       likes: post.reactions,
       comments: post.comments,
@@ -564,7 +563,6 @@ export const getLatestPostByUser = async (req, res) => {
   const userId = req.params.userId;
   const currentUserId =  req.user.id;
 
-  console.log(userId + " " + currentUserId)
   try {
     const result = await pool.query(
       `SELECT 
@@ -599,6 +597,7 @@ export const getLatestPostByUser = async (req, res) => {
 
 export const getPostsByHashtag = async (req, res) => {
   const { tag } = req.params;
+  const currentUserId = req.user.id;
 
   try {
     const result = await pool.query(
@@ -612,7 +611,12 @@ export const getPostsByHashtag = async (req, res) => {
            json_agg(post_images.image_url) 
            FILTER (WHERE post_images.image_url IS NOT NULL), 
            '[]'
-         ) AS images
+         ) AS images,
+        EXISTS (
+          SELECT 1 FROM saved_posts 
+          WHERE saved_posts.post_id = posts.id 
+          AND saved_posts.user_id = $2
+        ) AS is_saved
        FROM posts
        JOIN post_hashtags ON posts.id = post_hashtags.post_id
        JOIN hashtags ON post_hashtags.hashtag_id = hashtags.id
@@ -621,7 +625,7 @@ export const getPostsByHashtag = async (req, res) => {
        WHERE LOWER(hashtags.name) = $1
        GROUP BY posts.id, users.username, users.full_name, users.email, users.profile_pic_url
        ORDER BY posts.created_at DESC`,
-      [tag.toLowerCase()]
+      [tag.toLowerCase(), currentUserId]
     );
 
     const formData = result.rows.map((row) => ({
@@ -687,6 +691,8 @@ export const searchHashtags = async (req, res) => {
 // Get posts by a specific user with images
 export const getUserPostsWithImages = async (req, res) => {
   const userId = parseInt(req.params.userId);
+  const currentUserId = req.user.id;
+
   try {
     const result = await pool.query(
       `SELECT 
@@ -696,6 +702,11 @@ export const getUserPostsWithImages = async (req, res) => {
           FILTER (WHERE post_images.image_url IS NOT NULL), 
           '[]'
         ) AS images,
+        EXISTS (
+          SELECT 1 FROM saved_posts 
+          WHERE saved_posts.post_id = posts.id 
+          AND saved_posts.user_id = $2
+        ) AS is_saved,
         COUNT(DISTINCT reactions.user_id) AS react_count,
         COUNT(DISTINCT comments.id) AS comment_count
       FROM posts
@@ -707,7 +718,7 @@ export const getUserPostsWithImages = async (req, res) => {
       HAVING COUNT(post_images.image_url) > 0
       ORDER BY posts.created_at DESC
       `,
-      [userId]
+      [userId,currentUserId]
     );
 
     res.status(200).json({
@@ -892,6 +903,11 @@ export const getSavedPosts = async (req, res) => {
             FILTER (WHERE post_images.image_url IS NOT NULL), 
             '[]'
           ) AS images,
+          EXISTS (
+            SELECT 1 FROM saved_posts 
+            WHERE saved_posts.post_id = posts.id 
+            AND saved_posts.user_id = $1
+          ) AS is_saved,
           COUNT(DISTINCT reactions.user_id) AS react_count,
           COUNT(DISTINCT comments.id) AS comment_count,
           MIN(saved_posts.created_at) AS saved_at

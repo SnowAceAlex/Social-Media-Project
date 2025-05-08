@@ -12,6 +12,7 @@ import useDelayedHover from '../hook/Helper/useDelayHover';
 function PostReaction({
         sortedReactions, 
         commentCount, 
+        shareCount,
         setShowUserReactModal,
         setShowCommentModal, 
         reactions, 
@@ -54,7 +55,6 @@ function PostReaction({
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [showUserReact]); 
-    console.log(isSaved)
     useEffect(() => {
         if(isSaved) setBookmarked(true)
             else setBookmarked(false)
@@ -163,7 +163,7 @@ function PostReaction({
                             dark:text-dark-text-subtle dark:hover:text-dark-text"
                 onClick={() => setShowShareModal(true)}>
                 <CiShare1 size={19} className="mt-1" title="Share"/>
-                <span>18</span>
+                <span>{shareCount}</span>
             </div>
             <div className="flex items-center gap-1 cursor-pointer hover:text-black
                             dark:text-dark-text-subtle dark:hover:text-dark-text"

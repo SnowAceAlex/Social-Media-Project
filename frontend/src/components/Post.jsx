@@ -12,7 +12,6 @@ import ConfirmModal from "./Modal/ConfirmModal";
 import EditPostModal from "./Modal/EditPostModal";
 import { useReactions } from "../hook/useReaction";
 import ReactUserModal from "./Modal/ReactUserModal";
-import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import SharePostModal from "./Modal/SharePostModal";
 import PostImagesCarousel from "./PostComponents/PostImagesCarousel ";
 import SharedPostContent from "./PostComponents/SharedPostContent";
@@ -29,9 +28,11 @@ function Post({post = null, profile = null, loading = false}) {
     const isCurrentUser = currentUser && currentUser.user?.id === post?.user_id;
     const {
         commentCount,
+        shareCount,
         fetchSavePost,
         fetchUnSavePost,
         refreshCommentCount,
+        refreshShareCount, 
         deletePost,
         loading: deleteLoading
     } = usePostService(post.id);
@@ -55,13 +56,7 @@ function Post({post = null, profile = null, loading = false}) {
             console.error("Failed to delete post:", err);
         }
     };
-    const [currentImgIndex, setCurrentImgIndex] = useState(0);
-    const [direction, setDirection] = useState(0);
-    useEffect(() => {
-        setCurrentImgIndex(0);
-    }, [post.id]);     
 
-    console.log(post)
     return <div className="h-fit w-full px-4 pt-4 flex flex-col dark:text-dark-text">
             <div className="w-full h-[10%] flex items-center gap-4 pl-2 mb-2 relative">
                 <Avatar_Username 
@@ -86,6 +81,7 @@ function Post({post = null, profile = null, loading = false}) {
             )}
             <PostReaction 
                 commentCount={commentCount}
+                shareCount={shareCount}
                 setShowCommentModal={setShowCommentModal}
                 setShowUserReactModal={setShowUserReactModal}
                 sortedReactions={sortedReactions}
@@ -166,7 +162,7 @@ function Post({post = null, profile = null, loading = false}) {
                     post={post}
                     loading={loading}
                     profile={profile}
-                    onClose={()=>setShowShareModal(false)}/>
+                    onClose={()=>{setShowShareModal(false), refreshShareCount()}}/>
                 )
             }
         </div>

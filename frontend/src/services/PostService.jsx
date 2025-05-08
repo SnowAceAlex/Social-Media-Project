@@ -115,3 +115,13 @@ export const sharePostService = async (postId, caption) => {
         throw error.response?.data || { error: "Something went wrong while share the post." };
     }
 }
+
+export const getShareCountService = async (postId) => {
+    try {
+        const res = await API.get(`/shared/${postId}/count`);
+        return res.data.shareCount;
+    } catch (error) {
+        console.error("Failed to fetch share count", error);
+        return 0;
+    }
+};
