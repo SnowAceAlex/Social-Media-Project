@@ -9,7 +9,7 @@ export const SocketProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
-        const newSocket = io("http://localhost:5000", {
+        const newSocket = io("http://localhost:3001", {
         withCredentials: true,
         autoConnect: true, 
         });

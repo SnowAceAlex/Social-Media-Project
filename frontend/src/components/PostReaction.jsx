@@ -168,11 +168,18 @@ function PostReaction({
             <div className="flex items-center gap-1 cursor-pointer hover:text-black
                             dark:text-dark-text-subtle dark:hover:text-dark-text"
                 onClick={() => handleBookmark()}>
-                {bookmarked ? (
-                    <IoBookmark size={20} className="mt-0.5 text-[#E1306C]" title="Book Mark"/>
-                ) : (
-                    <CiBookmark size={20} className="mt-0.5" title="Book Mark" />
-                )}
+                <motion.div
+                    key={bookmarked ? "saved" : "unsaved"}
+                    initial={{ scale: 1 }}
+                    animate={{ scale: [1, 1.3, 1] }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
+                    {bookmarked ? (
+                        <IoBookmark size={20} className="mt-0.5 text-[#E1306C]" title="Book Mark"/>
+                    ) : (
+                        <CiBookmark size={20} className="mt-0.5" title="Book Mark" />
+                    )}
+                </motion.div>
             </div>
         </div>
     </div>
