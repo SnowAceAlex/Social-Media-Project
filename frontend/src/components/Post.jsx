@@ -34,7 +34,7 @@ function Post({post = null, profile = null, loading = false}) {
         refreshCommentCount,
         refreshShareCount, 
         deletePost,
-        loading: deleteLoading
+        loading: postServiceLoading,
     } = usePostService(post.id);
 
     //REACTION
@@ -44,7 +44,8 @@ function Post({post = null, profile = null, loading = false}) {
         reactUsers,
         refresh,
         react: handleReact,
-        myReaction
+        myReaction,
+        loading: reactionLoading,
     } = useReactions(post.id);
 
     // DELETE POST
@@ -56,6 +57,7 @@ function Post({post = null, profile = null, loading = false}) {
             console.error("Failed to delete post:", err);
         }
     };
+    const isPostReady = !loading && !postServiceLoading && !reactionLoading;
 
     return <div className="h-fit w-full px-4 pt-4 flex flex-col dark:text-dark-text">
             <div className="w-full h-[10%] flex items-center gap-4 pl-2 mb-2 relative">

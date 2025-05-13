@@ -72,15 +72,15 @@ function CommentModal({ post, profile, loading, onClose }) {
     return (
         <div
         className="fixed top-0 left-0 w-full h-full z-[99] bg-black/50
-                                flex items-center justify-center dark:text-dark-text"
+                    flex items-center justify-center dark:text-dark-text"
         >
         <IoCloseOutline
             size={45}
             onClick={onClose}
             title="Close"
             className="p-1 dark:text-dark-text text-light
-                                        rounded-full cursor-pointer hidden md:flex
-                                        absolute right-6 top-4 z-10"
+                        rounded-full cursor-pointer hidden md:flex
+                        absolute right-6 top-4 z-10"
         />
         <motion.div
             initial={{ scale: 1.2, opacity: 0 }}
@@ -93,7 +93,7 @@ function CommentModal({ post, profile, loading, onClose }) {
                             "w-[35rem] sm:w-[40rem] md:w-[50rem] lg:w-[60rem] xl:w-[70rem]" :
                             "w-[30rem] md:w-[35rem]"
                         }
-                        max-h-[95vh] overflow-hidden shadow-md relative`}
+                        max-h-[95vh] overflow-x-hidden shadow-md relative`}
         >
             {/* Responsive Content */}
             <div className="flex flex-col md:flex-row gap-6 px-4 py-6 md:h-[95vh] md:p-0">

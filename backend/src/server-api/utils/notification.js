@@ -1,5 +1,20 @@
 import { pool } from "../config/pool.js";
-import { io } from "../index.js";
+import { createClient } from "redis";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+// Tạo Redis client để gửi thông điệp
+const redisClient = createClient({
+  url: `redis://localhost:6379`, 
+});
+
+redisClient.on("error", (err) => console.error("Lỗi Redis Client:", err));
+
+(async () => {
+  await redisClient.connect();
+  console.log("Đã kết nối Redis client cho server-api");
+})();
 
 // Helper function to create a notification
 const createNotification = async (userId, type, fromUserId, postId = null) => {
@@ -27,7 +42,8 @@ const createNotification = async (userId, type, fromUserId, postId = null) => {
     const notification = result.rows[0];
 
     if (notification) {
-      io.to(`user_${userId}`).emit("new_notification", {
+      const notificationData = {
+        userId: userId,
         id: notification.id,
         username: notification.username,
         profile_pic_url: notification.profile_pic_url,
@@ -35,12 +51,20 @@ const createNotification = async (userId, type, fromUserId, postId = null) => {
         from_user_id: notification.from_user_id,
         post_id: notification.post_id,
         created_at: notification.created_at,
-      });
+      };
+      await redisClient.publish("notifications", JSON.stringify(notificationData));
+      console.log(`Đã gửi thông báo cho user_${userId} đến Redis`);
     }
   } catch (error) {
     console.error("Error creating notification:", error);
     throw error;
   }
 };
+
+process.on("SIGINT", async () => {
+  await redisClient.quit();
+  console.log("Đã ngắt kết nối Redis client cho server-api");
+  process.exit(0);
+});
 
 export { createNotification };

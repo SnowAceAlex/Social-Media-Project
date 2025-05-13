@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/server-api/index.js",
+    "start:api": "node src/server-api/index.js",
+    "start:socket": "node src/socket-server/index.js",
+    "start": "npm run start:api"
   },
   "keywords": [],
   "type": "module",
@@ -22,9 +25,11 @@
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.14.0",
     "postgres": "^3.4.5",
+    "redis": "^5.0.1",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "nodemon": "^3.1.9"
   }
 }
