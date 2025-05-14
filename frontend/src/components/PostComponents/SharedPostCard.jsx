@@ -49,7 +49,8 @@ function SharedPostCard({originalPost_id}) {
             onClick={() => {setShowCommentModal(true)}}>
             <div className='flex-1 flex flex-col gap-4 p-4'>
                 <Avatar_Username   profile={profile} createdAt={post.created_at}/>
-                <span className={`truncate ${post.images?.length > 0 ? "max-w-[200px]" : "max-w-[29rem]"}`}>
+                <span className={`truncate ${post.images?.length > 0 ? "max-w-[200px]" 
+                    : "max-w-[25rem] md:max-w-[29rem]"}`}>
                     {post.caption}
                 </span>
             </div>
