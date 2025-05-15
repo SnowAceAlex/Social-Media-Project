@@ -1,114 +1,89 @@
-// src/socket-server/index.js
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { createClient } from "redis"; 
 import dotenv from "dotenv";
+import redisClient from "./redis/client.js";
+import { registerSocketEvents } from "./sockets/handler.js";
+import cors from "cors"; 
+import { authenticate } from "../server-api/middleware/authenticateUser.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
 const app = express();
-const httpServer = http.createServer(app);
+const server = http.createServer(app);
 
-const io = new Server(httpServer, {
+const corsOptions = {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    optionsSuccessStatus: 200,
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+const io = new Server(server, {
     cors: {
         origin: "http://localhost:5173",
-        methods: ["GET", "POST"],
         credentials: true,
     },
 });
 
-// REDIS DEFINE
-const redisClient = createClient({
-    url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+registerSocketEvents(io)
+
+// API route check trạng thái
+app.get("/users/:id/status", async (req, res) => {
+    const userId = req.params.id;
+
+    const online = await redisClient.get(`user:${userId}:online`);
+    const lastActive = await redisClient.get(`user:${userId}:lastActive`);
+
+    if (online === "true") return res.json({ status: "Online" });
+
+    if (!lastActive) return res.json({ status: "Undefined" });
+
+    const lastActiveTime = new Date(Number(lastActive));
+    const now = new Date();
+    const diffMs = now - lastActiveTime;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    let status;
+
+    if (diffMin < 60) {
+        status = `${diffMin} minutes ago`;
+    } else if (diffHours < 24 && lastActiveTime.getDate() === now.getDate()) {
+        status = `Online at ${lastActiveTime.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+        })}`;
+    } else if (
+        diffDays === 1 ||
+        (diffHours < 48 && lastActiveTime.getDate() === now.getDate() - 1)
+    ) {
+        // Hôm qua
+        status = `Online yesterday`;
+    } else if (diffDays < 7) {
+        status = `Online ${diffDays} days ago`;
+    } else {
+        status = `Online on ${lastActiveTime.toLocaleDateString()} `;
+    }
+
+    res.json({ status });
 });
 
-redisClient.on("error", (err) => console.error("Lỗi Redis Client:", err));
 
-(async () => {
-    await redisClient.connect();
-    console.log("Đã kết nối Redis client cho socket-server");
-
-    await redisClient.subscribe("notifications", (message) => {
-        try {
-        const notificationData = JSON.parse(message); 
-        const { userId, ...notification } = notificationData;
-        io.to(`user_${userId}`).emit("new_notification", notification);
-        console.log(`Đã gửi thông báo đến user_${userId}:`, notification);
-        } catch (error) {
-        console.error("Lỗi khi xử lý thông điệp từ Redis:", error);
-        }
-    });
-    console.log("Đã đăng ký vào kênh notifications");
-})();
-
-
-io.on("connection", (socket) => {
-    console.log("🟢 User connected:", socket.id);
-
-    socket.use((packet, next) => {
-        const [event, data, callback] = packet;
-        if (event === "join" && !data) {
-            if (typeof callback === "function") {
-                callback({ success: false, error: "Missing userId" });
-            }
-            return next(new Error("Missing userId"));
-        }
-        next();
-    });
-
-    socket.on("join", (userId, callback) => {
-        try {
-            Array.from(socket.rooms).forEach((room) => {
-                if (room.startsWith("user_")) {
-                    socket.leave(room);
-                    console.log(`Socket ${socket.id} left room ${room}`);
-                }
-            });
-
-            socket.join(`user_${userId}`);
-            console.log(`Socket ${socket.id} joined room user_${userId}`);
-
-            if (typeof callback === "function") {
-                callback({ success: true, userId });
-            }
-        } catch (error) {
-            console.error("Join error:", error);
-            if (typeof callback === "function") {
-                callback({ success: false, error: error.message });
-            }
-        }
-    });
-
-    socket.on("leave", (userId, callback) => {
-        try {
-            socket.leave(`user_${userId}`);
-            console.log(`Socket ${socket.id} left room user_${userId}`);
-
-            if (typeof callback === "function") {
-                callback({ success: true });
-            }
-        } catch (error) {
-            console.error("Leave error:", error);
-            if (typeof callback === "function") {
-                callback({ success: false, error: error.message });
-            }
-        }
-    });
-
-    socket.on("disconnect", () => {
-        console.log("🔴 User disconnected:", socket.id);
-    });
+app.use((req, res, next) => {
+    console.log(`[${req.method}] ${req.url}`);
+    next();
 });
 
 const PORT = process.env.SOCKET_PORT || 3001;
-httpServer.listen(PORT, () => {
-    console.log("Socket.IO server is running on port", PORT);
-});
-
-// Đóng kết nối Redis khi server tắt
-process.on("SIGINT", async () => {
-    await redisClient.quit();
-    console.log("Đã ngắt kết nối Redis client cho socket-server");
-    process.exit(0);
+server.listen(PORT, () => {
+    console.log("🔌 Socket.IO server running at port", PORT);
 });

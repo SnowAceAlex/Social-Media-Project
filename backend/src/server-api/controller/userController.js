@@ -39,12 +39,12 @@ export const registerUser = async (req, res) => {
 
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-
+    const defaultCoverUrl = "https://i.pinimg.com/736x/6f/1d/3a/6f1d3ad8ba28f714a066f8d20b471c9a.jpg"
     const tempInsert = await pool.query(
-      `INSERT INTO users (username, email, password, full_name, date_of_birth, bio)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO users (username, email, password, full_name, date_of_birth, bio, cover_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id, username, email, full_name, date_of_birth, bio, created_at`,
-      [username, email, hashedPassword, full_name, dateOfBirth, bio]
+      [username, email, hashedPassword, full_name, dateOfBirth, bio, defaultCoverUrl]
     );
 
     const user = tempInsert.rows[0];
@@ -501,6 +501,26 @@ export const getFollowerFollowingCount = async (req, res) => {
     });
   } catch (error) {
     console.error("Error getting follower/following count:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getFriends = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const result = await pool.query(
+        `SELECT u.id, u.username, u.full_name, u.profile_pic_url, u.cover_url
+        FROM followers f1
+        JOIN followers f2 ON f1.follower_id = f2.following_id AND f1.following_id = f2.follower_id
+        JOIN users u ON u.id = f1.following_id
+        WHERE f1.follower_id = $1`,
+      [userId]
+    );
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error fetching friends:", error);
     res.status(500).json({ error: error.message });
   }
 };
