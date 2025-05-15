@@ -1,6 +1,22 @@
 import redisClient from "../redis/client.js";
+import { createClient } from "redis";
 
-export function registerSocketEvents(io) {
+
+export async function registerSocketEvents(io) {
+    const subscriber = createClient({
+        url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+    });
+    subscriber.on("error", (err) => {
+        console.error("Redis subscriber error:", err);
+    });
+    await subscriber.connect();
+
+    subscriber.subscribe("notifications", (message) => {
+        const data = JSON.parse(message);
+        io.to(`user_${data.userId}`).emit("new_notification", data);
+        console.log(`📨 Đã gửi notification real-time đến user_${data.userId}`);
+    });
+
     io.on("connection", (socket) => {
         console.log("🟢 Connected:", socket.id);
 
