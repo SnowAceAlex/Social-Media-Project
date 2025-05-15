@@ -92,3 +92,13 @@ CREATE TABLE post_images (
   image_url TEXT NOT NULL
 );
 
+-- Messages Table
+CREATE TABLE messages (
+    id BIGSERIAL PRIMARY KEY,
+    sender_id BIGINT NOT NULL,
+    receiver_id BIGINT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_sender FOREIGN KEY (sender_id) REFERENCES users(id),
+    CONSTRAINT fk_receiver FOREIGN KEY (receiver_id) REFERENCES users(id)
+);

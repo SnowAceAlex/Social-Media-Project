@@ -22,3 +22,4 @@ CREATE TABLE post_images (
   post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
   image_url TEXT NOT NULL
 );
+

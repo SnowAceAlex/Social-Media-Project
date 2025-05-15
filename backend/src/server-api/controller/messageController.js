@@ -1,5 +1,59 @@
 import { pool } from "../config/pool.js";
 
+// create messade and save to database
+export const createMessage = async (req, res) => {
+    const userId = req.user.id; // Lấy từ middleware authenticate
+    const { receiverId, content } = req.body;
+
+    try {
+        // Kiểm tra dữ liệu đầu vào
+        if (!receiverId || !content) {
+            return res.status(400).json({ error: "receiverId and content are required" });
+        }
+
+        // Kiểm tra xem receiverId có tồn tại trong bảng users
+        const receiverCheck = await pool.query(
+            "SELECT id FROM users WHERE id = $1",
+            [receiverId]
+        );
+        if (receiverCheck.rows.length === 0) {
+            return res.status(404).json({ error: "Receiver not found" });
+        }
+
+        // Lưu tin nhắn vào database
+        const result = await pool.query(
+            `INSERT INTO messages (sender_id, receiver_id, content)
+             VALUES ($1, $2, $3)
+             RETURNING *,
+             (SELECT username FROM users WHERE id = $1) AS sender_username,
+             (SELECT profile_pic_url FROM users WHERE id = $1) AS sender_profile_pic_url,
+             (SELECT username FROM users WHERE id = $2) AS receiver_username,
+             (SELECT profile_pic_url FROM users WHERE id = $2) AS receiver_profile_pic_url`,
+            [userId, receiverId, content]
+        );
+
+        const newMessage = result.rows[0];
+
+        // Lấy io từ request (được truyền qua middleware)
+        const io = req.io;
+
+        // Phát tin nhắn qua Socket.IO
+        const roomName = [userId, receiverId].sort().join('_');
+        io.to(roomName).emit("receiveMessage", newMessage); // Gửi đến room
+        io.to(userId.toString()).emit("receiveMessage", newMessage); // Gửi đến sender
+        io.to(receiverId.toString()).emit("receiveMessage", newMessage); // Gửi đến receiver
+
+        // Trả về phản hồi thành công
+        res.status(201).json({
+            message: "Message created successfully",
+            data: newMessage,
+        });
+    } catch (error) {
+        console.error("Error creating message:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Get messages between two users
 export const getMessages = async (req, res) => {
   const userId = req.user.id; // Lấy từ middleware authenticate
