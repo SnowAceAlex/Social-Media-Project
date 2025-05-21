@@ -11,10 +11,27 @@ export async function registerSocketEvents(io) {
     });
     await subscriber.connect();
 
+    //GET NOTIFICATION
     subscriber.subscribe("notifications", (message) => {
         const data = JSON.parse(message);
         io.to(`user_${data.userId}`).emit("new_notification", data);
         console.log(`📨 Đã gửi notification real-time đến user_${data.userId}`);
+    });
+
+    //GET MESSAGE
+    subscriber.subscribe("chat:message", (raw) => {
+        const data = JSON.parse(raw);
+        const {type, fromUserId, toUserId, message } = data;
+        const roomName = [fromUserId, toUserId].sort().join("_");
+
+        if(type === "delete"){
+            io.to(roomName).emit("deleteMessage", message);
+        }else{
+            io.to(roomName).emit("receiveMessage", message);
+            io.to(`user_${message.receiver_id}`).emit("new_message", message);
+            io.to(`user_${message.sender_id}`).emit("new_message", message);
+            console.log(`📨 Đã gửi message real-time cho user ${fromUserId} và ${toUserId}`);
+        }
     });
 
     io.on("connection", (socket) => {
@@ -29,7 +46,7 @@ export async function registerSocketEvents(io) {
             next();
         });
 
-        //JOIN ROOM
+        //JOIN PERSONAL ROOM
         socket.on("join", async (userId, callback) => {
             try {
                 socket.userId = userId;
@@ -52,10 +69,37 @@ export async function registerSocketEvents(io) {
             }
         });
 
-        //LEAVE ROOM
+        // JOIN ROOM TOGETHER
+        socket.on("joinRoom", (roomName, callback) => {
+            try {
+                socket.join(roomName);
+                console.log(`🔗 Socket ${socket.id} joined room ${roomName}`);
+                callback?.({ success: true });
+            } catch (error) {
+                console.error("JoinRoom error:", error);
+                callback?.({ success: false, error: error.message });
+            }
+        });
+
+        //LEAVE PERSONAL ROOM
         socket.on("leave", (userId, callback) => {
             socket.leave(`user_${userId}`);
             callback?.({ success: true });
+        });
+
+        //LEAVE ROOM
+        socket.on("leaveRoom", (roomName, callback) => {
+            try {
+                socket.leave(roomName);
+                if (socket.currentChatRoom === roomName) {
+                    delete socket.currentChatRoom;
+                }
+                console.log(`🚪 Socket ${socket.id} left room ${roomName}`);
+                callback?.({ success: true });
+            } catch (error) {
+                console.error("LeaveRoom error:", error);
+                callback?.({ success: false, error: error.message });
+            }
         });
 
         //DISCONNECT
