@@ -7,6 +7,7 @@ const SocketContext = createContext(null);
 export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
+    const [currentRoom, setCurrentRoom] = useState(null);
 
     useEffect(() => {
         const newSocket = io("http://localhost:3001", {
@@ -17,8 +18,8 @@ export const SocketProvider = ({ children }) => {
         setSocket(newSocket);
 
         newSocket.on("disconnect", () => {
-        console.log("Socket disconnected");
-        setCurrentUser(null); 
+            console.log("Socket disconnected");
+            setCurrentUser(null); 
         });
 
         newSocket.on("connect", () => {
@@ -92,7 +93,9 @@ export const SocketProvider = ({ children }) => {
         currentUser,
         login,
         logout,
-        isConnected: socket?.connected || false
+        isConnected: socket?.connected || false,
+        currentRoom,
+        setCurrentRoom
     };
 
     return (
