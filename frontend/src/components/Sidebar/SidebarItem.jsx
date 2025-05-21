@@ -4,8 +4,10 @@ import { GoHomeFill } from "react-icons/go";
 import { IoIosNotifications, IoIosNotificationsOutline} from "react-icons/io";
 import { IoBookmark } from "react-icons/io5";
 import { CiBookmark } from "react-icons/ci";
+import { LuSend } from "react-icons/lu";
+import { RiSendPlaneFill } from "react-icons/ri";
 
-const SidebarItem = ({ icon: Icon, label, isCollapsed, to, onClick, isActive, hasNewNotification }) => {
+const SidebarItem = ({ icon: Icon, label, isCollapsed, to, onClick, isActive, hasNewNotification, hasNewMessage}) => {
     const baseClasses = `
         flex items-center justify-start w-full h-fit gap-4
         rounded-xl hover:bg-light-hover cursor-pointer
@@ -49,6 +51,19 @@ const SidebarItem = ({ icon: Icon, label, isCollapsed, to, onClick, isActive, ha
                         )
                     }
                     </>
+                ) : label === "Messages" ? (
+                    <div className='relative'>
+                        {
+                            isActive ? (
+                                <RiSendPlaneFill size={24} />
+                            ) : (
+                                <LuSend size={23} />
+                            )
+                        }
+                        {hasNewMessage && (
+                                <span className="absolute -top-1 -right-2 w-2 h-2 bg-red-500 rounded-full" />
+                        )}
+                    </div>
                 ) : (
                     <Icon size={30} />
                 )

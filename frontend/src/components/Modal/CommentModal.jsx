@@ -193,8 +193,8 @@ function CommentModal({ post, profile, loading, onClose }) {
                     className={`order-3 md:absolute flex flex-col
                                 ${
                                     (post.images && post.images.length > 0) ?
-                                    "md:top-32 md:right-4 lg:right-8 xl:right-6 md:ml-3 md:w-[20rem] lg:w-[23rem] xl:w-[28rem] md:h-[39rem]" 
-                                    : "md:top-32 md:right-6 md:ml-3 md:w-[32rem] md:h-[39rem]"
+                                    "md:top-32 md:right-4 lg:right-8 xl:right-6 md:ml-3 md:w-[20rem] lg:w-[23rem] xl:w-[28rem] md:h-12/15" 
+                                    : "md:top-32 md:right-6 md:ml-3 md:w-[32rem] md:h-12/15"
                                 }`}
                 >
                     {/* Comment list scrollable */}

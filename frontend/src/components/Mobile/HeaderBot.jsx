@@ -10,7 +10,11 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { IoIosMenu } from "react-icons/io";
 import ConfirmModal from '../Modal/ConfirmModal';
 import { useSocket } from '../../contexts/SocketContext';
-
+import { CiBookmark } from "react-icons/ci";
+import { LuSend } from "react-icons/lu";
+import { RiSendPlaneFill } from "react-icons/ri";
+import { IoBookmark } from "react-icons/io5";
+import { useLocation } from 'react-router-dom';
 
 function HeaderBotMB() {
     const { currentUser, loading } = getCurrentUser();
@@ -21,6 +25,15 @@ function HeaderBotMB() {
     const { logout } = useSocket();
     const moreRef = useRef(null);  
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.pathname.startsWith('/conversation')) setActiveTab('conversation');
+        else if (location.pathname.startsWith('/home')) setActiveTab('home');
+        else if (location.pathname.startsWith('/bookmarks')) setActiveTab('bookmarks');
+        else if (location.pathname.startsWith('/profile')) setActiveTab('profile');
+        else setActiveTab('');
+    }, [location.pathname]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -64,8 +77,16 @@ function HeaderBotMB() {
             </div>
 
             <Link
+                to="/bookmarks"
+            >  
+                {activeTab === 'bookmarks' ? 
+                    (<IoBookmark title="Bookmarks" size={27} className='cursor-pointer'/>) : 
+                    (<CiBookmark title="Bookmarks" size={27} className='cursor-pointer'/>)
+                } 
+            </Link>
+
+            <Link
                 to="/home"
-                onClick={() => setActiveTab('home')}
             >
                 {activeTab === 'home' ? 
                     (<GoHomeFill title="Home" size={30} className='cursor-pointer'/>) : 
@@ -74,8 +95,16 @@ function HeaderBotMB() {
             </Link>
 
             <Link
+                to="/conversation"
+            >  
+                {activeTab === 'conversation' ? 
+                    (<RiSendPlaneFill title="Conversation" size={27} className='cursor-pointer'/>) : 
+                    (<LuSend title="Conversation" size={27} className='cursor-pointer'/>)
+                } 
+            </Link>
+
+            <Link
                 to="/profile/me"
-                onClick={() => setActiveTab('profile')}
                 className={`rounded-full overflow-hidden bg-gray-300 box-border flex items-center justify-center border-[2px] w-9 h-9 
                             ${activeTab === 'profile' ? "aspect-square border-dark-border dark:border-light-border" : "border-none"}`}>
                 {loading ? (
