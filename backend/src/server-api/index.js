@@ -7,7 +7,8 @@ import userRoute from "./routes/userRoute.js";
 import postRoute from "./routes/postRoute.js";
 import notificationRoute from "./routes/notificationRoute.js";
 import uploadRoute from "./routes/uploadRoute.js";
-import messageRoute from "../routes/messageRoute.js";
+import messageRoute from "./routes/messageRoute.js";
+import conservationRoute from "./routes/conservationRoute.js";
 import { pool } from "./config/pool.js";
 
 dotenv.config();
@@ -37,6 +38,7 @@ app.use("/posts", postRoute);
 app.use("/upload", uploadRoute);
 app.use("/notifications", notificationRoute);
 app.use("/messages", messageRoute);
+app.use("/conversations", conservationRoute)
 
 // Start server
 app.listen(PORT, async () => {
