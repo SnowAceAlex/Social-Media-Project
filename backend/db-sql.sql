@@ -92,13 +92,58 @@ CREATE TABLE post_images (
   image_url TEXT NOT NULL
 );
 
--- Messages Table
+--- Message Table
 CREATE TABLE messages (
     id BIGSERIAL PRIMARY KEY,
-    sender_id BIGINT NOT NULL,
-    receiver_id BIGINT NOT NULL,
+    conversation_id BIGINT REFERENCES conversations(id) ON DELETE CASCADE,
+    sender_id BIGINT NOT NULL REFERENCES users(id),
+    receiver_id BIGINT NOT NULL REFERENCES users(id),
     content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_sender FOREIGN KEY (sender_id) REFERENCES users(id),
-    CONSTRAINT fk_receiver FOREIGN KEY (receiver_id) REFERENCES users(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+---- Conservation Table
+CREATE TABLE conversations (
+    id BIGSERIAL PRIMARY KEY,
+    user1_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user2_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    last_message_id BIGINT REFERENCES messages(id) ON DELETE SET NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Ràng buộc không cho chat với chính mình
+    CONSTRAINT check_not_self_chat CHECK (user1_id <> user2_id),
+
+    -- Ràng buộc duy nhất 1 đoạn chat giữa 2 người (sau khi đã sắp xếp user1 < user2)
+    CONSTRAINT unique_user_pair UNIQUE (user1_id, user2_id)
+);
+
+--- Trigger
+CREATE OR REPLACE FUNCTION enforce_user_order()
+RETURNS TRIGGER AS $$
+DECLARE
+    temp BIGINT;
+BEGIN
+    IF NEW.user1_id > NEW.user2_id THEN
+        temp := NEW.user1_id;
+        NEW.user1_id := NEW.user2_id;
+        NEW.user2_id := temp;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+--- Add trigger into Conservation table
+CREATE TRIGGER trigger_enforce_user_order
+BEFORE INSERT ON conversations
+FOR EACH ROW
+EXECUTE FUNCTION enforce_user_order();
+
+--- Add thêm conservation vào message table (cho nhỏ Nga)
+ALTER TABLE messages
+ADD COLUMN conversation_id BIGINT;
+
+ALTER TABLE messages
+ADD CONSTRAINT fk_conversation
+FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE;
+
+CREATE INDEX idx_messages_conversation ON messages(conversation_id);

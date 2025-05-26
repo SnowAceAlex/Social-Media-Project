@@ -17,6 +17,8 @@ import { getCurrentUser } from '../../helpers/getCurrentUser';
 import { useSocket } from '../../contexts/SocketContext';
 import { useNotifications } from '../../contexts/NotificationContext';
 import { CiBookmark } from "react-icons/ci";
+import { LuSend } from "react-icons/lu";
+import { useConversationSocket } from '../../hook/useConversationSocket';
 
 function Sidebar({ searchValue, setSearchValue }) {
     const [showMore, setShowMore] = useState(false);
@@ -25,6 +27,7 @@ function Sidebar({ searchValue, setSearchValue }) {
     const [activeItem, setActiveItem] = useState('');
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const { markNotificationsAsSeen, hasNewNotification } = useNotifications();
+    const { markMessageAsSeen, hasNewMessage} = useConversationSocket();
 
     const moreRef = useRef(null);
     const { toggleTheme } = useTheme();
@@ -33,13 +36,26 @@ function Sidebar({ searchValue, setSearchValue }) {
     const navigate = useNavigate();
     const { logout } = useSocket();
     const pathname = location.pathname;
+    useEffect(() => {
+        if (pathname.startsWith("/conversation")) {
+            setIsExpanded(true); 
+        } else {
+            setIsExpanded(false);
+        }
+    }, [pathname]);
+
 
     const handleToggleFrame = (frameName) => {
         //nếu active frame đúng bằng frameName -> tắt expanded
-        if (activeFrame === frameName) {
+        if(frameName === "conversation"){
+            setIsExpanded(true);
+        }
+        else if (activeFrame === frameName) {
             setActiveFrame(null);
             setActiveItem('');
-            setIsExpanded(false);
+            if (!pathname.startsWith("/conversation")) {
+                setIsExpanded(false);
+            }
         } else {
             setActiveFrame(frameName);
             setIsExpanded(true);
@@ -65,6 +81,12 @@ function Sidebar({ searchValue, setSearchValue }) {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+
+    useEffect(() => {
+        if (pathname.startsWith('/conversation')) {
+            markMessageAsSeen();
+        }
+    }, [pathname]);
 
     return (
         <>
@@ -94,7 +116,7 @@ function Sidebar({ searchValue, setSearchValue }) {
                         transition={{ duration: 0.3, ease: "easeOut" }}
                         className="mb-18 ml-4"
                     >
-                        <LuInstagram size={34} />
+                        <LuInstagram size={29} />
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -150,6 +172,15 @@ function Sidebar({ searchValue, setSearchValue }) {
                     isCollapsed={isExpanded}
                     isActive={pathname.startsWith('/bookmarks')}
                 />
+                <SidebarItem
+                    icon={LuSend}
+                    label="Messages"
+                    to="/conversation"
+                    isCollapsed={isExpanded}
+                    isActive={pathname.startsWith('/conversation')}
+                    hasNewMessage={hasNewMessage}
+                />
+                
             </div>
 
             <div className="relative" ref={moreRef}>

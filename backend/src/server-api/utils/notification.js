@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Tạo Redis client để gửi thông điệp
 const redisClient = createClient({
   url: `redis://localhost:6379`, 
 });
@@ -13,7 +12,7 @@ redisClient.on("error", (err) => console.error("Lỗi Redis Client:", err));
 
 (async () => {
   await redisClient.connect();
-  console.log("Đã kết nối Redis client cho server-api");
+  console.log("Đã kết nối Redis client cho notificationPublisher");
 })();
 
 // Helper function to create a notification

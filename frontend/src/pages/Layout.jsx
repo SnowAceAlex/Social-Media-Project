@@ -17,6 +17,7 @@ function Layout() {
     const [searchValue, setSearchValue] = useState('');
     const location = useLocation();
     const isNotificationPage = location.pathname === "/notification";
+    const isMessagePage = location.pathname.startsWith("/conversation")
 
     useEffect(() => {
         document.body.style.overflow = showEditModal ? 'hidden' : 'auto';
@@ -53,9 +54,9 @@ function Layout() {
                 {/* Sidebar */}
                 <Sidebar searchValue={searchValue} setSearchValue={setSearchValue}/>
                 {/* Main */}
-                <div className="flex-1 md:ml-[16.67%] mt-16 mb-14 md:mt-0 md:mb-0
-                                flex flex-col dark:bg-dark
-                                ">
+                <div className={`flex-1 ${isMessagePage ? "md:ml-[5.5%]" : "md:ml-[16.67%]"} mt-16 mb-14 md:mt-0 md:mb-0
+                                flex flex-col dark:bg-dark `}
+                                >
                     {/* <div className="h-28 "></div>
                     <div className="h-[42rem]"></div>
                     <div className="h-[42rem] "></div>

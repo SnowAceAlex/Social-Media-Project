@@ -16,6 +16,8 @@ import { SocketProvider } from "./contexts/SocketContext";
 import NotificationPage from "./pages/NotificationPage";
 import { useEffect, useState } from "react";
 import BookmarksPage from "./pages/BookmarksPage";
+import FriendsPage from "./pages/FriendsPage";
+import MessagePage from "./pages/MessagePage";
 
 function App() {
   const [isLoading, setLoading] = useState(true);
@@ -71,6 +73,21 @@ function App() {
                   <Route path="/bookmarks" element={
                     <PrivateRoute>
                       <BookmarksPage/>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/friends" element={
+                    <PrivateRoute>
+                      <FriendsPage/>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/conversation" element={
+                    <PrivateRoute>
+                      <MessagePage/>
+                    </PrivateRoute>
+                  } />
+                  <Route path="/conversation/:conversationId/" element={
+                    <PrivateRoute>
+                      <MessagePage/>
                     </PrivateRoute>
                   } />
                 </Route>

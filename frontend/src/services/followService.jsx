@@ -60,3 +60,15 @@ export const getFollowing = async (userId) => {
         throw error;
     }
 };
+
+export const getFriends = async () => {
+    try {
+        const res = await axios.get(`${API_URL}/friends`, {
+            withCredentials: true
+        });
+        return res.data;
+    } catch (error) {
+        console.error("❌ Error fetching friends:", error);
+        throw error;
+    }
+}

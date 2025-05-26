@@ -14,6 +14,7 @@ import {
   isFollowing,
   getFollowerFollowingCount,
   updateUserCover,
+  getFriends,
 } from "../controller/userController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 import { authenticate } from "../middleware/authenticateUser.js";
@@ -39,5 +40,7 @@ router.get("/:id/followers", authenticate, getFollowers);
 router.get("/:id/followings", authenticate, getFollowing);
 router.get("/is-following/:id", authenticate, isFollowing);
 router.get("/followCount/:id", authenticate, getFollowerFollowingCount);
+
+router.get("/friends", authenticate, getFriends);
 
 export default router;
