@@ -21,7 +21,8 @@ function ProfilePage() {
   const [selfProfile, setSelfProfile] = useState(false);
   const [activeTab, setActiveTab] = useState("post");
   const [showUploadCoverModal, setShowUploadCoverModal] = useState(false);
-  const {setShowLoading} = useOutletContext();
+  const {setShowLoading, reloadPosts} = useOutletContext();
+  const [reloadPostList, setReloadPostList] = useState(false);
 
   const [coverUrl, setCoverUrl] = useState("");
   
@@ -259,7 +260,7 @@ function ProfilePage() {
         {/* CONTENT */}
         {
           activeTab === "post" && !loading && profile && (
-            <PostList profile={profile} loadingProfile={loading} userId={profile.id} />
+            <PostList profile={profile} loadingProfile={loading} userId={profile.id} reloadPosts={reloadPosts} />
           )
         }
         {

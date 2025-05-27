@@ -30,7 +30,8 @@ export default function NotificationPopup() {
                     exit={{ opacity: 0, y: -50 }}
                     transition={{ duration: 0.4 }}
                     className="bg-white border border-light-border dark:border-dark-input-border dark:bg-dark-card dark:text-white shadow-lg rounded-lg py-4 pl-2 pr-4 relative inline-block"
-                >
+                    onClick={() => removeNotification(latestNotification.id)}
+                    >
                     <div className="flex items-center">
                         <img src={imageSrc} className="w-10 aspect-square"/>
                             {

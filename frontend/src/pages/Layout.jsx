@@ -39,7 +39,7 @@ function Layout() {
     };
 
     const [showLoading, setShowLoading] = useState(false);
-
+    const [reloadPosts, setReloadPosts] = useState(false);
     return (
         <div className="w-full relative min-h-screen bg-white dark:bg-dark">
             {/* Header (for mobile) */}
@@ -61,7 +61,7 @@ function Layout() {
                     <div className="h-[42rem]"></div>
                     <div className="h-[42rem] "></div>
                     <div className="h-[42rem] "></div> */}
-                    <Outlet context={{ setShowEditModal, setShowCreatePostModal, showGlobalToast, setShowLoading}}/>
+                    <Outlet context={{ setShowEditModal, setShowCreatePostModal, showGlobalToast, setShowLoading, reloadPosts, setReloadPosts }}/>
                 </div>
             </div>
 
@@ -69,7 +69,12 @@ function Layout() {
             <HeaderBotMB/>
 
             {showEditModal && <EditProfileModal onClose={() => setShowEditModal(false)} showGlobalToast={showGlobalToast} setShowLoading={setShowLoading} />}
-            {showCreatePostModal && <CreatePostModal onClose={() => setShowCreatePostModal(false)} showGlobalToast={showGlobalToast}  setShowLoading={setShowLoading}/>}
+            {showCreatePostModal && 
+                <CreatePostModal 
+                onClose={() => setShowCreatePostModal(false)} 
+                showGlobalToast={showGlobalToast}  
+                setShowLoading={setShowLoading}
+                onPostCreated={() => setReloadPosts(prev => !prev)}/>}
             
             <NotificationPopup/>
 
