@@ -11,7 +11,6 @@ export const searchUsersService = async (username) => {
 };
 
 export const searchHashtagsService = async (keyword) => {
-    console.log(keyword);
     const res = await axios.get(`http://localhost:5000/posts/hashtags/search`, {
         params: { keyword },
         withCredentials: true,
