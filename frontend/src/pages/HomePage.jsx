@@ -4,15 +4,24 @@ import useHomepagePost from "../hook/useHomePageFetch";
 import Post from "../components/Post";
 import PostLoading from "../components/Skeleton/PostLoading";
 import FriendList from "../components/Homepage/FriendList";
+import { AiFillInstagram } from "react-icons/ai";
 
 function HomePage() {
     const { currentUser } = getCurrentUser();
     const { post, loading, error } = useHomepagePost(currentUser?.user?.id || null);
-
+        
     return (
         <div className="flex w-full">    
             <div className="md:ml-16 lg:ml-0 lg:flex-5 flex-1 flex flex-col items-center">
-                <div className="w-full h-28"></div>
+                {
+                    post.length === 0 && !loading && (
+                        <div className="w-full h-screen flex flex-col gap-3 items-center justify-center dark:text-dark-text">
+                            <AiFillInstagram size={70}/>
+                            <span className="text-2xl font-semibold">Looks quiet here</span>
+                            <span>Follow more people to bring your feed to life!</span>
+                        </div>
+                    )
+                }
                 <div className="flex flex-col w-[30rem] md:w-[32rem] lg:w-[45rem]">
                     {loading ? (
                         <div className="py-2">
@@ -20,7 +29,8 @@ function HomePage() {
                             <PostLoading/>
                         </div>
                     ) : (
-                        post.map((item, index) => (
+                        post.length > 0 && (
+                            post.map((item, index) => (
                             <div
                                 key={index}
                                 className="py-2 border-b-[1px] border-light-border dark:border-dark-border"
@@ -28,7 +38,7 @@ function HomePage() {
                             <Post key={item.post.id} post={item.post} profile={item.profile}/>
                             </div>
                         ))
-                    )}
+                    ))}
                 </div>
             </div>
             {/* Sidebar phải */}

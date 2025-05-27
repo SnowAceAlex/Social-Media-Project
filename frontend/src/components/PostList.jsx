@@ -4,9 +4,9 @@ import Post from "./Post";
 import { getCurrentUser } from "../helpers/getCurrentUser";
 import { CiCamera } from "react-icons/ci";
 
-function PostList({ profile = null, loadingProfile = false, userId = null }) {
+function PostList({ profile = null, loadingProfile = false, userId = null, reloadPosts = false }) {
     const {currentUser} = getCurrentUser();
-    const { posts, loading, lastPostRef } = useInfinitePosts(userId);
+    const { posts, loading, lastPostRef } = useInfinitePosts(userId, reloadPosts);
 
     return (
         <div className="flex flex-col w-full">

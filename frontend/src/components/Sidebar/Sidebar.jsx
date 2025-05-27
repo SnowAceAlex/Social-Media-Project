@@ -55,7 +55,7 @@ function Sidebar({ searchValue, setSearchValue }) {
             setActiveItem('');
             if (!pathname.startsWith("/conversation")) {
                 setIsExpanded(false);
-            }
+            }   
         } else {
             setActiveFrame(frameName);
             setIsExpanded(true);
@@ -69,6 +69,13 @@ function Sidebar({ searchValue, setSearchValue }) {
             }
         }
     };
+
+    useEffect(() => {
+        if (!pathname.startsWith("/conversation")) {
+            setActiveFrame(null);
+            setActiveItem('');
+        }
+    }, [pathname]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {

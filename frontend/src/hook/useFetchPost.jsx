@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import fetchPost from "../services/fetchPost";
 
-const useInfinitePosts = (userId = null) => {
+const useInfinitePosts = (userId = null, reloadPosts = false) => {
     const [posts, setPosts] = useState([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -59,6 +59,27 @@ const useInfinitePosts = (userId = null) => {
             prevUserIdRef.current = userId;
         }
     }, [userId]);
+
+    useEffect(() => {
+        setPosts([]);
+        setPage(1);
+        setHasMore(true);
+        const fetchFirstPage = async () => {
+        try {
+            const data = await fetchPost(1, userId);
+            if (data.posts.length === 0) {
+                setHasMore(false);
+            } else {
+                setPosts(data.posts);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+        };
+        fetchFirstPage();
+    }, [userId, reloadPosts]);
 
     return { posts, loading, lastPostRef };
 };

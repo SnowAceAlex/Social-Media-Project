@@ -103,7 +103,7 @@ function MessagePage() {
                                                     className='text-green-500 rounded-full border-2 border-light dark:border-dark absolute -bottom-0.5 right-0' size={15} />)
                                                 }
                                         </div>
-                                        <div className='flex-col hidden lg:flex'>
+                                        <div className='flex-col hidden lg:flex overflow-hidden break-words'>
                                             <div className='font-semibold'>{c.partner_username}</div>
                                             <div className='text-sm text-gray-500 truncate'>
                                                 {c.last_message || 'No messages yet'}

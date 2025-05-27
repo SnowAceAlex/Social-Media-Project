@@ -9,7 +9,7 @@ import { getCurrentUser } from '../../helpers/getCurrentUser';
 import { motion } from 'framer-motion'; 
 import { useUploadService } from '../../hook/useUploadService';
 
-const CreatePostModal = ({ onClose, showGlobalToast, setShowLoading}) => {
+const CreatePostModal = ({ onClose, showGlobalToast, setShowLoading, onPostCreated}) => {
     const {currentUser} = getCurrentUser();
 
     const { profile, loading, error } = useProfile(currentUser?.user?.id);
@@ -22,12 +22,14 @@ const CreatePostModal = ({ onClose, showGlobalToast, setShowLoading}) => {
         try{
             setShowLoading(true);
             await handleCreatePost(caption, selectedFiles);
+
         }catch (err){
             console.error("Upload failed:", err);
             showGlobalToast("Upload failed", "error");
         } finally{
-            window.location.reload();
             setShowLoading(false);
+            if (onPostCreated) onPostCreated();
+            onClose();
             showGlobalToast("Post created!", "success");
         }
     }
