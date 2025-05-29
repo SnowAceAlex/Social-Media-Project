@@ -6,10 +6,12 @@ import { getCurrentUser } from "../../helpers/getCurrentUser";
 import { motion } from 'framer-motion'; 
 import { useOutletContext } from "react-router-dom";
 import { useUploadService } from "../../hook/useUploadService";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentUser } from "../../store/userSlice";
 
-const EditProfileModal = ({ onClose, showGlobalToast, setShowLoading }) => {
-  const {currentUser} = getCurrentUser();
-  const { profile, loading, error } = useProfile(currentUser?.user?.id);
+const EditProfileModal = ({ onClose, showGlobalToast, setShowLoading, reloadProfile }) => {
+  const currentUser = useSelector(state => state.user.currentUser);
+  const { profile, loading, error } = useProfile(currentUser?.id);
   const [imageInputType, setImageInputType] = useState("file");
   const {uploadSingle} = useUploadService();
   const [selectedFile, setSelectedFile] = useState(null);
@@ -44,9 +46,13 @@ const EditProfileModal = ({ onClose, showGlobalToast, setShowLoading }) => {
     }));
   };
 
-  const { handleSaveProfile } = useEditProfileService (() => {
+  const dispatch = useDispatch();
+  const { handleSaveProfile } = useEditProfileService (
+    (updatedProfile) => {
       showGlobalToast("Profile updated!", "success");
-      onClose(); 
+      dispatch(setCurrentUser(updatedProfile)); // Cập nhật Redux
+      if (reloadProfile) reloadProfile();
+      onClose();
     },
     (errMessage) => {
       showGlobalToast("Failed to update profile", "error");
@@ -60,7 +66,7 @@ const EditProfileModal = ({ onClose, showGlobalToast, setShowLoading }) => {
       let finalPublicId = null;
   
       if (imageInputType === "file" && selectedFile) {
-        const uploaded = await uploadSingle(selectedFile, "avatar", currentUser?.user?.id);
+        const uploaded = await uploadSingle(selectedFile, "avatar", currentUser?.id);
         finalUrl = uploaded.url;
         finalPublicId = uploaded.publicId;
       }

@@ -9,10 +9,9 @@ import { useReactions } from '../../hook/useReaction';
 import usePostService from '../../hook/usePostService';
 import PostLoading from '../Skeleton/PostLoading';
 
-function SharedPostContent({originalPost_id}) {
+function SharedPostContent({originalPost_id, setLoading}) {
     const [profile, setProfile] = useState(null);
     const [post, setPost] = useState(null);
-    const [loading, setLoading] = useState(false);
     const [showCommentModal, setShowCommentModal] = useState(false);
     const {
             refresh,
@@ -23,14 +22,16 @@ function SharedPostContent({originalPost_id}) {
     } = usePostService(originalPost_id);
     
     useEffect(() => {
+        let isMounted = true;
         const fetchData = async () => {
             try {
                 setLoading(true);
                 const postData = await getSinglePostService(originalPost_id);
-                setPost(postData.post);
-    
                 const profileData = await getProfile(postData.post.user_id);
-                setProfile(profileData);
+                if (isMounted) {
+                    setPost(postData.post);
+                    setProfile(profileData);
+                }
             } catch (err) {
                 console.error("Failed to load shared post", err);
             } finally{
@@ -44,14 +45,6 @@ function SharedPostContent({originalPost_id}) {
     }, [originalPost_id]);
 
     if (!post || !profile) return null;
-
-    if(loading){
-        return(
-            <div className={`w-full pb-2 border-[1px] flex flex-col gap-6 rounded-lg border-light-border dark:border-dark-border/50`}>
-                <PostLoading/>
-            </div>
-        )
-    }
 
     return (
         <div className={`w-full pb-2 border-[1px] flex flex-col gap-6 rounded-lg border-light-border dark:border-dark-border/50

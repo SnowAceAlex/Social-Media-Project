@@ -5,10 +5,11 @@ import Post from "../components/Post";
 import PostLoading from "../components/Skeleton/PostLoading";
 import FriendList from "../components/Homepage/FriendList";
 import { AiFillInstagram } from "react-icons/ai";
+import { useSelector } from "react-redux";
 
 function HomePage() {
-    const { currentUser } = getCurrentUser();
-    const { post, loading, error } = useHomepagePost(currentUser?.user?.id || null);
+    const currentUser = useSelector(state => state.user.currentUser);
+    const { post, loading, error } = useHomepagePost(currentUser?.id || null);
         
     return (
         <div className="flex w-full">    

@@ -20,13 +20,14 @@ import PostCaption from "../PostCaption";
 import useComments from "../../hook/useComments";
 import SharedPostCard from "../PostComponents/SharedPostCard";
 import SharePostModal from "./SharePostModal";
+import { useSelector } from "react-redux";
 
 function CommentModal({ post, profile, loading, onClose }) {
     const [showCommentOptions, setShowCommentOptions] = useState(false);
     const [commentToDelete, setCommentToDelete] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showUserReactModal, setShowUserReactModal] = useState(false);
-    const { currentUser } = getCurrentUser();
+    const currentUser = useSelector(state => state.user.currentUser);
     const [content, setContent] = useState("");
     const [showShareModal, setShowShareModal] = useState(false);
     
@@ -245,7 +246,7 @@ function CommentModal({ post, profile, loading, onClose }) {
                                         formatDistanceToNow(new Date(user.created_at), {
                                         addSuffix: true,
                                         })}
-                                    {currentUser?.user?.id === user.user_id && (
+                                    {currentUser?.id === user.user_id && (
                                         <BsThreeDots
                                         size={18}
                                         className="hidden cursor-pointer group-hover:block"
