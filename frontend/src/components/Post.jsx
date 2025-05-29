@@ -15,6 +15,7 @@ import ReactUserModal from "./Modal/ReactUserModal";
 import SharePostModal from "./Modal/SharePostModal";
 import PostImagesCarousel from "./PostComponents/PostImagesCarousel ";
 import SharedPostContent from "./PostComponents/SharedPostContent";
+import PostLoading from "./Skeleton/PostLoading";
 
 function Post({post = null, profile = null, loading = false}) {
     const [showCommentModal, setShowCommentModal] = useState(false);
@@ -23,6 +24,7 @@ function Post({post = null, profile = null, loading = false}) {
     const [showEditPost, setShowEditPost] = useState(false);
     const [showUserReactModal, setShowUserReactModal] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
+    const [sharedLoading, setSharedLoading] = useState(false);
 
     const {currentUser} = getCurrentUser();
     const isCurrentUser = currentUser && currentUser.user?.id === post?.user_id;
@@ -77,10 +79,11 @@ function Post({post = null, profile = null, loading = false}) {
             </div>
             <PostCaption caption={post.caption}/>
             {post.shared_post_id ? (
-                <SharedPostContent originalPost_id={post.shared_post_id}/>
+                <SharedPostContent originalPost_id={post.shared_post_id} setLoading={setSharedLoading}/>
             ) : (
                 post.images?.length > 0 && <PostImagesCarousel images={post.images} />
             )}
+            {(loading || sharedLoading) && <PostLoading />}
             <PostReaction 
                 commentCount={commentCount}
                 shareCount={shareCount}

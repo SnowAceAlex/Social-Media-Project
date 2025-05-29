@@ -8,11 +8,12 @@ import Avatar_Username from '../Avatar_Username';
 import { getCurrentUser } from '../../helpers/getCurrentUser';
 import { motion } from 'framer-motion'; 
 import { useUploadService } from '../../hook/useUploadService';
+import { useSelector } from 'react-redux';
 
 const CreatePostModal = ({ onClose, showGlobalToast, setShowLoading, onPostCreated}) => {
-    const {currentUser} = getCurrentUser();
+    const currentUser = useSelector(state => state.user.currentUser);
 
-    const { profile, loading, error } = useProfile(currentUser?.user?.id);
+    const { profile, loading, error } = useProfile(currentUser?.id);
     const [caption, setCaption] = useState("");
     const [selectedFiles, setSelectedFiles] = useState([]);
     const {uploadMultiple} = useUploadService();

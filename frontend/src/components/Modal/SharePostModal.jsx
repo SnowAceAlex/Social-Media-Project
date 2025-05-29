@@ -7,10 +7,11 @@ import { getCurrentUser } from '../../helpers/getCurrentUser';
 import CaptionTextarea from '../CaptionTextarea';
 import usePostService from '../../hook/usePostService';
 import { useOutletContext } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 function SharePostModal({post, loading, onClose}) {
-    const {currentUser} = getCurrentUser();
-    const {profile, error } = useProfile(currentUser?.user?.id);
+    const currentUser = useSelector(state => state.user.currentUser);
+    const {profile, error } = useProfile(currentUser?.id);
     const [caption, setCaption] = useState("");
     const { fetchSharePost } = usePostService();
     const { showGlobalToast } = useOutletContext();

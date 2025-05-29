@@ -24,6 +24,19 @@ export const loginUser = async (email, password) => {
     }
 };
 
+export const logoutUser = async () => {
+    try {
+        const response = await axios.post(`${API_URL}/logout`, {}, {
+            withCredentials: true,
+        });
+
+        if (response.status !== 200) throw new Error("Fail to logout");
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || "Fail to logout");
+    }
+}
+
 export const registerUser = async (formData) => {
     try {
         const response = await axios.post(`${API_URL}/register`, formData, {

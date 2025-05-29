@@ -15,9 +15,10 @@ import { LuSend } from "react-icons/lu";
 import { RiSendPlaneFill } from "react-icons/ri";
 import { IoBookmark } from "react-icons/io5";
 import { useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 function HeaderBotMB() {
-    const { currentUser, loading } = getCurrentUser();
+    const currentUser = useSelector(state => state.user.currentUser);
     const [activeTab, setActiveTab] = useState('home');
     const [showMore, setShowMore] = useState(false);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -107,15 +108,11 @@ function HeaderBotMB() {
                 to="/profile/me"
                 className={`rounded-full overflow-hidden bg-gray-300 box-border flex items-center justify-center border-[2px] w-9 h-9 
                             ${activeTab === 'profile' ? "aspect-square border-dark-border dark:border-light-border" : "border-none"}`}>
-                {loading ? (
-                    <div className="w-full h-full bg-gray-300 animate-pulse rounded-full" />
-                ) : (
                     <img
-                        src={currentUser?.user?.profile_pic_url}
+                        src={currentUser?.profile_pic_url}
                         alt="avatar"
                         className="w-full h-full aspect-square object-cover"
                     />
-                )}
             </Link>
             {showLogoutConfirm && (
                 <ConfirmModal
