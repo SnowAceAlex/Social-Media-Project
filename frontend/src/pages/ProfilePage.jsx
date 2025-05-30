@@ -3,7 +3,6 @@ import useProfile from "../hook/useProfile";
 import { LiaEdit } from "react-icons/lia";
 import { useLocation, useOutletContext, useParams } from "react-router-dom";
 import PostList from "../components/PostList";
-import { getCurrentUser } from "../helpers/getCurrentUser";
 import FollowButton from "../components/FollowButton";
 import useFollowStatus from "../hook/useFollowStatus";
 import DisplayFollowListModal from "../components/Modal/ShowFollowListModal";
@@ -11,19 +10,22 @@ import { useEditProfileService } from "../hook/useEditProfileService";
 import UploadCoverModal from "../components/Modal/UploadCoverModal";
 import { uploadSingleImage } from "../services/uploadService";
 import Media from "../components/Media";
+import { useSelector } from "react-redux";
 
 function ProfilePage() {
   const {id} = useParams();
-  const {currentUser} = getCurrentUser();
-  const {updateProfileLocally, profile, loading, error } = useProfile(id || currentUser?.user?.id);
+  
   const { setShowEditModal, setShowCreatePostModal} = useOutletContext();
   const {handleUpdateCover} = useEditProfileService();
   const [selfProfile, setSelfProfile] = useState(false);
   const [activeTab, setActiveTab] = useState("post");
   const [showUploadCoverModal, setShowUploadCoverModal] = useState(false);
-  const {setShowLoading} = useOutletContext();
-
+  const {setShowLoading, reloadPosts, reloadProfile, reloadProfileFlag} = useOutletContext();
+  const [reloadPostList, setReloadPostList] = useState(false);
   const [coverUrl, setCoverUrl] = useState("");
+  const currentUser = useSelector(state => state.user.currentUser); 
+  const userId = id || currentUser?.id;
+  const { updateProfileLocally, profile, loading, error } = useProfile(userId, currentUser);
   
   const followStatus = useFollowStatus(
     profile?.id && !loading ? profile.id : null,
@@ -35,12 +37,12 @@ function ProfilePage() {
   
   //DETERMINE SELF PROFILE OR NOT
   useEffect(() => {
-    if (!id || Number(id) === currentUser?.user?.id) {
+    if (!id || Number(id) === currentUser?.id) {
       setSelfProfile(true); 
     } else {
       setSelfProfile(false); 
     }
-  }, [id, currentUser?.user?.id,]);
+  }, [id, currentUser?.id,]);
 
   if (error) {
     return <div className="p-4 text-red-500">{error}</div>;
@@ -62,7 +64,8 @@ function ProfilePage() {
 
   return (
     <div className="md:ml-9 lg:ml-0 flex flex-col items-center pb-18 overflow-x-hidden">
-      <div className="w-full h-96 xl:mb-20 relative mb-28">
+      <div className={`w-full h-96 relative
+                      ${profile?.bio?.trim() ? "mb-28 xl:mb-20 " : "mb-8"}`}>
         <div className="w-full h-4/5 md:rounded-b-4xl bg-cover bg-center relative group"
               style={{
                 backgroundImage: profile?.cover_url
@@ -135,8 +138,9 @@ function ProfilePage() {
             </div>
 
             {/* User Info */}
-            <span className="text-black text-2xl font-bold drop-shadow dark:text-dark-text flex flex-col gap-2 absolute left-[10rem] top-20 
-                            w-[10rem] sm:w-[14rem] lg:w-[20rem] xl:w-[25rem] ">
+          <span className={`text-black text-2xl font-bold drop-shadow dark:text-dark-text flex flex-col gap-2 absolute left-[10rem]
+                          top-16
+                          w-[10rem] sm:w-[14rem] lg:w-[20rem] xl:w-[25rem]`}>
               {loading ? (
                 <>
                   <div className="w-48 h-6 bg-gray-300 rounded animate-pulse"></div>
@@ -172,9 +176,11 @@ function ProfilePage() {
                       </span>
                     </span>
                   </span>
-                  <span className="text-[1rem] text-gray-500 dark:text-dark-text-subtle font-[400]">
-                    {profile.bio}
-                  </span>
+                  {profile.bio?.trim() && (
+                    <span className="text-[1rem] text-gray-500 dark:text-dark-text-subtle font-[400]">
+                      {profile.bio}
+                    </span>
+                  )}
                 </>
               )}
             </span>
@@ -184,7 +190,7 @@ function ProfilePage() {
           { selfProfile && 
             <LiaEdit
             size={40}
-            className="absolute bottom-0 right-8 p-2 rounded-xl bg-light-button flex justify-center items-center text-black cursor-pointer hover:bg-light-button-hover transition dark:bg-dark-button dark:hover:bg-dark-button-hover dark:text-dark-text"
+            className="absolute bottom-3 right-8 p-2 rounded-xl bg-light-button flex justify-center items-center text-black cursor-pointer hover:bg-light-button-hover transition dark:bg-dark-button dark:hover:bg-dark-button-hover dark:text-dark-text"
             title="Edit Profile"
             onClick={() => setShowEditModal(true)}
           />}
@@ -259,12 +265,12 @@ function ProfilePage() {
         {/* CONTENT */}
         {
           activeTab === "post" && !loading && profile && (
-            <PostList profile={profile} loadingProfile={loading} userId={profile.id} />
+            <PostList profile={profile} loadingProfile={loading} userId={profile.id} reloadPosts={reloadPosts} />
           )
         }
         {
           activeTab === "media" && !loading && profile && (
-            <Media userId={profile.id} profile={profile} currentUser={currentUser?.user?.id}/>
+            <Media userId={profile.id} profile={profile} currentUser={currentUser?.id}/>
           )
         }
       </div>
@@ -272,7 +278,7 @@ function ProfilePage() {
       {showFollowListModal && (
         <DisplayFollowListModal
           title={followListType === "followers" ? "Followers" : "Following"}
-          userId={id || currentUser?.user?.id}
+          userId={id || currentUser?.id}
           followListType={followListType}
           onClose={() => setShowFollowListModal(false)}
         />

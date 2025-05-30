@@ -13,6 +13,7 @@ import { MdDelete } from "react-icons/md";
 import ConfirmModal from '../Modal/ConfirmModal';
 import { BsChatHeart } from "react-icons/bs";
 import NewMessageModal from '../Modal/newMessageModal';
+import { isOnlyEmoji } from '../../utils/checkEmoji';
 
 function ConservationFrame({ senderId, receiver, conversationId, setShowCreateMessageModal }) {
     if(!conversationId){
@@ -281,45 +282,94 @@ function ConservationFrame({ senderId, receiver, conversationId, setShowCreateMe
                 )}
 
                 {/* MESSAGE LIST */}
-                <div className='flex flex-col px-4 gap-2'>
-                    {messages.map(msg => (
-                        <div key={msg.id} className={`w-full flex gap-2 items-center ${msg.sender_id == senderId ? "justify-end" : "justify-start"}`}>
-                            <div className={`w-10 h-10 overflow-hidden rounded-full bg-center bg-cover
-                                ${msg.sender_id == senderId ? "order-3" : "order-1"}`}
-                                style={{ backgroundImage: `url(${msg.sender_profile_pic_url})` }}>
+                <div className='flex flex-col px-4 gap-1'>
+                    {messages.map((msg, idx) => {
+                        const prevMsg = idx > 0 ? messages[idx - 1] : null;
+                        const nextMsg = idx < messages.length - 1 ? messages[idx + 1] : null;
+
+                        const showAvatar = idx === 0 || (prevMsg && prevMsg.sender_id !== msg.sender_id);
+
+                        const firstOfBlock =
+                            idx === 0 ||
+                            (prevMsg && prevMsg.sender_id !== msg.sender_id && nextMsg && nextMsg.sender_id === msg.sender_id);
+
+                        const lastOfBlock =
+                            idx === messages.length - 1 ||
+                            (nextMsg && nextMsg.sender_id !== msg.sender_id && prevMsg && prevMsg.sender_id === msg.sender_id);
+
+                        let rounded = "";
+                        if (msg.sender_id == senderId) {
+                            if (firstOfBlock) rounded = " rounded-br-sm rounded-3xl";
+                            else if (lastOfBlock) rounded = " rounded-tr-sm rounded-3xl"
+                            else rounded = "rounded-3xl rounded-tr-sm rounded-br-sm";
+                        } else {
+                            if (firstOfBlock) rounded = " rounded-bl-sm rounded-3xl";
+                            else if (lastOfBlock) rounded = " rounded-tl-sm rounded-3xl"
+                            else rounded = "rounded-3xl rounded-tl-sm rounded-bl-sm";
+                        }
+
+                        const isOneMessage = (prevMsg && prevMsg.sender_id !== msg.sender_id) && (nextMsg && nextMsg.sender_id !== msg.sender_id);
+                        if (isOneMessage) {
+                            rounded = "rounded-3xl";
+                        }
+
+                        return (
+                            <div key={msg.id} className={`w-full flex gap-2 items-center ${msg.sender_id == senderId ? "justify-end" : "justify-start"}`}>
+                                {showAvatar ? (
+                                    msg.sender_id != senderId ? (
+                                        <div
+                                            className={`w-10 h-10 overflow-hidden rounded-full bg-center bg-cover ${msg.sender_id == senderId ? "order-3" : "order-1"}`}
+                                            style={{ backgroundImage: `url(${msg.sender_profile_pic_url})` }}
+                                        />
+                                    ) : (
+                                        msg.sender_id != senderId && (
+                                            <div className={`w-10 h-10 ${msg.sender_id == senderId ? "order-3" : "order-1"}`}></div>
+                                        )
+                                    )
+                                ) : (
+                                    msg.sender_id != senderId && (
+                                        <div className={`w-10 h-10 ${msg.sender_id == senderId ? "order-3" : "order-1"}`}></div>
+                                    )
+                                )}
+                                <div
+                                    className={`py-2 px-4 ${rounded} w-fit max-w-xs overflow-hidden break-words
+                                        ${msg.sender_id == senderId
+                                        ? isOnlyEmoji(msg.content) ? "order-2" : "order-2 bg-blue-300 dark:bg-blue-500 mr-1"
+                                        : isOnlyEmoji(msg.content) ? "order-2" : "order-2 bg-gray-200 dark:bg-dark-button"
+                                        }`}
+                                    style={isOnlyEmoji(msg.content) ? { fontSize: "2rem", background: "none", padding: "0.25rem 0.5rem" } : {}}
+                                    >
+                                    {msg.content}
+                                </div>
+                                <div 
+                                ref={(el) => (menuRefs.current[msg.id] = el)}
+                                onClick={() => setOpenMenuId(prev => prev === msg.id ? null : msg.id)}
+                                title='More'
+                                className={`w-6 h-6 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center cursor-pointer relative
+                                    ${msg.sender_id == senderId ? "order-1" : "order-3"}`}>
+                                    <PiDotsThreeVerticalBold size={15}/>
+                                    {openMenuId === msg.id &&
+                                        (<div 
+                                            style={{marginBottom:'20px'}}
+                                            className={`absolute bottom-full shadow border
+                                                bg-light dark:bg-dark-card rounded-xl border-light-border dark:border-dark-border
+                                            ${msg.sender_id == senderId ? "right-0" : "left-0"}`}>
+                                                <div className='w-full p-4 text-sm text-nowrap border-b-[1px] border-light-border dark:border-dark-border'>
+                                                    {formatSmartTime(msg.created_at)}
+                                                </div>
+                                                <div 
+                                                onClick={()=>{setShowConfirmDelete(true); setMessageToDelete(msg.id)}}
+                                                className={`text-red-500 w-full text-center p-4 text-nowrap flex items-center gap-2
+                                                            ${msg.sender_id == senderId ?"":"hidden"}`}>
+                                                    Delete messages
+                                                    <MdDelete size={20}/>
+                                                </div>
+                                        </div>)
+                                    }
+                                </div>
                             </div>
-                            <div className={`p-2 rounded-md w-fit max-w-xs
-                                ${msg.sender_id == senderId ? "order-2 bg-blue-300 dark:bg-blue-500" : "order-2 bg-gray-200 dark:bg-dark-button"}`}>
-                                {msg.content}
-                            </div>
-                            <div 
-                            ref={(el) => (menuRefs.current[msg.id] = el)}
-                            onClick={() => setOpenMenuId(prev => prev === msg.id ? null : msg.id)}
-                            title='More'
-                            className={`w-6 h-6 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center cursor-pointer relative
-                                ${msg.sender_id == senderId ? "order-1" : "order-3"}`}>
-                                <PiDotsThreeVerticalBold size={15}/>
-                                {openMenuId === msg.id &&
-                                    (<div 
-                                        style={{marginBottom:'20px'}}
-                                        className={`absolute bottom-full shadow border
-                                            bg-light dark:bg-dark-card rounded-xl border-light-border dark:border-dark-border
-                                        ${msg.sender_id == senderId ? "right-0" : "left-0"}`}>
-                                            <div className='w-full p-4 text-sm text-nowrap border-b-[1px] border-light-border dark:border-dark-border'>
-                                                {formatSmartTime(msg.created_at)}
-                                            </div>
-                                            <div 
-                                            onClick={()=>{setShowConfirmDelete(true); setMessageToDelete(msg.id)}}
-                                            className={`text-red-500 w-full text-center p-4 text-nowrap flex items-center gap-2
-                                                        ${msg.sender_id == senderId ?"":"hidden"}`}>
-                                                Delete messages
-                                                <MdDelete size={20}/>
-                                            </div>
-                                    </div>)
-                                }
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 

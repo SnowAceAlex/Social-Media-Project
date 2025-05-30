@@ -11,11 +11,12 @@ import { useJoinChatRoom } from '../hook/useRoomChat';
 import useStatus from '../hook/useStatus';
 import { FaCircle } from 'react-icons/fa';
 import { useConversationSocket } from '../hook/useConversationSocket';
+import { useSelector } from 'react-redux';
 
 function MessagePage() {
     const { conversationId } = useParams();
-    const {currentUser} = getCurrentUser();
-    const {updateProfileLocally, profile } = useProfile(currentUser?.user?.id);
+    const currentUser = useSelector(state => state.user.currentUser);
+    const {updateProfileLocally, profile } = useProfile(currentUser?.id);
     const [createMessageModal, setShowCreateMessageModal] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState(null);
     const {
@@ -34,7 +35,7 @@ function MessagePage() {
     const statusMap = useStatus(partnersIds.map(id => ({ id })));
 
     //JOIN ROOM CONVERSATION
-    const currentUserId = currentUser?.user?.id;
+    const currentUserId = currentUser?.id;
     const receiverId = receiver?.id;
     useJoinChatRoom({ currentUserId, receiverId });
 
@@ -44,7 +45,7 @@ function MessagePage() {
     }, [conversationId]);
 
     //UPDATE CONVERSATION SOCKET
-    useConversationSocket(currentUser?.user?.id, setAllConversation);
+    useConversationSocket(currentUser?.id, setAllConversation);
 
     return (
         <>
@@ -103,7 +104,7 @@ function MessagePage() {
                                                     className='text-green-500 rounded-full border-2 border-light dark:border-dark absolute -bottom-0.5 right-0' size={15} />)
                                                 }
                                         </div>
-                                        <div className='flex-col hidden lg:flex'>
+                                        <div className='flex-col hidden lg:flex overflow-hidden break-words'>
                                             <div className='font-semibold'>{c.partner_username}</div>
                                             <div className='text-sm text-gray-500 truncate'>
                                                 {c.last_message || 'No messages yet'}

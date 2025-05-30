@@ -18,6 +18,8 @@ import { useEffect, useState } from "react";
 import BookmarksPage from "./pages/BookmarksPage";
 import FriendsPage from "./pages/FriendsPage";
 import MessagePage from "./pages/MessagePage";
+import { useDispatch } from "react-redux";
+import { setCurrentUser } from "./store/userSlice";
 
 function App() {
   const [isLoading, setLoading] = useState(true);
@@ -27,6 +29,15 @@ function App() {
     }, 2000)
     return () => clearTimeout(timer); 
   },[]);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const raw = sessionStorage.getItem("currentUser");
+    if (raw) {
+      dispatch(setCurrentUser(JSON.parse(raw)));
+    }
+  }, [dispatch]);
 
   return (
   <ThemeProvider>

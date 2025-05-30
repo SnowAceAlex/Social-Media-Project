@@ -3,10 +3,11 @@ import useInfinitePosts from "../hook/useFetchPost";
 import Post from "./Post";
 import { getCurrentUser } from "../helpers/getCurrentUser";
 import { CiCamera } from "react-icons/ci";
+import { useSelector } from "react-redux";
 
-function PostList({ profile = null, loadingProfile = false, userId = null }) {
-    const {currentUser} = getCurrentUser();
-    const { posts, loading, lastPostRef } = useInfinitePosts(userId);
+function PostList({ profile = null, loadingProfile = false, userId = null, reloadPosts = false }) {
+    const currentUser = useSelector(state => state.user.currentUser);
+    const { posts, loading, lastPostRef } = useInfinitePosts(userId, reloadPosts);
 
     return (
         <div className="flex flex-col w-full">
@@ -17,7 +18,7 @@ function PostList({ profile = null, loadingProfile = false, userId = null }) {
                     </div>
 
                     {           
-                        currentUser?.user?.id === userId ? 
+                        currentUser?.id === userId ? 
                         "No posts yet — start sharing your thoughts!" : 
                         "Looks like they haven’t shared any posts."
                     }

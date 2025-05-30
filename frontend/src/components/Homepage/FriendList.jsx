@@ -21,6 +21,14 @@ function FriendList() {
     return (
         <div className="w-full dark:text-dark-text max-h-[25rem] overflow-y-auto">
             <span className="text-xl font-semibold">Friends</span>
+            {
+                friends.length === 0 && (
+                    <div className="w-full flex flex-col gap-3 items-center justify-center text-light-input-disabled-text dark:text-dark-input-disabled-text">
+                        <span className="mt-20 text-lg">No friends yet</span>
+                        <span>Follow your followers to make connections.</span>
+                    </div>
+                )
+            }
             <div className='mt-4 flex flex-col gap-2'>
                 {
                     friends.slice(0, 5).map((friend) => {
@@ -55,7 +63,7 @@ function FriendList() {
                 }
             </div>
             {
-                friends.length > 5 && (
+                friends.length > 0 && (
                     <Link className='block w-full text-center text-blue-500 dark:text-blue-400' to={`/friends`}>
                         <span>See more...</span>
                     </Link>
