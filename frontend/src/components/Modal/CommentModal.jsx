@@ -21,6 +21,7 @@ import useComments from "../../hook/useComments";
 import SharedPostCard from "../PostComponents/SharedPostCard";
 import SharePostModal from "./SharePostModal";
 import { useSelector } from "react-redux";
+import ImagesModal from "./ImagesModal";
 
 function CommentModal({ post, profile, loading, onClose }) {
     const [showCommentOptions, setShowCommentOptions] = useState(false);
@@ -30,7 +31,7 @@ function CommentModal({ post, profile, loading, onClose }) {
     const currentUser = useSelector(state => state.user.currentUser);
     const [content, setContent] = useState("");
     const [showShareModal, setShowShareModal] = useState(false);
-    
+    const [showImages, setShowImages] = useState(false);    
     const {
         comments,
         loading: loadingComments,
@@ -135,6 +136,7 @@ function CommentModal({ post, profile, loading, onClose }) {
                     className="order-2 md:order-1 w-full md:flex-4 md:aspect-auto bg-dark
                                 flex items-center justify-center relative overflow-hidden">
                     <div
+                        onClick={() => setShowImages(true)}
                         className="flex transition-transform duration-500 ease-in-out items-center w-full"
                         style={{
                         transform: `translateX(-${currentImgIndex * 100}%)`,
@@ -359,6 +361,14 @@ function CommentModal({ post, profile, loading, onClose }) {
                     onClose={()=>{setShowShareModal(false), refreshShareCount()}}/>
                 )
         }
+        {/* IMAGES MODAL */}
+        {showImages && (
+            <ImagesModal
+                images={post.images}
+                initialIndex={currentImgIndex}
+                onClose={() => setShowImages(false)}
+            />
+        )}
         </div>
     );
 }

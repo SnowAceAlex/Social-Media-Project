@@ -59,7 +59,7 @@ const EmojiPickerButton = ({ textareaRef, value, onChange, top, left }) => {
             {showEmojiPicker && (
                 <div
                     ref={pickerRef}
-                    style={{ marginTop: '50px', marginBottom: '20px' }}
+                    style={{ marginTop: '20px', marginBottom: '20px' }}
                     className={`absolute ${top} ${left} z-50`}
                 >
                     <EmojiPicker

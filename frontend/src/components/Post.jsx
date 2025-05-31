@@ -27,7 +27,7 @@ function Post({post = null, profile = null, loading = false}) {
     const [sharedLoading, setSharedLoading] = useState(false);
 
     const {currentUser} = getCurrentUser();
-    const isCurrentUser = currentUser && currentUser.user?.id === post?.user_id;
+    const isCurrentUser = currentUser && currentUser?.id === post?.user_id;
     const {
         commentCount,
         shareCount,

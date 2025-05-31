@@ -1,16 +1,20 @@
 // components/PostImagesCarousel.jsx
 import { useState } from "react";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
+import ImagesModal from "../Modal/ImagesModal";
 
 const PostImagesCarousel = ({ images }) => {
     const [currentImgIndex, setCurrentImgIndex] = useState(0);
+    const [showImages, setShowImages] = useState(false);
 
     if (!images || images.length === 0) return null;
     
     return (
-        <div className="w-full relative flex items-center justify-center overflow-hidden rounded-lg">
+        <div 
+        className="w-full relative flex items-center justify-center overflow-hidden rounded-lg">
             {/* Slide wrapper */}
             <div
+                onClick={() => setShowImages(true)}
                 className="flex transition-transform duration-500 ease-in-out"
                 style={{
                     transform: `translateX(-${currentImgIndex * 100}%)`,
@@ -60,6 +64,11 @@ const PostImagesCarousel = ({ images }) => {
                     <HiChevronRight size={24} />
                 </button>
             )}
+            {
+                showImages && (
+                    <ImagesModal images={images} initialIndex={currentImgIndex} onClose={() => setShowImages(false)}/>
+                )
+            }
         </div>
     );
 };

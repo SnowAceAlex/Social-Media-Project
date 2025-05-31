@@ -30,7 +30,8 @@ const CaptionTextarea = ({
             />
 
             {/* Emoji Picker Button */}
-            <div className="absolute left-0 top-full">
+            <div className="absolute left-0 top-full"
+                style={{marginTop: "1rem"}}>
                 <EmojiPickerButton
                     textareaRef={textareaRef}
                     value={internalValue}
