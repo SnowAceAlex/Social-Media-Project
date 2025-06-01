@@ -101,9 +101,13 @@ psql -U your_username -d your_database -f backend/db-sql.sql
 5. Start the development servers:
 
 ```bash
+# Start Docker
+docker-compose down
+docker-compose up --build
+
 # Start backend API server
 cd backend
-npm run dev
+npm start
 
 # Start frontend development server (in a new terminal)
 cd frontend
