@@ -1,142 +1,174 @@
-# GitDiagram Class Diagram Generator
+# Instameow
 
-This project uses GitDiagram to automatically generate class diagrams from your codebase. GitDiagram is a powerful tool that helps visualize your code structure through UML class diagrams.
+A modern social media platform that combines the best features of Instagram and Facebook, allowing users to share moments, connect with friends, and engage with content in meaningful ways.
 
-## Prerequisites
+## 📝 Project Description
 
-- Node.js (v14 or higher)
-- npm (Node Package Manager)
-- Git
+Instameow is a full-stack social media application that provides users with a familiar yet unique social networking experience. The platform combines Instagram's visual-first approach with Facebook's robust sharing capabilities, creating a versatile social media experience.
 
-## Installation
+### Key Features:
 
-1. Install GitDiagram globally:
+- 📸 Photo and video sharing with filters and editing capabilities
+- 👥 User profiles and customizable feeds
+- 💬 Real-time chat and messaging using Socket.IO
+- 🔄 Post sharing functionality
+- ❤️ Like, comment, and save posts
+- 🔍 Advanced user and content search
+- 🌐 Real-time notifications
+- 🎨 Modern, responsive UI built with React and Tailwind CSS
+
+### Technologies Used:
+
+#### Frontend:
+
+- React 19 with Vite for fast development and building
+- Redux Toolkit for state management
+- TailwindCSS for styling
+- Framer Motion for animations
+- Socket.IO client for real-time features
+- React Router for navigation
+- Axios for API requests
+
+#### Backend:
+
+- Node.js with Express
+- PostgreSQL for primary database
+- Redis for caching and session management
+- Socket.IO for real-time communication
+- Cloudinary for media storage
+- JWT for authentication
+- Docker for containerization
+
+## 📋 Table of Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Features](#features)
+- [API Documentation](#api-documentation)
+- [Contributing](#contributing)
+- [License](#license)
+
+## 🚀 Installation
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- PostgreSQL
+- Redis
+- Docker (optional)
+
+### Setup Steps
+
+1. Clone the repository:
 
 ```bash
-npm install -g gitdiagram
+git clone https://github.com/yourusername/social-connect.git
+cd social-connect
 ```
 
-2. Clone this repository:
+2. Install dependencies:
 
 ```bash
-git clone <your-repository-url>
-cd <repository-name>
+# Install root dependencies
+npm install
+
+# Install frontend dependencies
+cd frontend
+npm install
+
+# Install backend dependencies
+cd ../backend
+npm install
 ```
 
-## Usage
-
-### Basic Usage
-
-To generate a class diagram from your codebase:
+3. Set up environment variables:
 
 ```bash
-gitdiagram generate
+# Backend .env
+cp backend/.env.example backend/.env
+
+# Frontend .env
+cp frontend/.env.example frontend/.env
 ```
 
-This will create a class diagram based on your current codebase structure.
-
-### Advanced Options
-
-You can customize the diagram generation with various options:
+4. Set up the database:
 
 ```bash
-gitdiagram generate --output=diagram.png --format=png --depth=2
+# Using the provided SQL file
+psql -U your_username -d your_database -f backend/db-sql.sql
 ```
 
-Available options:
+5. Start the development servers:
 
-- `--output`: Specify the output file name
-- `--format`: Choose output format (png, svg, pdf)
-- `--depth`: Set the depth of class relationships to show
-- `--exclude`: Exclude specific directories or files
-- `--include`: Include only specific directories or files
+```bash
+# Start backend API server
+cd backend
+npm run dev
 
-### Configuration File
-
-Create a `.gitdiagramrc` file in your project root to customize the diagram generation:
-
-```json
-{
-  "output": "docs/class-diagram.png",
-  "format": "png",
-  "depth": 2,
-  "exclude": ["node_modules", "dist", "tests"],
-  "include": ["src"],
-  "theme": "default"
-}
+# Start frontend development server (in a new terminal)
+cd frontend
+npm run dev
 ```
 
-## Best Practices
+## 💻 Usage
 
-1. **Keep Your Code Clean**: Well-structured code will result in clearer diagrams
-2. **Use Meaningful Names**: Class and method names should be descriptive
-3. **Document Your Code**: Add JSDoc comments to improve diagram readability
-4. **Regular Updates**: Generate diagrams regularly to keep documentation up-to-date
+### User Registration and Login
 
-## Example
+1. Navigate to the application URL
+2. Click "Sign Up" to create a new account
+3. Fill in required information
+4. Log in with your credentials
 
-Here's an example of how your class diagram might look:
+### Creating and Posting Posts
 
-```
-+----------------+       +----------------+
-|     User       |       |    Post        |
-+----------------+       +----------------+
-| -id: string    |       | -id: string    |
-| -name: string  |       | -title: string |
-| -email: string |       | -content: string|
-+----------------+       +----------------+
-| +create()      |       | +create()      |
-| +update()      |       | +update()      |
-| +delete()      |       | +delete()      |
-+----------------+       +----------------+
-        |                       |
-        |                       |
-        v                       v
-+----------------+       +----------------+
-|   Comment      |       |    Like        |
-+----------------+       +----------------+
-| -id: string    |       | -id: string    |
-| -content: string|      | -userId: string|
-+----------------+       +----------------+
-| +create()      |       | +create()      |
-| +delete()      |       | +delete()      |
-+----------------+       +----------------+
-```
+1. Click the "+" button in the navigation bar
+2. Upload photos or videos
+3. Add captions, and tags
+4. Post to your feed
 
-## Troubleshooting
+### Interacting with Content
 
-Common issues and solutions:
+- Double-tap or click the heart icon to like posts
+- Comment on posts using the comment section
+- Share posts using the share button
+- Save posts to your collections
 
-1. **Diagram not generating**
+## 🌟 Features
 
-   - Ensure you're in the correct directory
-   - Check if GitDiagram is properly installed
-   - Verify your code structure is valid
+### Current Features
 
-2. **Missing classes in diagram**
+- User authentication and authorization
+- Post creation and management
+- Real-time chat and notifications
+- Content sharing and interaction
+- User profile customization
+- Search functionality
+- Responsive design
 
-   - Check your include/exclude patterns
-   - Verify class relationships are properly defined
-   - Ensure files are tracked by Git
+### Upcoming Features
 
-3. **Poor diagram quality**
-   - Adjust the depth parameter
-   - Clean up your code structure
-   - Use more descriptive class names
+- Stories feature
+- Live streaming
+- Advanced content filters
+- Group chat
+- Business profiles
+- Analytics dashboard
 
-## Contributing
+## 🔑 API Documentation
 
-Feel free to contribute to this project by:
+API documentation is available at `/api/docs` when running the development server.
 
-1. Forking the repository
-2. Creating a feature branch
-3. Making your changes
-4. Submitting a pull request
+## 👥 Contributing
 
-## License
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 📄 License
 
-## Support
+This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
 
-For issues and feature requests, please create an issue in the repository.
+## 🙏 Credits
+
+- UI/UX inspired by modern social media platforms
+- Icons provided by React Icons
+- Image hosting by Cloudinary
+- Real-time features powered by Socket.IO
